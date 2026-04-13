@@ -25,5 +25,5 @@ Thumbs.db
 *.mv.db
 *.trace.db
 
-# Upload temporaires
+# Uploads temporaires
 src/main/webapp/uploads/
