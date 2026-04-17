@@ -4,6 +4,7 @@ ma/ensa/pfe/dao/ContrainteRepository.class
 ma/ensa/pfe/dao/ProfesseurRepository.class
 ma/ensa/pfe/controller/ProfesseurController.class
 ma/ensa/pfe/model/Etudiant.class
+ma/ensa/pfe/controller/ImportController.class
 ma/ensa/pfe/controller/EtudiantController.class
 ma/ensa/pfe/model/Professeur.class
 ma/ensa/pfe/config/HibernateConfig.class
@@ -11,6 +12,7 @@ ma/ensa/pfe/controller/SalleController.class
 ma/ensa/pfe/model/Soutenance.class
 ma/ensa/pfe/model/Etudiant$Langue.class
 ma/ensa/pfe/model/Etudiant$Filiere.class
+ma/ensa/pfe/controller/ImportController$1.class
 ma/ensa/pfe/service/ProfesseurService.class
 ma/ensa/pfe/service/EtudiantService.class
 ma/ensa/pfe/model/Salle.class
