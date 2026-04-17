@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Étudiants — PFE Planning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 30px 0; margin-bottom: 30px;
+        }
+        .stat-card {
+            border: none; border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 20px; text-align: center;
+        }
+        .stat-num { font-size: 2rem; font-weight: 700; color: var(--ensa-primary); }
+        .stat-label { color: #6c757d; font-size: 0.85rem; }
+        .table-card {
+            border: none; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;
+        }
+        .table thead { background-color: var(--ensa-primary); color: white; }
+        .table thead th { border: none; padding: 14px 16px; font-weight: 600; }
+        .table tbody tr { transition: background 0.15s; }
+        .table tbody tr:hover { background-color: #f0f4ff; }
+        .table tbody td { padding: 12px 16px; vertical-align: middle; border-color: #f0f0f0; }
+        .badge-gi { background-color: #e8f4fd; color: #2e6da4; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+        .badge-id { background-color: #fef3e8; color: #e67e22; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+        .badge-fr { background-color: #e8f8e8; color: #27ae60; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+        .badge-en { background-color: #fdeaea; color: #e74c3c; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+        .btn-action { padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; }
+        .filter-bar { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door"></i> Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/import"><i class="bi bi-upload"></i> Import Excel</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3"></i> Planning</a></li>
+                <li class="nav-item"><a class="nav-link" href="/export"><i class="bi bi-download"></i> Export</a></li>
+                <li class="nav-item"><a class="nav-link" href="/pvs"><i class="bi bi-file-earmark-text"></i> PVs</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1 fw-bold"><i class="bi bi-mortarboard me-2"></i>Étudiants</h2>
+            <p class="mb-0 opacity-75">Gestion des étudiants — Filières GI & ID</p>
+        </div>
+        <a href="/etudiants/nouveau" class="btn btn-warning fw-bold px-4">
+            <i class="bi bi-plus-lg me-2"></i>Nouvel étudiant
+        </a>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <!-- MESSAGE SUCCÈS -->
+    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${successMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- STATS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-num" th:text="${etudiants.size()}">0</div>
+                <div class="stat-label">Total étudiants</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#2e6da4" th:text="${totalGI}">0</div>
+                <div class="stat-label">Filière GI</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-num" style="color:#e67e22" th:text="${totalID}">0</div>
+                <div class="stat-label">Filière ID</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filter-bar d-flex gap-3 align-items-center flex-wrap">
+        <span class="fw-semibold text-muted"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
+        <a href="/etudiants" class="btn btn-sm btn-outline-secondary rounded-pill">Tous</a>
+        <a href="/etudiants?filiere=GI" class="btn btn-sm btn-outline-primary rounded-pill">Filière GI</a>
+        <a href="/etudiants?filiere=ID" class="btn btn-sm btn-outline-warning rounded-pill">Filière ID</a>
+        <a href="/etudiants?langue=EN" class="btn btn-sm btn-outline-danger rounded-pill">Présentation EN</a>
+        <a href="/etudiants?langue=FR" class="btn btn-sm btn-outline-success rounded-pill">Présentation FR</a>
+    </div>
+
+    <!-- TABLEAU -->
+    <div class="table-card">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nom & Prénom</th>
+                    <th>Filière</th>
+                    <th>Langue</th>
+                    <th>Encadrant</th>
+                    <th>Titre du projet</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="etudiant, stat : ${etudiants}">
+                    <td class="text-muted" th:text="${stat.index + 1}">1</td>
+                    <td class="fw-semibold" th:text="${etudiant.nom + ' ' + etudiant.prenom}">Nom</td>
+                    <td>
+                        <span th:if="${etudiant.filiere.name() == 'GI'}" class="badge-gi">GI</span>
+                        <span th:if="${etudiant.filiere.name() == 'ID'}" class="badge-id">ID</span>
+                    </td>
+                    <td>
+                        <span th:if="${etudiant.langue.name() == 'FR'}" class="badge-fr">🇫🇷 FR</span>
+                        <span th:if="${etudiant.langue.name() == 'EN'}" class="badge-en">🇬🇧 EN</span>
+                    </td>
+                    <td th:text="${etudiant.encadrant != null ? etudiant.encadrant.nomComplet : '—'}">Encadrant</td>
+                    <td class="text-muted small" th:text="${etudiant.titreProjet ?: '—'}">Titre</td>
+                    <td class="text-center">
+                        <a th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}"
+                           class="btn btn-sm btn-outline-primary btn-action me-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form th:action="@{/etudiants/supprimer/{id}(id=${etudiant.id})}"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Supprimer cet étudiant ?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger btn-action">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${etudiants.isEmpty()}">
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        Aucun étudiant trouvé. <a href="/etudiants/nouveau">Ajouter le premier</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques & Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

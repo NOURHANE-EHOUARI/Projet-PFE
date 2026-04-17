@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Indisponibilités — ' + ${professeur.nomComplet} + ' — PFE Planning'">Contraintes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover { color: var(--ensa-accent) !important; }
+        .nav-link.active { color: var(--ensa-accent) !important; font-weight: 700; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 30px 0; margin-bottom: 30px;
+        }
+        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .breadcrumb-item a:hover { color: white; }
+        .breadcrumb-item.active { color: var(--ensa-accent); }
+
+        .card-section {
+            border: none; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            background: white; overflow: hidden;
+        }
+        .card-section-header {
+            background: #f8fafc; padding: 16px 24px;
+            border-bottom: 1px solid #e8eef5;
+            font-weight: 700; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--ensa-secondary);
+        }
+        .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+        .form-control, .form-select {
+            border-radius: 10px; border: 1.5px solid #e0e7ef;
+            padding: 10px 14px; font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--ensa-secondary);
+            box-shadow: 0 0 0 3px rgba(46,109,164,0.12);
+        }
+
+        .contrainte-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 24px; border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+        .contrainte-row:last-child { border-bottom: none; }
+        .contrainte-row:hover { background: #f8faff; }
+        .contrainte-date { font-weight: 700; color: var(--ensa-primary); }
+        .contrainte-heure {
+            background: #fff3cd; color: #856404;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 600;
+        }
+        .contrainte-heure.toute-journee {
+            background: #fde8e8; color: #c0392b;
+        }
+
+        .prof-badge {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; border-radius: 12px; padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn-add {
+            background-color: var(--ensa-primary); border: none; color: white;
+            padding: 10px 24px; border-radius: 10px; font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-add:hover { background-color: var(--ensa-secondary); color: white; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
+                <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="/professeurs">Professeurs</a></li>
+                <li class="breadcrumb-item active">Indisponibilités</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0 fw-bold">
+            <i class="bi bi-calendar-x me-2"></i>
+            Indisponibilités — <span th:text="${professeur.nomComplet}">Professeur</span>
+        </h2>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <!-- MESSAGES FLASH -->
+    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
+        <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- COLONNE GAUCHE : liste des contraintes -->
+        <div class="col-lg-7">
+            <div class="card-section">
+                <div class="card-section-header">
+                    <i class="bi bi-list-ul me-2"></i>
+                    Créneaux d'indisponibilité
+                    <span class="badge bg-danger ms-2" th:text="${contraintes.size()}">0</span>
+                </div>
+
+                <div th:if="${contraintes.isEmpty()}" class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-check fs-2 d-block mb-2 text-success"></i>
+                    Aucune indisponibilité déclarée — ce professeur est disponible partout.
+                </div>
+
+                <div th:each="c : ${contraintes}" class="contrainte-row">
+                    <div>
+                        <div class="contrainte-date">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <!-- Formatage de la date LocalDate -->
+                            <span th:text="${#temporals.format(c.dateIndisponible, 'EEEE dd MMMM yyyy', new java.util.Locale('fr'))}">date</span>
+                        </div>
+                        <div class="mt-1">
+                            <!-- Cas : plage horaire définie -->
+                            <span th:if="${c.heureDebut != null and c.heureFin != null}"
+                                  class="contrainte-heure">
+                                <i class="bi bi-clock me-1"></i>
+                                <span th:text="${#temporals.format(c.heureDebut, 'HH:mm')}">00:00</span>
+                                →
+                                <span th:text="${#temporals.format(c.heureFin, 'HH:mm')}">00:00</span>
+                            </span>
+                            <!-- Cas : toute la journée -->
+                            <span th:unless="${c.heureDebut != null and c.heureFin != null}"
+                                  class="contrainte-heure toute-journee">
+                                <i class="bi bi-x-circle me-1"></i>Toute la journée
+                            </span>
+                        </div>
+                    </div>
+                    <form th:action="@{/professeurs/{profId}/contraintes/supprimer/{cId}(profId=${professeur.id},cId=${c.id})}"
+                          method="post"
+                          onsubmit="return confirm('Supprimer cette indisponibilité ?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE : formulaire ajout -->
+        <div class="col-lg-5">
+            <div class="card-section">
+                <div class="card-section-header">
+                    <i class="bi bi-plus-circle me-2"></i>Ajouter une indisponibilité
+                </div>
+                <div class="p-4">
+                    <form th:action="@{/professeurs/{id}/contraintes/ajouter(id=${professeur.id})}"
+                          th:object="${nouvelleContrainte}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Date <span style="color:#e74c3c">*</span></label>
+                            <input type="date" th:field="*{dateIndisponible}" class="form-control" required />
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label">Heure début</label>
+                                <input type="time" th:field="*{heureDebut}" class="form-control"
+                                       placeholder="08:00" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Heure fin</label>
+                                <input type="time" th:field="*{heureFin}" class="form-control"
+                                       placeholder="12:00" />
+                            </div>
+                        </div>
+
+                        <div class="form-text text-muted mb-3" style="font-size:0.8rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Laissez les heures vides pour bloquer toute la journée.
+                        </div>
+
+                        <button type="submit" class="btn-add w-100">
+                            <i class="bi bi-plus-lg me-2"></i>Ajouter
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lien retour -->
+            <div class="mt-3">
+                <a href="/professeurs" class="btn btn-outline-secondary w-100 rounded-3">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Validation côté client : heure fin > heure début
+    const formContrainte = document.querySelector('form[method="post"]');
+    const heureDebut = document.querySelector('input[name="heureDebut"]');
+    const heureFin = document.querySelector('input[name="heureFin"]');
+
+    formContrainte && formContrainte.addEventListener('submit', function(e) {
+        if (heureDebut.value && heureFin.value && heureFin.value <= heureDebut.value) {
+            e.preventDefault();
+            alert("L'heure de fin doit être après l'heure de début.");
+            heureFin.focus();
+        }
+    });
+</script>
+</body>
+</html>
