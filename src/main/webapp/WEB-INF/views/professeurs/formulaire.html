@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${modeEdition} ? 'Modifier un professeur — PFE Planning' : 'Nouveau professeur — PFE Planning'">Professeur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover { color: var(--ensa-accent) !important; }
+        .nav-link.active { color: var(--ensa-accent) !important; font-weight: 700; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 30px 0; margin-bottom: 40px;
+        }
+        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .breadcrumb-item a:hover { color: white; }
+        .breadcrumb-item.active { color: var(--ensa-accent); }
+
+        .form-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 36px 40px;
+        }
+        .section-title {
+            font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--ensa-secondary); margin-bottom: 16px;
+            padding-bottom: 8px; border-bottom: 2px solid #e8f0fb;
+        }
+        .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+        .form-label .required { color: #e74c3c; margin-left: 3px; }
+        .form-control, .form-select {
+            border-radius: 10px; border: 1.5px solid #e0e7ef;
+            padding: 10px 14px; font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--ensa-secondary);
+            box-shadow: 0 0 0 3px rgba(46,109,164,0.12);
+        }
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.1);
+        }
+        .invalid-feedback { font-size: 0.8rem; color: #e74c3c; }
+
+        /* Toggle anglophone */
+        .toggle-wrapper {
+            display: flex; align-items: center; gap: 14px;
+            background: #f8fafc; border-radius: 12px;
+            padding: 16px 20px; border: 1.5px solid #e0e7ef;
+        }
+        .toggle-wrapper input[type="checkbox"] {
+            width: 44px; height: 24px; cursor: pointer;
+            accent-color: var(--ensa-secondary);
+        }
+        .toggle-label { font-size: 0.9rem; font-weight: 600; color: #374151; }
+        .toggle-hint { font-size: 0.8rem; color: #6b7280; }
+
+        .btn-save {
+            background-color: var(--ensa-primary); border: none; color: white;
+            padding: 12px 32px; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .btn-save:hover { background-color: var(--ensa-secondary); color: white; transform: translateY(-1px); }
+        .btn-cancel {
+            border: 1.5px solid #dee2e6; background: white; color: #6c757d;
+            padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover { background: #f8f9fa; border-color: #adb5bd; }
+
+        /* Spécialités suggestion */
+        #specialiteInput { list-style: none; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/import"><i class="bi bi-upload me-1"></i>Import Excel</a></li>
+                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+                <li class="nav-item"><a class="nav-link" href="/export"><i class="bi bi-download me-1"></i>Export</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
+                <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="/professeurs">Professeurs</a></li>
+                <li class="breadcrumb-item active"
+                    th:text="${modeEdition} ? 'Modifier' : 'Nouveau'">Nouveau</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0 fw-bold">
+            <i th:class="${modeEdition} ? 'bi bi-pencil-square me-2' : 'bi bi-plus-circle me-2'"></i>
+            <span th:text="${modeEdition} ? 'Modifier un professeur' : 'Nouveau professeur'">Professeur</span>
+        </h2>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <!-- MESSAGE ERREUR MÉTIER -->
+            <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span th:text="${errorMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="form-card">
+                <form th:action="@{/professeurs/sauvegarder}" th:object="${professeur}" method="post" novalidate>
+
+                    <input type="hidden" th:field="*{id}" />
+
+                    <!-- ===== SECTION 1 : IDENTITÉ ===== -->
+                    <div class="section-title"><i class="bi bi-person me-2"></i>Identité</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Nom <span class="required">*</span></label>
+                            <input type="text"
+                                   th:field="*{nom}"
+                                   th:class="${#fields.hasErrors('nom')} ? 'form-control is-invalid' : 'form-control'"
+                                   placeholder="Ex : BADI"
+                                   autocomplete="off" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nom')}"
+                                 th:errors="*{nom}">Erreur</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Prénom <span class="required">*</span></label>
+                            <input type="text"
+                                   th:field="*{prenom}"
+                                   th:class="${#fields.hasErrors('prenom')} ? 'form-control is-invalid' : 'form-control'"
+                                   placeholder="Ex : Imad"
+                                   autocomplete="off" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('prenom')}"
+                                 th:errors="*{prenom}">Erreur</div>
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 2 : SPÉCIALITÉ ===== -->
+                    <div class="section-title"><i class="bi bi-briefcase me-2"></i>Spécialité</div>
+                    <div class="mb-4">
+                        <label class="form-label">Spécialité <span class="required">*</span></label>
+                        <!--
+                            Datalist pour autocomplétion — suggestions basées sur les spécialités existantes.
+                            L'utilisateur peut aussi saisir une nouvelle spécialité librement.
+                        -->
+                        <input type="text"
+                               th:field="*{specialite}"
+                               th:class="${#fields.hasErrors('specialite')} ? 'form-control is-invalid' : 'form-control'"
+                               list="specialitesList"
+                               placeholder="Ex : Génie Informatique"
+                               autocomplete="off" />
+                        <datalist id="specialitesList">
+                            <option value="Génie Informatique"></option>
+                            <option value="Informatique Décisionnelle"></option>
+                            <option value="Réseaux &amp; Systèmes"></option>
+                            <option value="Mathématiques Appliquées"></option>
+                            <option value="Génie Logiciel"></option>
+                        </datalist>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('specialite')}"
+                             th:errors="*{specialite}">Erreur</div>
+                        <div class="form-text text-muted" style="font-size:0.8rem;">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Choisissez parmi les suggestions ou saisissez une nouvelle spécialité.
+                        </div>
+                    </div>
+
+                    <!-- ===== SECTION 3 : LANGUE ===== -->
+                    <div class="section-title"><i class="bi bi-globe2 me-2"></i>Capacité linguistique</div>
+                    <div class="mb-5">
+                        <div class="toggle-wrapper">
+                            <input type="checkbox"
+                                   th:field="*{parleAnglais}"
+                                   id="parleAnglaisToggle"
+                                   role="switch" />
+                            <div>
+                                <div class="toggle-label">
+                                    <i class="bi bi-translate me-1"></i>
+                                    Ce professeur peut encadrer en anglais
+                                </div>
+                                <div class="toggle-hint">
+                                    Activez si le professeur peut être jury pour des soutenances EN.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('parleAnglais')}"
+                             th:errors="*{parleAnglais}">Erreur</div>
+                    </div>
+
+                    <!-- ===== BOUTONS ===== -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="/professeurs" class="btn-cancel text-decoration-none">
+                            <i class="bi bi-arrow-left me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn-save">
+                            <i th:class="${modeEdition} ? 'bi bi-check-lg me-2' : 'bi bi-plus-lg me-2'"></i>
+                            <span th:text="${modeEdition} ? 'Enregistrer les modifications' : 'Ajouter le professeur'">Ajouter</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

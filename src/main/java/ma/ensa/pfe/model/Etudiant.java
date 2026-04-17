@@ -1,50 +1,50 @@
 package ma.ensa.pfe.model;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "etudiants")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Etudiant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Le nom est obligatoire")
     @Column(nullable = false)
     private String nom;
 
+    @NotBlank(message = "Le prénom est obligatoire")
     @Column(nullable = false)
     private String prenom;
 
-    // GI ou ID
+    @NotNull(message = "La filière est obligatoire")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String filiere;
+    private Filiere filiere;
 
-    // FR ou EN
+    @NotNull(message = "La langue est obligatoire")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String langue = "FR";
+    private Langue langue;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "encadrant_id")
+    @JoinColumn(name = "encadrant_id", nullable = false)
     private Professeur encadrant;
 
-    public Etudiant() {}
+    @Column(name = "titre_projet")
+    private String titreProjet;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
-    public String getPrenom() { return prenom; }
-    public void setPrenom(String prenom) { this.prenom = prenom; }
-    public String getFiliere() { return filiere; }
-    public void setFiliere(String filiere) { this.filiere = filiere; }
-    public String getLangue() { return langue; }
-    public void setLangue(String langue) { this.langue = langue; }
-    public Professeur getEncadrant() { return encadrant; }
-    public void setEncadrant(Professeur encadrant) { this.encadrant = encadrant; }
-
-    @Override
-    public String toString() {
-        return nom + " " + prenom;
-    }
+    // Enums
+    public enum Filiere { GI, ID }
+    public enum Langue { FR, EN }
 }
