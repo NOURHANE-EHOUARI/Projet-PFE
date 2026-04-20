@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
@@ -18,11 +19,11 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     List<Etudiant> findByEncadrant(Professeur encadrant);
     List<Etudiant> findByFiliereAndLangue(Filiere filiere, Langue langue);
 
-    // Comptage natif — évite de charger toute la liste juste pour compter
     long countByFiliere(Filiere filiere);
-
-    // Utilisé par ProfesseurService pour bloquer la suppression si étudiants liés
     long countByEncadrant(Professeur encadrant);
+
+    // ✅ Requis par ExcelImportService pour l'upsert
+    Optional<Etudiant> findByNomAndPrenom(String nom, String prenom);
 
     @Query("SELECT e FROM Etudiant e JOIN FETCH e.encadrant ORDER BY e.nom")
     List<Etudiant> findAllWithEncadrant();

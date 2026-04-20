@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques — PFE Planning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 28px 0; margin-bottom: 32px;
+        }
+
+        /* KPI cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+        .kpi-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 22px 20px; text-align: center;
+        }
+        .kpi-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+        .kpi-num { font-size: 2.4rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .kpi-label { font-size: 0.8rem; color: #6c757d; font-weight: 500; }
+
+        /* Chart cards */
+        .chart-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 24px; margin-bottom: 24px;
+        }
+        .chart-title {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--ensa-secondary);
+            margin-bottom: 20px; padding-bottom: 10px;
+            border-bottom: 2px solid #e8f0fb;
+        }
+        .seuil-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #fdeaea; color: #c0392b; border-radius: 6px;
+            padding: 4px 10px; font-size: 0.78rem; font-weight: 600;
+            float: right; margin-top: -4px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-table me-1"></i>Planning</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning/calendrier"><i class="bi bi-calendar3 me-1"></i>Calendrier</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/stats"><i class="bi bi-bar-chart me-1"></i>Stats</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h2 class="mb-1 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Tableau de bord statistiques</h2>
+        <p class="mb-0 opacity-75">Charge des professeurs, répartition par filière et par langue</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <!-- KPI -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-icon">🎓</span>
+            <div class="kpi-num" style="color:var(--ensa-secondary);" th:text="${totalSoutenances}">0</div>
+            <div class="kpi-label">Soutenances planifiées</div>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">👨‍🏫</span>
+            <div class="kpi-num" style="color:#e67e22;" th:text="${totalProfesseurs}">0</div>
+            <div class="kpi-label">Professeurs</div>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">📚</span>
+            <div class="kpi-num" style="color:#27ae60;" th:text="${totalEtudiants}">0</div>
+            <div class="kpi-label">Étudiants</div>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">📅</span>
+            <div class="kpi-num" style="color:#8e44ad;" th:text="${nbJours}">0</div>
+            <div class="kpi-label">Jours de soutenance</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- GRAPHIQUE 1 : Charge par professeur (horizontal bar) -->
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <i class="bi bi-person-badge me-2"></i>Charge par professeur
+                    <span class="seuil-badge">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Seuil critique : 8 soutenances
+                    </span>
+                </div>
+                <canvas id="chartCharge" style="max-height:420px;"></canvas>
+            </div>
+        </div>
+
+        <!-- GRAPHIQUE 2 : Soutenances par jour -->
+        <div class="col-md-6">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-calendar-week me-2"></i>Soutenances par jour</div>
+                <canvas id="chartJours" style="max-height:280px;"></canvas>
+            </div>
+        </div>
+
+        <!-- GRAPHIQUE 3 : Filière + Langue (doughnut) -->
+        <div class="col-md-3">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-pie-chart me-2"></i>Filières</div>
+                <canvas id="chartFiliere" style="max-height:220px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-translate me-2"></i>Langues</div>
+                <canvas id="chartLangue" style="max-height:220px;"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Données injectées par Thymeleaf -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const chargeParProf      = /*[[${chargeParProf}]]*/ {};
+    const soutenancesParJour = /*[[${soutenancesParJour}]]*/ {};
+    const repartitionFiliere = /*[[${repartitionFiliere}]]*/ {};
+    const repartitionLangue  = /*[[${repartitionLangue}]]*/ {};
+    const SEUIL_CRITIQUE     = 8;
+    /*]]>*/
+</script>
+
+<script>
+// ── Graphique 1 : Charge par professeur (bar horizontal) ─────────────────
+(function() {
+    const labels = Object.keys(chargeParProf);
+    const data   = Object.values(chargeParProf);
+    const colors = data.map(v => v > SEUIL_CRITIQUE ? '#e74c3c' : v >= 6 ? '#e67e22' : '#2e6da4');
+
+    new Chart(document.getElementById('chartCharge'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Nb soutenances',
+                data: data,
+                backgroundColor: colors,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.parsed.x} soutenance(s)`
+                    }
+                },
+                annotation: {}
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
+                    grid: { color: '#f0f4f8' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12 } }
+                }
+            }
+        }
+    });
+})();
+
+// ── Graphique 2 : Soutenances par jour (bar vertical) ────────────────────
+(function() {
+    const labels = Object.keys(soutenancesParJour).map(d => {
+        const dt = new Date(d);
+        return dt.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    });
+    const data = Object.values(soutenancesParJour);
+
+    new Chart(document.getElementById('chartJours'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Soutenances',
+                data: data,
+                backgroundColor: '#2e6da4',
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+})();
+
+// ── Graphique 3 : Répartition filières ───────────────────────────────────
+(function() {
+    new Chart(document.getElementById('chartFiliere'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(repartitionFiliere),
+            datasets: [{
+                data: Object.values(repartitionFiliere),
+                backgroundColor: ['#2e6da4', '#e67e22'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } }
+            }
+        }
+    });
+})();
+
+// ── Graphique 4 : Répartition langues ────────────────────────────────────
+(function() {
+    new Chart(document.getElementById('chartLangue'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(repartitionLangue),
+            datasets: [{
+                data: Object.values(repartitionLangue),
+                backgroundColor: ['#27ae60', '#e74c3c'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } }
+            }
+        }
+    });
+})();
+</script>
+</body>
+</html>

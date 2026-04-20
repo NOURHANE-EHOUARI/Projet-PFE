@@ -1,87 +1,291 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Import Excel</title>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+    <title>Import Excel — PFE Planning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover { color: var(--ensa-accent) !important; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 30px 0; margin-bottom: 40px;
+        }
+        .upload-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .drop-zone {
+            border: 2.5px dashed #c8d8e8;
+            border-radius: 14px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8fbff;
+            position: relative;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--ensa-secondary);
+            background: #eef4fb;
+        }
+        .drop-zone input[type="file"] {
+            position: absolute; inset: 0; opacity: 0;
+            cursor: pointer; width: 100%; height: 100%;
+        }
+        .drop-icon { font-size: 48px; color: #c8d8e8; margin-bottom: 16px; display: block; }
+        .drop-zone.has-file .drop-icon { color: var(--ensa-secondary); }
+        .drop-title { font-size: 1.1rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .drop-sub { font-size: 0.85rem; color: #9ca3af; }
+        .file-name-display {
+            display: none; margin-top: 14px;
+            background: #e8f4fd; border-radius: 8px; padding: 8px 16px;
+            font-size: 0.875rem; color: var(--ensa-secondary); font-weight: 600;
+        }
+        .section-title {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--ensa-secondary);
+            margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e8f0fb;
+        }
+        .format-table { width: 100%; font-size: 0.82rem; border-collapse: separate; border-spacing: 0; }
+        .format-table thead th {
+            background: var(--ensa-primary); color: white;
+            padding: 8px 12px; font-weight: 600;
+        }
+        .format-table thead th:first-child { border-radius: 8px 0 0 0; }
+        .format-table thead th:last-child  { border-radius: 0 8px 0 0; }
+        .format-table tbody td { padding: 7px 12px; border-bottom: 1px solid #f0f4f8; }
+        .format-table tbody tr:hover td { background: #f8fbff; }
+        .col-badge {
+            display: inline-block; background: #e8f4fd; color: var(--ensa-secondary);
+            border-radius: 5px; padding: 1px 8px; font-weight: 700; font-size: 0.78rem;
+        }
+        .opt-badge {
+            display: inline-block; background: #fef3e8; color: #e67e22;
+            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+        }
+        .req-badge {
+            display: inline-block; background: #fdeaea; color: #e74c3c;
+            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+        }
+        .btn-import {
+            background: var(--ensa-primary); color: white; border: none;
+            padding: 13px 36px; border-radius: 10px; font-weight: 700;
+            font-size: 1rem; transition: all 0.2s; width: 100%;
+        }
+        .btn-import:hover:not(:disabled) {
+            background: var(--ensa-secondary); transform: translateY(-1px);
+        }
+        .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
+        .progress-wrap { display: none; margin-top: 20px; }
+        .progress { height: 8px; border-radius: 4px; }
+        .progress-bar { background: var(--ensa-secondary); transition: width 0.4s; }
+    </style>
 </head>
 <body>
-<div class="container mt-5" style="max-width:700px">
 
-    <h2 class="mb-4">📥 Import du fichier Excel</h2>
-
-    <!-- Messages -->
-    <div th:if="${erreur}" class="alert alert-danger" th:text="${erreur}"></div>
-    <div th:if="${succes}" class="alert alert-success" th:text="${succes}"></div>
-
-    <!-- Rapport d'erreurs -->
-    <div th:if="${rapport != null and !#lists.isEmpty(rapport)}" class="alert alert-warning">
-        <strong>Rapport d'import (<span th:text="${nbErreurs}"></span> erreur(s)) :</strong>
-        <ul class="mb-0 mt-2">
-            <li th:each="ligne : ${rapport}" th:text="${ligne}"></li>
-        </ul>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
+                <li class="nav-item"><a class="nav-link" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+            </ul>
+        </div>
     </div>
+</nav>
 
-    <!-- Formulaire upload -->
-    <div class="card">
-        <div class="card-header fw-bold">Sélectionner le fichier Excel (.xlsx)</div>
-        <div class="card-body">
+<div class="page-header">
+    <div class="container">
+        <h2 class="mb-1 fw-bold"><i class="bi bi-upload me-2"></i>Import Excel</h2>
+        <p class="mb-0 opacity-75">Importez le fichier Excel contenant les professeurs et les étudiants.</p>
+    </div>
+</div>
 
-            <form th:action="@{/import/excel}" method="post"
-                  enctype="multipart/form-data">
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
 
-                <div class="mb-3">
-                    <label class="form-label">Fichier Excel</label>
-                    <input type="file" name="fichier" class="form-control"
-                           accept=".xlsx" required/>
-                    <div class="form-text">
-                        Le fichier doit contenir les feuilles :
-                        <code>etudiants</code>, <code>professeurs</code>,
-                        <code>salles</code>, <code>contraintes</code>
+            <!-- Erreur upload -->
+            <div th:if="${erreurUpload}"
+                 class="alert alert-danger alert-dismissible fade show rounded-3 mb-4">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span th:text="${erreurUpload}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="upload-card">
+
+                <!-- ✅ FORM CORRIGÉ : action vers /import/traiter, pas de onclick sur le bouton -->
+                <form method="post"
+                      th:action="@{/import/traiter}"
+                      enctype="multipart/form-data"
+                      id="uploadForm">
+
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" name="fichier" id="fileInput"
+                               accept=".xlsx,.xls" onchange="onFileSelected(this)" />
+                        <i class="bi bi-file-earmark-excel drop-icon" id="dropIcon"></i>
+                        <div class="drop-title">Glissez votre fichier Excel ici</div>
+                        <div class="drop-sub">ou cliquez pour parcourir — .xlsx / .xls, max 10 Mo</div>
+                        <div class="file-name-display" id="fileNameDisplay">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <span id="fileNameText"></span>
+                        </div>
                     </div>
+
+                    <div class="progress-wrap" id="progressWrap">
+                        <div class="d-flex justify-content-between mb-1"
+                             style="font-size:0.82rem;color:#6c757d;">
+                            <span>Traitement en cours...</span>
+                            <span id="progressPct">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-animated"
+                                 id="progressBar" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <!-- ✅ CORRIGÉ : plus de onclick ici -->
+                        <button type="submit" class="btn-import" id="btnImport" disabled>
+                            <i class="bi bi-cloud-upload me-2"></i>Lancer l'import
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4" style="border-color:#f0f4f8;">
+
+                <!-- Format attendu -->
+                <div class="section-title">
+                    <i class="bi bi-table me-2"></i>Format du fichier Excel
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Importer
-                </button>
-                <a th:href="@{/planning}" class="btn btn-success ms-2">
-                    Voir le planning →
-                </a>
-            </form>
+                <p class="text-muted mb-3" style="font-size:0.85rem;">
+                    Le fichier doit contenir deux feuilles nommées exactement
+                    <strong>professeurs</strong> et <strong>etudiants</strong>
+                    (ligne 1 = en-têtes ignorés).
+                </p>
+
+                <div class="mb-3">
+                    <div class="fw-semibold mb-2" style="font-size:0.875rem;">
+                        <i class="bi bi-person-badge text-primary me-1"></i>
+                        Feuille « professeurs »
+                    </div>
+                    <table class="format-table">
+                        <thead>
+                            <tr><th>Colonne</th><th>Champ</th><th>Exemple</th><th>Statut</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="col-badge">A</span></td><td>Nom</td><td>BADI</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">B</span></td><td>Prénom</td><td>Imad</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">C</span></td><td>Spécialité</td><td>Génie Informatique</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">D</span></td><td>Parle anglais</td><td>oui / non</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">E</span></td><td>Date indisponibilité</td><td>2025-06-10</td><td><span class="opt-badge">Optionnel</span></td></tr>
+                            <tr><td><span class="col-badge">F</span></td><td>Heure début</td><td>08:00</td><td><span class="opt-badge">Optionnel</span></td></tr>
+                            <tr><td><span class="col-badge">G</span></td><td>Heure fin</td><td>10:00</td><td><span class="opt-badge">Optionnel</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <div class="fw-semibold mb-2" style="font-size:0.875rem;">
+                        <i class="bi bi-mortarboard text-warning me-1"></i>
+                        Feuille « etudiants »
+                    </div>
+                    <table class="format-table">
+                        <thead>
+                            <tr><th>Colonne</th><th>Champ</th><th>Exemple</th><th>Statut</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="col-badge">A</span></td><td>Nom</td><td>CHENTOUF</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">B</span></td><td>Prénom</td><td>Ismail</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">C</span></td><td>Filière</td><td>GI ou ID</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">D</span></td><td>Langue</td><td>FR ou EN</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">E</span></td><td>Nom encadrant</td><td>BADI</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">F</span></td><td>Prénom encadrant</td><td>Imad</td><td><span class="req-badge">Requis</span></td></tr>
+                            <tr><td><span class="col-badge">G</span></td><td>Titre du projet</td><td>Système de gestion...</td><td><span class="opt-badge">Optionnel</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
     </div>
-
-    <!-- Structure attendue -->
-    <div class="card mt-4">
-        <div class="card-header fw-bold">Structure attendue du fichier Excel</div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-bordered mb-0">
-                <thead class="table-dark">
-                    <tr><th>Feuille</th><th>Colonnes</th></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>etudiants</code></td>
-                        <td>nom, prenom, filiere (GI/ID), langue (FR/EN), encadrant</td>
-                    </tr>
-                    <tr>
-                        <td><code>professeurs</code></td>
-                        <td>nom, prenom, specialite, parle_anglais (O/N)</td>
-                    </tr>
-                    <tr>
-                        <td><code>salles</code></td>
-                        <td>nom, capacite</td>
-                    </tr>
-                    <tr>
-                        <td><code>contraintes</code></td>
-                        <td>prof_nom, date_indisponible, heure_debut, heure_fin</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const dropZone        = document.getElementById('dropZone');
+    const fileInput       = document.getElementById('fileInput');
+    const btnImport       = document.getElementById('btnImport');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const fileNameText    = document.getElementById('fileNameText');
+
+    function onFileSelected(input) {
+        if (input.files && input.files[0]) {
+            const name = input.files[0].name;
+            fileNameText.textContent = name;
+            fileNameDisplay.style.display = 'block';
+            dropZone.classList.add('has-file');
+            btnImport.disabled = false;
+        }
+    }
+
+    // Drag & drop
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            onFileSelected(fileInput);
+        }
+    });
+
+    // ✅ FIX PRINCIPAL : écouter le submit, pas le onclick
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        const pw = document.getElementById('progressWrap');
+        const pb = document.getElementById('progressBar');
+        const pp = document.getElementById('progressPct');
+        pw.style.display = 'block';
+        btnImport.disabled = true;
+        btnImport.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Traitement en cours...';
+        let p = 0;
+        const iv = setInterval(() => {
+            p = Math.min(p + Math.random() * 15, 90);
+            pb.style.width = p.toFixed(0) + '%';
+            pp.textContent = p.toFixed(0) + '%';
+            if (p >= 90) clearInterval(iv);
+        }, 200);
+        // ✅ Pas de e.preventDefault() — le formulaire se soumet normalement
+    });
+</script>
 </body>
 </html>
