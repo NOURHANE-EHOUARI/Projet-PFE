@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendrier — PFE Planning</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --ensa-primary: #1a3a5c;
+            --ensa-secondary: #2e6da4;
+            --ensa-accent: #f0a500;
+        }
+        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background-color: var(--ensa-primary) !important; }
+        .navbar-brand { font-weight: 700; color: white !important; }
+        .navbar-brand span { color: var(--ensa-accent); }
+        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
+        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
+            color: white; padding: 24px 0; margin-bottom: 30px;
+        }
+
+        /* Carte calendrier */
+        .cal-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px; margin-bottom: 24px;
+        }
+
+        /* FullCalendar overrides */
+        .fc .fc-toolbar-title { font-size: 1.1rem; font-weight: 700; color: var(--ensa-primary); }
+        .fc .fc-button-primary {
+            background-color: var(--ensa-primary) !important;
+            border-color: var(--ensa-primary) !important;
+            font-size: 0.82rem !important;
+        }
+        .fc .fc-button-primary:hover {
+            background-color: var(--ensa-secondary) !important;
+            border-color: var(--ensa-secondary) !important;
+        }
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: var(--ensa-secondary) !important;
+        }
+        .fc-event { cursor: pointer; border-radius: 5px !important; font-size: 0.78rem !important; }
+        .fc-event-title { font-weight: 600; }
+        .fc-daygrid-event { padding: 2px 5px !important; }
+        .fc-timegrid-event .fc-event-main { padding: 3px 6px !important; }
+        .fc .fc-col-header-cell { background: #f8fbff; }
+        .fc .fc-col-header-cell-cushion { color: var(--ensa-primary); font-weight: 700; font-size: 0.82rem; }
+
+        /* Légende salles */
+        .legende { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .legende-item {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 0.82rem; font-weight: 600; color: #374151;
+        }
+        .legende-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+        /* Modal détail */
+        .modal-header { background: var(--ensa-primary); color: white; border-radius: 12px 12px 0 0; }
+        .modal-title { font-weight: 700; }
+        .detail-row {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid #f0f4f8;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-icon { width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 14px; }
+        .detail-label { font-size: 0.75rem; color: #9ca3af; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .detail-value { font-size: 0.9rem; font-weight: 600; color: #1f2937; }
+
+        .badge-gi  { background: #e8f4fd; color: #2e6da4; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; }
+        .badge-id  { background: #fef3e8; color: #e67e22; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; }
+        .badge-fr  { background: #e8f8e8; color: #27ae60; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; }
+        .badge-en  { background: #fdeaea; color: #e74c3c; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; }
+
+        /* Vue tabs */
+        .view-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .view-tab {
+            padding: 8px 18px; border-radius: 8px; border: 1.5px solid #e0e7ef;
+            background: white; color: #6c757d; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.18s; text-decoration: none;
+        }
+        .view-tab:hover { border-color: var(--ensa-secondary); color: var(--ensa-secondary); }
+        .view-tab.active { background: var(--ensa-primary); border-color: var(--ensa-primary); color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/import"><i class="bi bi-upload me-1"></i>Import</a></li>
+                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-table me-1"></i>Tableau</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/planning/calendrier"><i class="bi bi-calendar3 me-1"></i>Calendrier</a></li>
+                <li class="nav-item"><a class="nav-link" href="/stats"><i class="bi bi-bar-chart me-1"></i>Stats</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h2 class="mb-1 fw-bold"><i class="bi bi-calendar3 me-2"></i>Calendrier des soutenances</h2>
+        <p class="mb-0 opacity-75">Vue interactive — cliquez sur une soutenance pour les détails</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <!-- Navigation Tableau / Calendrier -->
+    <div class="view-tabs">
+        <a href="/planning" class="view-tab"><i class="bi bi-table me-1"></i>Vue tableau</a>
+        <a href="/planning/calendrier" class="view-tab active"><i class="bi bi-calendar3 me-1"></i>Vue calendrier</a>
+        <a href="/stats" class="view-tab"><i class="bi bi-bar-chart me-1"></i>Statistiques</a>
+    </div>
+
+    <div class="cal-card">
+        <!-- Légende (remplie dynamiquement par JS) -->
+        <div class="legende" id="legende"></div>
+        <!-- Calendrier -->
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- Modal détail soutenance -->
+<div class="modal fade" id="modalDetail" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px;border:none;box-shadow:0 8px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Détail de la soutenance</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="modalBody">
+                <!-- Rempli par JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="py-3">
+    <div class="container text-center">
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const couleursSalles = {};
+    const palette = ['#2e6da4','#e67e22','#27ae60','#8e44ad','#c0392b','#16a085'];
+    let paletteIdx = 0;
+
+    function getCouleurSalle(nomSalle) {
+        if (!couleursSalles[nomSalle]) {
+            couleursSalles[nomSalle] = palette[paletteIdx % palette.length];
+            paletteIdx++;
+        }
+        return couleursSalles[nomSalle];
+    }
+
+    const calendarEl = document.getElementById('calendar');
+    const modal = new bootstrap.Modal(document.getElementById('modalDetail'));
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'fr',
+        initialView: 'timeGridWeek',
+        headerToolbar: {
+            left:   'prev,next today',
+            center: 'title',
+            right:  'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        slotMinTime: '08:00:00',
+        slotMaxTime: '18:00:00',
+        slotDuration: '00:30:00',
+        height: 'auto',
+        allDaySlot: false,
+        nowIndicator: true,
+        eventSources: [{
+            url: '/planning/json',
+            failure: function() {
+                console.error('Impossible de charger les événements.');
+            }
+        }],
+        eventDidMount: function(info) {
+            // Attribuer couleur par salle
+            const salle = info.event.extendedProps.salle;
+            const couleur = getCouleurSalle(salle);
+            info.el.style.backgroundColor = couleur;
+            info.el.style.borderColor = couleur;
+            // Mettre à jour la légende
+            mettreAJourLegende();
+        },
+        eventClick: function(info) {
+            afficherDetail(info.event);
+        }
+    });
+
+    calendar.render();
+
+    // ── Afficher le modal détail ──────────────────
+    function afficherDetail(event) {
+        const p = event.extendedProps;
+        const filiereClass = p.filiere === 'GI' ? 'badge-gi' : 'badge-id';
+        const langueClass  = p.langue  === 'FR' ? 'badge-fr' : 'badge-en';
+        const langueFlag   = p.langue  === 'FR' ? '🇫🇷' : '🇬🇧';
+
+        document.getElementById('modalBody').innerHTML = `
+            <div class="detail-row">
+                <div class="detail-icon" style="background:#e8f4fd;">
+                    <i class="bi bi-mortarboard" style="color:#2e6da4;"></i>
+                </div>
+                <div>
+                    <div class="detail-label">Étudiant</div>
+                    <div class="detail-value">${p.etudiant}
+                        <span class="${filiereClass} ms-2">${p.filiere}</span>
+                        <span class="${langueClass} ms-1">${langueFlag} ${p.langue}</span>
+                    </div>
+                    ${p.titre ? `<div style="font-size:0.82rem;color:#6c757d;margin-top:3px;"><i class="bi bi-file-text me-1"></i>${p.titre}</div>` : ''}
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon" style="background:#fff3cd;">
+                    <i class="bi bi-clock" style="color:#e67e22;"></i>
+                </div>
+                <div>
+                    <div class="detail-label">Créneau</div>
+                    <div class="detail-value">${formatDate(event.start)} · ${p.heure} → ${p.heureFin}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon" style="background:#f0e8fd;">
+                    <i class="bi bi-door-open" style="color:#8e44ad;"></i>
+                </div>
+                <div>
+                    <div class="detail-label">Salle</div>
+                    <div class="detail-value">${p.salle}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon" style="background:#e8f8e8;">
+                    <i class="bi bi-person-badge" style="color:#27ae60;"></i>
+                </div>
+                <div>
+                    <div class="detail-label">Encadrant</div>
+                    <div class="detail-value">${p.encadrant}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-icon" style="background:#fdeaea;">
+                    <i class="bi bi-people" style="color:#c0392b;"></i>
+                </div>
+                <div>
+                    <div class="detail-label">Jury</div>
+                    <div class="detail-value">${p.jury1}</div>
+                    <div class="detail-value" style="margin-top:3px;">${p.jury2}</div>
+                </div>
+            </div>`;
+
+        modal.show();
+    }
+
+    // ── Légende des salles ────────────────────────
+    function mettreAJourLegende() {
+        const legende = document.getElementById('legende');
+        legende.innerHTML = '';
+        Object.entries(couleursSalles).forEach(([salle, couleur]) => {
+            legende.innerHTML += `
+                <div class="legende-item">
+                    <div class="legende-dot" style="background:${couleur};"></div>
+                    ${salle}
+                </div>`;
+        });
+    }
+
+    function formatDate(date) {
+        if (!date) return '';
+        return date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+    }
+});
+</script>
+</body>
+</html>
