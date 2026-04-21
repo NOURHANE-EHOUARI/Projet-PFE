@@ -10,104 +10,350 @@
             --ensa-primary: #1a3a5c;
             --ensa-secondary: #2e6da4;
             --ensa-accent: #f0a500;
+            
+            /* Light Theme (default) */
+            --bg-body: #f5f7fa;
+            --bg-card: #ffffff;
+            --bg-drop: #f8fbff;
+            --bg-drop-hover: #eef4fb;
+            --bg-table-header: var(--ensa-primary);
+            --bg-table-row-hover: #f8fbff;
+            --bg-file-badge: #e8f4fd;
+            --bg-opt-badge: #fef3e8;
+            --bg-req-badge: #fdeaea;
+            --bg-progress: #e8f4fd;
+            --text-primary: #374151;
+            --text-secondary: #9ca3af;
+            --text-muted: #6c757d;
+            --text-inverse: #ffffff;
+            --border-drop: #c8d8e8;
+            --border-section: #e8f0fb;
+            --border-table: #f0f4f8;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+            --color-drop-icon: #c8d8e8;
+            --color-drop-icon-active: var(--ensa-secondary);
+            --color-file-text: var(--ensa-secondary);
+            --color-opt-text: #e67e22;
+            --color-req-text: #e74c3c;
+            --navbar-bg: var(--ensa-primary);
+            --footer-bg: var(--ensa-primary);
+            --footer-text: rgba(255,255,255,0.6);
+            --theme-toggle-bg: rgba(255,255,255,0.1);
+            --theme-toggle-border: rgba(255,255,255,0.2);
+            --theme-toggle-hover: rgba(255,255,255,0.2);
+            --alert-bg-danger: #fdeaea;
+            --alert-text-danger: #e74c3c;
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
+
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-drop: #1e293b;
+            --bg-drop-hover: #334155;
+            --bg-table-header: #0f172a;
+            --bg-table-row-hover: #334155;
+            --bg-file-badge: rgba(21,101,192,0.15);
+            --bg-opt-badge: rgba(180,83,9,0.15);
+            --bg-req-badge: rgba(198,40,40,0.15);
+            --bg-progress: rgba(21,101,192,0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #94a3b8;
+            --border-drop: #334155;
+            --border-section: #334155;
+            --border-table: #334155;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+            --color-drop-icon: #64748b;
+            --color-drop-icon-active: #60a5fa;
+            --color-file-text: #60a5fa;
+            --color-opt-text: #fb923c;
+            --color-req-text: #f87171;
+            --navbar-bg: #0f172a;
+            --footer-bg: #0f172a;
+            --footer-text: #94a3b8;
+            --theme-toggle-bg: rgba(255,255,255,0.05);
+            --theme-toggle-border: rgba(255,255,255,0.1);
+            --theme-toggle-hover: rgba(255,255,255,0.15);
+            --alert-bg-danger: rgba(198,40,40,0.15);
+            --alert-text-danger: #f87171;
+        }
+
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Segoe UI', sans-serif; 
+            color: var(--text-primary);
+        }
+        
+        .navbar { 
+            background-color: var(--navbar-bg) !important; 
+            transition: background-color 0.3s ease;
+        }
+        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
         .navbar-brand span { color: var(--ensa-accent); }
         .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
         .nav-link:hover { color: var(--ensa-accent) !important; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: var(--theme-toggle-bg);
+            border: 1px solid var(--theme-toggle-border);
+            color: white;
+            width: 40px; 
+            height: 40px;
+            border-radius: 10px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        .theme-toggle:hover { 
+            background: var(--theme-toggle-hover); 
+            transform: rotate(15deg); 
+        }
+        .theme-toggle svg { width: 18px; height: 18px; }
+        
+        /* Icons visibility */
+        [data-theme="dark"] .sun-icon { display: none; }
+        [data-theme="light"] .moon-icon { display: none; }
+        .sun-icon { display: inline; }
+        .moon-icon { display: none; }
+        [data-theme="dark"] .moon-icon { display: inline; }
+        
+        footer { 
+            background-color: var(--footer-bg); 
+            color: var(--footer-text); 
+            font-size: 0.85rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
         .page-header {
             background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 40px;
+            color: white; 
+            padding: 30px 0; 
+            margin-bottom: 40px;
         }
+        
         .upload-card {
-            background: white; border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            background: var(--bg-card); 
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
             padding: 40px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
+        
         .drop-zone {
-            border: 2.5px dashed #c8d8e8;
+            border: 2.5px dashed var(--border-drop);
             border-radius: 14px;
             padding: 48px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: #f8fbff;
+            background: var(--bg-drop);
             position: relative;
         }
         .drop-zone:hover, .drop-zone.dragover {
             border-color: var(--ensa-secondary);
-            background: #eef4fb;
+            background: var(--bg-drop-hover);
         }
         .drop-zone input[type="file"] {
-            position: absolute; inset: 0; opacity: 0;
-            cursor: pointer; width: 100%; height: 100%;
+            position: absolute; 
+            inset: 0; 
+            opacity: 0;
+            cursor: pointer; 
+            width: 100%; 
+            height: 100%;
         }
-        .drop-icon { font-size: 48px; color: #c8d8e8; margin-bottom: 16px; display: block; }
-        .drop-zone.has-file .drop-icon { color: var(--ensa-secondary); }
-        .drop-title { font-size: 1.1rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .drop-sub { font-size: 0.85rem; color: #9ca3af; }
+        .drop-icon { 
+            font-size: 48px; 
+            color: var(--color-drop-icon); 
+            margin-bottom: 16px; 
+            display: block;
+            transition: color 0.3s ease;
+        }
+        .drop-zone.has-file .drop-icon { 
+            color: var(--color-drop-icon-active); 
+        }
+        .drop-title { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            margin-bottom: 6px;
+            transition: color 0.3s ease;
+        }
+        .drop-sub { 
+            font-size: 0.85rem; 
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
         .file-name-display {
-            display: none; margin-top: 14px;
-            background: #e8f4fd; border-radius: 8px; padding: 8px 16px;
-            font-size: 0.875rem; color: var(--ensa-secondary); font-weight: 600;
+            display: none; 
+            margin-top: 14px;
+            background: var(--bg-file-badge); 
+            border-radius: 8px; 
+            padding: 8px 16px;
+            font-size: 0.875rem; 
+            color: var(--color-file-text); 
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+        
         .section-title {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--ensa-secondary);
-            margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e8f0fb;
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 0.08em; 
+            color: var(--ensa-secondary);
+            margin-bottom: 14px; 
+            padding-bottom: 8px; 
+            border-bottom: 2px solid var(--border-section);
+            transition: border-color 0.3s ease;
         }
-        .format-table { width: 100%; font-size: 0.82rem; border-collapse: separate; border-spacing: 0; }
+        
+        .format-table { 
+            width: 100%; 
+            font-size: 0.82rem; 
+            border-collapse: separate; 
+            border-spacing: 0; 
+        }
         .format-table thead th {
-            background: var(--ensa-primary); color: white;
-            padding: 8px 12px; font-weight: 600;
+            background: var(--bg-table-header); 
+            color: white;
+            padding: 8px 12px; 
+            font-weight: 600;
         }
         .format-table thead th:first-child { border-radius: 8px 0 0 0; }
         .format-table thead th:last-child  { border-radius: 0 8px 0 0; }
-        .format-table tbody td { padding: 7px 12px; border-bottom: 1px solid #f0f4f8; }
-        .format-table tbody tr:hover td { background: #f8fbff; }
+        .format-table tbody td { 
+            padding: 7px 12px; 
+            border-bottom: 1px solid var(--border-table);
+            color: var(--text-primary);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        .format-table tbody tr:hover td { 
+            background: var(--bg-table-row-hover);
+            transition: background-color 0.3s ease;
+        }
+        
         .col-badge {
-            display: inline-block; background: #e8f4fd; color: var(--ensa-secondary);
-            border-radius: 5px; padding: 1px 8px; font-weight: 700; font-size: 0.78rem;
+            display: inline-block; 
+            background: var(--bg-file-badge); 
+            color: var(--ensa-secondary);
+            border-radius: 5px; 
+            padding: 1px 8px; 
+            font-weight: 700; 
+            font-size: 0.78rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .opt-badge {
-            display: inline-block; background: #fef3e8; color: #e67e22;
-            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+            display: inline-block; 
+            background: var(--bg-opt-badge); 
+            color: var(--color-opt-text);
+            border-radius: 5px; 
+            padding: 1px 7px; 
+            font-size: 0.75rem; 
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .req-badge {
-            display: inline-block; background: #fdeaea; color: #e74c3c;
-            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+            display: inline-block; 
+            background: var(--bg-req-badge); 
+            color: var(--color-req-text);
+            border-radius: 5px; 
+            padding: 1px 7px; 
+            font-size: 0.75rem; 
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+        
         .btn-import {
-            background: var(--ensa-primary); color: white; border: none;
-            padding: 13px 36px; border-radius: 10px; font-weight: 700;
-            font-size: 1rem; transition: all 0.2s; width: 100%;
+            background: var(--ensa-primary); 
+            color: white; 
+            border: none;
+            padding: 13px 36px; 
+            border-radius: 10px; 
+            font-weight: 700;
+            font-size: 1rem; 
+            transition: all 0.2s; 
+            width: 100%;
         }
         .btn-import:hover:not(:disabled) {
-            background: var(--ensa-secondary); transform: translateY(-1px);
+            background: var(--ensa-secondary); 
+            transform: translateY(-1px);
         }
-        .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
-        .progress-wrap { display: none; margin-top: 20px; }
-        .progress { height: 8px; border-radius: 4px; }
-        .progress-bar { background: var(--ensa-secondary); transition: width 0.4s; }
+        .btn-import:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+        
+        .progress-wrap { 
+            display: none; 
+            margin-top: 20px; 
+        }
+        .progress { 
+            height: 8px; 
+            border-radius: 4px; 
+            background: var(--bg-progress);
+            transition: background-color 0.3s ease;
+        }
+        .progress-bar { 
+            background: var(--ensa-secondary); 
+            transition: width 0.4s; 
+        }
+        
+        .alert-danger {
+            background: var(--alert-bg-danger);
+            color: var(--alert-text-danger);
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .alert-danger .btn-close {
+            filter: invert(0.3);
+        }
+        [data-theme="dark"] .alert-danger .btn-close {
+            filter: invert(0.8);
+        }
+        
+        .text-muted {
+            color: var(--text-muted) !important;
+            transition: color 0.3s ease;
+        }
+        
+        .fw-semibold {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/etudiants}"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/professeurs}"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+                <li class="nav-item">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -134,7 +380,6 @@
 
             <div class="upload-card">
 
-                <!-- ✅ FORM CORRIGÉ : action vers /import/traiter, pas de onclick sur le bouton -->
                 <form method="post"
                       th:action="@{/import/traiter}"
                       enctype="multipart/form-data"
@@ -154,7 +399,7 @@
 
                     <div class="progress-wrap" id="progressWrap">
                         <div class="d-flex justify-content-between mb-1"
-                             style="font-size:0.82rem;color:#6c757d;">
+                             style="font-size:0.82rem;color:var(--text-muted);">
                             <span>Traitement en cours...</span>
                             <span id="progressPct">0%</span>
                         </div>
@@ -165,14 +410,13 @@
                     </div>
 
                     <div class="mt-4">
-                        <!-- ✅ CORRIGÉ : plus de onclick ici -->
                         <button type="submit" class="btn-import" id="btnImport" disabled>
                             <i class="bi bi-cloud-upload me-2"></i>Lancer l'import
                         </button>
                     </div>
                 </form>
 
-                <hr class="my-4" style="border-color:#f0f4f8;">
+                <hr class="my-4" style="border-color:var(--border-table);">
 
                 <!-- Format attendu -->
                 <div class="section-title">
@@ -240,6 +484,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ── THEME TOGGLE ──
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Load saved theme or prefer system
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    html.setAttribute('data-theme', initialTheme);
+    
+    themeToggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    });
+
+    // ── FILE UPLOAD HANDLERS ──
     const dropZone        = document.getElementById('dropZone');
     const fileInput       = document.getElementById('fileInput');
     const btnImport       = document.getElementById('btnImport');
@@ -269,7 +531,7 @@
         }
     });
 
-    // ✅ FIX PRINCIPAL : écouter le submit, pas le onclick
+    // Form submission with progress
     document.getElementById('uploadForm').addEventListener('submit', function() {
         const pw = document.getElementById('progressWrap');
         const pb = document.getElementById('progressBar');
@@ -284,7 +546,6 @@
             pp.textContent = p.toFixed(0) + '%';
             if (p >= 90) clearInterval(iv);
         }, 200);
-        // ✅ Pas de e.preventDefault() — le formulaire se soumet normalement
     });
 </script>
 </body>

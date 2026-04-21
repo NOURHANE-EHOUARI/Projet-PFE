@@ -10,50 +10,189 @@
             --ensa-primary: #1a3a5c;
             --ensa-secondary: #2e6da4;
             --ensa-accent: #f0a500;
+            
+            /* Light Theme */
+            --bg-body: #f5f7fa;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --bg-input-focus: #ffffff;
+            --bg-radio-default: #ffffff;
+            --bg-radio-checked-gi: #e8f4fd;
+            --bg-radio-checked-id: #fef3e8;
+            --bg-radio-checked-fr: #e8f8e8;
+            --bg-radio-checked-en: #fdeaea;
+            --text-primary: #374151;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --text-inverse: #ffffff;
+            --text-radio-gi: #2e6da4;
+            --text-radio-id: #e67e22;
+            --text-radio-fr: #27ae60;
+            --text-radio-en: #e74c3c;
+            --border-input: #e0e7ef;
+            --border-input-focus: var(--ensa-secondary);
+            --border-section: #e8f0fb;
+            --border-radio: #e0e7ef;
+            --border-radio-hover: #aab8c2;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-input: 0 0 0 3px rgba(46,109,164,0.12);
+            --shadow-input-error: 0 0 0 3px rgba(231,76,60,0.1);
+            --navbar-bg: var(--ensa-primary);
+            --footer-bg: var(--ensa-primary);
+            --footer-text: rgba(255,255,255,0.6);
+            --theme-toggle-bg: rgba(255,255,255,0.1);
+            --theme-toggle-border: rgba(255,255,255,0.2);
+            --theme-toggle-hover: rgba(255,255,255,0.2);
+            --alert-bg-danger: #fdeaea;
+            --alert-text-danger: #e74c3c;
+            --btn-cancel-bg: #ffffff;
+            --btn-cancel-border: #dee2e6;
+            --btn-cancel-text: #6c757d;
+            --btn-cancel-hover-bg: #f8f9fa;
+            --btn-cancel-hover-border: #adb5bd;
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
+
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #1e293b;
+            --bg-input-focus: #334155;
+            --bg-radio-default: #1e293b;
+            --bg-radio-checked-gi: rgba(21,101,192,0.15);
+            --bg-radio-checked-id: rgba(180,83,9,0.15);
+            --bg-radio-checked-fr: rgba(46,125,50,0.15);
+            --bg-radio-checked-en: rgba(198,40,40,0.15);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --text-radio-gi: #60a5fa;
+            --text-radio-id: #fb923c;
+            --text-radio-fr: #4ade80;
+            --text-radio-en: #f87171;
+            --border-input: #334155;
+            --border-input-focus: #60a5fa;
+            --border-section: #334155;
+            --border-radio: #334155;
+            --border-radio-hover: #475569;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+            --shadow-input: 0 0 0 3px rgba(96,165,250,0.2);
+            --shadow-input-error: 0 0 0 3px rgba(248,113,113,0.2);
+            --navbar-bg: #0f172a;
+            --footer-bg: #0f172a;
+            --footer-text: #94a3b8;
+            --theme-toggle-bg: rgba(255,255,255,0.05);
+            --theme-toggle-border: rgba(255,255,255,0.1);
+            --theme-toggle-hover: rgba(255,255,255,0.15);
+            --alert-bg-danger: rgba(198,40,40,0.15);
+            --alert-text-danger: #f87171;
+            --btn-cancel-bg: #1e293b;
+            --btn-cancel-border: #475569;
+            --btn-cancel-text: #94a3b8;
+            --btn-cancel-hover-bg: #334155;
+            --btn-cancel-hover-border: #64748b;
+        }
+
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Segoe UI', sans-serif; 
+            color: var(--text-primary);
+        }
+        
+        .navbar { 
+            background-color: var(--navbar-bg) !important; 
+            transition: background-color 0.3s ease;
+        }
+        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
         .navbar-brand span { color: var(--ensa-accent); }
         .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
         .nav-link:hover { color: var(--ensa-accent) !important; }
         .nav-link.active { color: var(--ensa-accent) !important; font-weight: 700; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--theme-toggle-bg);
+            border: 1px solid var(--theme-toggle-border);
+            color: white;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        .theme-toggle:hover { background: var(--theme-toggle-hover); transform: rotate(15deg); }
+        .theme-toggle svg { width: 18px; height: 18px; }
+        
+        [data-theme="dark"] .sun-icon { display: none; }
+        [data-theme="light"] .moon-icon { display: none; }
+        .sun-icon { display: inline; }
+        .moon-icon { display: none; }
+        [data-theme="dark"] .moon-icon { display: inline; }
+        
+        footer { 
+            background-color: var(--footer-bg); 
+            color: var(--footer-text); 
+            font-size: 0.85rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
         .page-header {
             background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
             color: white; padding: 30px 0; margin-bottom: 40px;
         }
-        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
         .breadcrumb-item a:hover { color: white; }
         .breadcrumb-item.active { color: var(--ensa-accent); }
-
+        
         .form-card {
-            background: white; border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            background: var(--bg-card); border-radius: 16px;
+            box-shadow: var(--shadow-card);
             padding: 36px 40px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
+        
         .section-title {
             font-size: 0.75rem; font-weight: 700;
             text-transform: uppercase; letter-spacing: 0.08em;
             color: var(--ensa-secondary); margin-bottom: 16px;
-            padding-bottom: 8px; border-bottom: 2px solid #e8f0fb;
+            padding-bottom: 8px; border-bottom: 2px solid var(--border-section);
+            transition: border-color 0.3s ease, color 0.3s ease;
         }
-        .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
+        
+        .form-label { 
+            font-weight: 600; font-size: 0.875rem; 
+            color: var(--text-primary); margin-bottom: 6px;
+            transition: color 0.3s ease;
+        }
         .form-label .required { color: #e74c3c; margin-left: 3px; }
+        
         .form-control, .form-select {
-            border-radius: 10px; border: 1.5px solid #e0e7ef;
+            border-radius: 10px; border: 1.5px solid var(--border-input);
             padding: 10px 14px; font-size: 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease, color 0.3s ease;
         }
         .form-control:focus, .form-select:focus {
-            border-color: var(--ensa-secondary);
-            box-shadow: 0 0 0 3px rgba(46,109,164,0.12);
+            border-color: var(--border-input-focus);
+            box-shadow: var(--shadow-input);
+            background: var(--bg-input-focus);
+        }
+        .form-control::placeholder, .form-select::placeholder {
+            color: var(--text-muted);
+            transition: color 0.3s ease;
         }
         .form-control.is-invalid, .form-select.is-invalid {
-            border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.1);
+            border-color: #e74c3c; box-shadow: var(--shadow-input-error);
         }
         .invalid-feedback { font-size: 0.8rem; color: #e74c3c; }
+        
+        .form-text { color: var(--text-muted) !important; transition: color 0.3s ease; }
+        .text-muted { color: var(--text-muted) !important; transition: color 0.3s ease; }
+        .text-danger { color: #e74c3c !important; }
 
         /* Langue radio buttons */
         .langue-options { display: flex; gap: 12px; }
@@ -61,14 +200,22 @@
         .langue-option input[type="radio"] { display: none; }
         .langue-option label {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 10px 16px; border-radius: 10px; border: 1.5px solid #e0e7ef;
+            padding: 10px 16px; border-radius: 10px; border: 1.5px solid var(--border-radio);
             cursor: pointer; font-weight: 600; font-size: 0.9rem;
             transition: all 0.18s; width: 100%;
+            background: var(--bg-radio-default);
+            color: var(--text-primary);
         }
         .langue-option input[type="radio"]:checked + label {
-            border-color: var(--ensa-secondary); background-color: #e8f0fb; color: var(--ensa-secondary);
+            border-color: var(--ensa-secondary); 
+            background-color: var(--bg-radio-checked-fr); 
+            color: var(--text-radio-fr);
         }
-        .langue-option label:hover { border-color: var(--ensa-secondary); }
+        .langue-option:nth-child(2) input[type="radio"]:checked + label {
+            background-color: var(--bg-radio-checked-en); 
+            color: var(--text-radio-en);
+        }
+        .langue-option label:hover { border-color: var(--border-radio-hover); }
 
         /* Filière radio buttons */
         .filiere-options { display: flex; gap: 12px; }
@@ -76,17 +223,19 @@
         .filiere-option input[type="radio"] { display: none; }
         .filiere-option label {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 10px; border: 1.5px solid #e0e7ef;
+            padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border-radio);
             cursor: pointer; font-weight: 600; font-size: 0.95rem;
             transition: all 0.18s; width: 100%;
+            background: var(--bg-radio-default);
+            color: var(--text-primary);
         }
         .filiere-option.gi input[type="radio"]:checked + label {
-            border-color: #2e6da4; background-color: #e8f4fd; color: #2e6da4;
+            border-color: #2e6da4; background-color: var(--bg-radio-checked-gi); color: var(--text-radio-gi);
         }
         .filiere-option.id input[type="radio"]:checked + label {
-            border-color: #e67e22; background-color: #fef3e8; color: #e67e22;
+            border-color: #e67e22; background-color: var(--bg-radio-checked-id); color: var(--text-radio-id);
         }
-        .filiere-option label:hover { border-color: #aab8c2; }
+        .filiere-option label:hover { border-color: var(--border-radio-hover); }
 
         .btn-save {
             background-color: var(--ensa-primary); border: none; color: white;
@@ -94,35 +243,71 @@
             transition: all 0.2s;
         }
         .btn-save:hover { background-color: var(--ensa-secondary); color: white; transform: translateY(-1px); }
+        
         .btn-cancel {
-            border: 1.5px solid #dee2e6; background: white; color: #6c757d;
+            border: 1.5px solid var(--btn-cancel-border); 
+            background: var(--btn-cancel-bg); 
+            color: var(--btn-cancel-text);
             padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem;
             transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
         }
-        .btn-cancel:hover { background: #f8f9fa; border-color: #adb5bd; }
+        .btn-cancel:hover { 
+            background: var(--btn-cancel-hover-bg); 
+            border-color: var(--btn-cancel-hover-border); 
+            color: var(--text-primary);
+        }
 
-        .char-counter { font-size: 0.78rem; color: #9ca3af; text-align: right; margin-top: 4px; }
-        .char-counter.warning { color: #e67e22; }
-        .char-counter.danger { color: #e74c3c; }
+        .char-counter { font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-top: 4px; transition: color 0.3s ease; }
+        .char-counter.warning { color: #e67e22 !important; }
+        .char-counter.danger { color: #e74c3c !important; }
+        
+        .alert-danger {
+            background: var(--alert-bg-danger);
+            color: var(--alert-text-danger);
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .alert-danger .btn-close { filter: invert(0.3); }
+        [data-theme="dark"] .alert-danger .btn-close { filter: invert(0.8); }
+        
+        /* Select option styling for dark mode */
+        [data-theme="dark"] select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/import"><i class="bi bi-upload me-1"></i>Import Excel</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
-                <li class="nav-item"><a class="nav-link" href="/export"><i class="bi bi-download me-1"></i>Export</a></li>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload me-1"></i>Import Excel</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/etudiants}"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/professeurs}"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/export}"><i class="bi bi-download me-1"></i>Export</a></li>
+                <li class="nav-item">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -133,8 +318,8 @@
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-2">
             <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
-                <li class="breadcrumb-item"><a href="/">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="/etudiants">Étudiants</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/etudiants}">Étudiants</a></li>
                 <li class="breadcrumb-item active"
                     th:text="${modeEdition} ? 'Modifier' : 'Nouveau'">Nouveau</li>
             </ol>
@@ -231,11 +416,6 @@
                     <div class="section-title"><i class="bi bi-person-badge me-2"></i>Encadrant</div>
                     <div class="mb-4">
                         <label class="form-label">Professeur encadrant <span class="required">*</span></label>
-                        <!--
-                            FIX : th:field="*{encadrant.id}" est sûr car le controller
-                            initialise toujours etudiant.encadrant = new Professeur()
-                            en mode ajout, évitant le NPE sur null.id
-                        -->
                         <select th:field="*{encadrant.id}"
                                 th:class="${#fields.hasErrors('encadrant')} ? 'form-select is-invalid' : 'form-select'">
                             <option value="">-- Sélectionnez un encadrant --</option>
@@ -252,7 +432,7 @@
                     <!-- ===== SECTION 4 : PROJET ===== -->
                     <div class="section-title">
                         <i class="bi bi-file-earmark-text me-2"></i>Projet
-                        <span style="font-weight:400;color:#9ca3af;text-transform:none;letter-spacing:0;">(optionnel)</span>
+                        <span style="font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">(optionnel)</span>
                     </div>
                     <div class="mb-5">
                         <label class="form-label">Titre du projet</label>
@@ -271,8 +451,8 @@
                     </div>
 
                     <!-- ===== BOUTONS ===== -->
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <a href="/etudiants" class="btn-cancel text-decoration-none">
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color:var(--border-section) !important; transition:border-color 0.3s ease;">
+                        <a th:href="@{/etudiants}" class="btn-cancel">
                             <i class="bi bi-arrow-left me-2"></i>Annuler
                         </a>
                         <button type="submit" class="btn-save">
@@ -295,8 +475,27 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ── THEME TOGGLE ──
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Load saved theme or prefer system
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    html.setAttribute('data-theme', initialTheme);
+    
+    themeToggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    });
+
+    // ── CHAR COUNTER ──
     const titreInput = document.getElementById('titreInput');
     const counter = document.getElementById('charCounter');
+    
     function updateCounter() {
         const len = titreInput.value.length;
         counter.textContent = len + ' / 255';
@@ -304,6 +503,7 @@
         if (len > 200) counter.classList.add('warning');
         if (len > 240) counter.classList.add('danger');
     }
+    
     titreInput.addEventListener('input', updateCounter);
     updateCounter();
 </script>

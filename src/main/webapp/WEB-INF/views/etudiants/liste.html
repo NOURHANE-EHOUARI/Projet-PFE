@@ -10,58 +10,208 @@
             --ensa-primary: #1a3a5c;
             --ensa-secondary: #2e6da4;
             --ensa-accent: #f0a500;
+            
+            /* Light Theme */
+            --bg-body: #f5f7fa;
+            --bg-card: #ffffff;
+            --bg-filter: #ffffff;
+            --bg-table-header: var(--ensa-primary);
+            --bg-table-row-hover: #f0f4ff;
+            --bg-badge-gi: #e8f4fd; --text-badge-gi: #2e6da4;
+            --bg-badge-id: #fef3e8; --text-badge-id: #e67e22;
+            --bg-badge-fr: #e8f8e8; --text-badge-fr: #27ae60;
+            --bg-badge-en: #fdeaea; --text-badge-en: #e74c3c;
+            --text-primary: #374151;
+            --text-secondary: #6c757d;
+            --text-muted: #6c757d;
+            --text-inverse: #ffffff;
+            --border-table: #f0f0f0;
+            --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-table: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-filter: 0 2px 10px rgba(0,0,0,0.06);
+            --navbar-bg: var(--ensa-primary);
+            --footer-bg: var(--ensa-primary);
+            --footer-text: rgba(255,255,255,0.6);
+            --theme-toggle-bg: rgba(255,255,255,0.1);
+            --theme-toggle-border: rgba(255,255,255,0.2);
+            --theme-toggle-hover: rgba(255,255,255,0.2);
+            --alert-bg-success: #d4edda;
+            --alert-text-success: #155724;
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
+
+        /* Dark Theme */
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-filter: #1e293b;
+            --bg-table-header: #0f172a;
+            --bg-table-row-hover: #334155;
+            --bg-badge-gi: rgba(21,101,192,0.15); --text-badge-gi: #60a5fa;
+            --bg-badge-id: rgba(180,83,9,0.15); --text-badge-id: #fb923c;
+            --bg-badge-fr: rgba(46,125,50,0.15); --text-badge-fr: #4ade80;
+            --bg-badge-en: rgba(198,40,40,0.15); --text-badge-en: #f87171;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #94a3b8;
+            --border-table: #334155;
+            --shadow-card: 0 2px 12px rgba(0,0,0,0.4);
+            --shadow-table: 0 4px 20px rgba(0,0,0,0.5);
+            --shadow-filter: 0 2px 10px rgba(0,0,0,0.3);
+            --navbar-bg: #0f172a;
+            --footer-bg: #0f172a;
+            --footer-text: #94a3b8;
+            --theme-toggle-bg: rgba(255,255,255,0.05);
+            --theme-toggle-border: rgba(255,255,255,0.1);
+            --theme-toggle-hover: rgba(255,255,255,0.15);
+            --alert-bg-success: rgba(46,125,50,0.15);
+            --alert-text-success: #4ade80;
+        }
+
+        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            font-family: 'Segoe UI', sans-serif; 
+            color: var(--text-primary);
+        }
+        
+        .navbar { 
+            background-color: var(--navbar-bg) !important; 
+            transition: background-color 0.3s ease;
+        }
+        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
         .navbar-brand span { color: var(--ensa-accent); }
         .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
         .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--theme-toggle-bg);
+            border: 1px solid var(--theme-toggle-border);
+            color: white;
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        .theme-toggle:hover { background: var(--theme-toggle-hover); transform: rotate(15deg); }
+        .theme-toggle svg { width: 18px; height: 18px; }
+        
+        [data-theme="dark"] .sun-icon { display: none; }
+        [data-theme="light"] .moon-icon { display: none; }
+        .sun-icon { display: inline; }
+        .moon-icon { display: none; }
+        [data-theme="dark"] .moon-icon { display: inline; }
+        
+        footer { 
+            background-color: var(--footer-bg); 
+            color: var(--footer-text); 
+            font-size: 0.85rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
         .page-header {
             background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
             color: white; padding: 30px 0; margin-bottom: 30px;
         }
+        
         .stat-card {
             border: none; border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-card);
             padding: 20px; text-align: center;
+            background: var(--bg-card);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .stat-num { font-size: 2rem; font-weight: 700; color: var(--ensa-primary); }
-        .stat-label { color: #6c757d; font-size: 0.85rem; }
+        .stat-num { font-size: 2rem; font-weight: 700; color: var(--text-primary); transition: color 0.3s ease; }
+        .stat-label { color: var(--text-secondary); font-size: 0.85rem; transition: color 0.3s ease; }
+        
         .table-card {
             border: none; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;
+            box-shadow: var(--shadow-table); overflow: hidden;
+            background: var(--bg-card);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .table thead { background-color: var(--ensa-primary); color: white; }
+        .table { margin-bottom: 0; }
+        .table thead { background-color: var(--bg-table-header); color: white; transition: background-color 0.3s ease; }
         .table thead th { border: none; padding: 14px 16px; font-weight: 600; }
         .table tbody tr { transition: background 0.15s; }
-        .table tbody tr:hover { background-color: #f0f4ff; }
-        .table tbody td { padding: 12px 16px; vertical-align: middle; border-color: #f0f0f0; }
-        .badge-gi { background-color: #e8f4fd; color: #2e6da4; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
-        .badge-id { background-color: #fef3e8; color: #e67e22; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
-        .badge-fr { background-color: #e8f8e8; color: #27ae60; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
-        .badge-en { background-color: #fdeaea; color: #e74c3c; font-weight: 600; padding: 5px 10px; border-radius: 8px; }
+        .table tbody tr:hover { background-color: var(--bg-table-row-hover); transition: background-color 0.3s ease; }
+        .table tbody td { 
+            padding: 12px 16px; vertical-align: middle; 
+            border-color: var(--border-table);
+            color: var(--text-primary);
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .badge-gi { background-color: var(--bg-badge-gi); color: var(--text-badge-gi); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
+        .badge-id { background-color: var(--bg-badge-id); color: var(--text-badge-id); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
+        .badge-fr { background-color: var(--bg-badge-fr); color: var(--text-badge-fr); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
+        .badge-en { background-color: var(--bg-badge-en); color: var(--text-badge-en); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
+        
         .btn-action { padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; }
-        .filter-bar { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+        
+        .filter-bar { 
+            background: var(--bg-filter); 
+            border-radius: 12px; 
+            padding: 16px 20px; 
+            margin-bottom: 20px; 
+            box-shadow: var(--shadow-filter);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .text-muted { color: var(--text-muted) !important; transition: color 0.3s ease; }
+        .fw-semibold { color: var(--text-primary); transition: color 0.3s ease; }
+        
+        .alert-success {
+            background: var(--alert-bg-success);
+            color: var(--alert-text-success);
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .alert-success .btn-close { filter: invert(0.3); }
+        [data-theme="dark"] .alert-success .btn-close { filter: invert(0.8); }
+        
+        .btn-warning {
+            background: var(--ensa-accent);
+            color: var(--ensa-primary);
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-warning:hover { opacity: 0.9; color: var(--ensa-primary); }
+        
+        .btn-outline-secondary, .btn-outline-primary, .btn-outline-warning, .btn-outline-danger, .btn-outline-success {
+            transition: all 0.2s;
+        }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
+        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door"></i> Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/import"><i class="bi bi-upload"></i> Import Excel</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3"></i> Planning</a></li>
-                <li class="nav-item"><a class="nav-link" href="/export"><i class="bi bi-download"></i> Export</a></li>
-                <li class="nav-item"><a class="nav-link" href="/pvs"><i class="bi bi-file-earmark-text"></i> PVs</a></li>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door"></i> Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload"></i> Import Excel</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3"></i> Planning</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/export}"><i class="bi bi-download"></i> Export</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/pvs}"><i class="bi bi-file-earmark-text"></i> PVs</a></li>
+                <li class="nav-item">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -69,12 +219,12 @@
 
 <!-- PAGE HEADER -->
 <div class="page-header">
-    <div class="container d-flex justify-content-between align-items-center">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h2 class="mb-1 fw-bold"><i class="bi bi-mortarboard me-2"></i>Étudiants</h2>
             <p class="mb-0 opacity-75">Gestion des étudiants — Filières GI & ID</p>
         </div>
-        <a href="/etudiants/nouveau" class="btn btn-warning fw-bold px-4">
+        <a th:href="@{/etudiants/nouveau}" class="btn btn-warning fw-bold px-4">
             <i class="bi bi-plus-lg me-2"></i>Nouvel étudiant
         </a>
     </div>
@@ -99,13 +249,13 @@
         </div>
         <div class="col-md-4">
             <div class="stat-card">
-                <div class="stat-num" style="color:#2e6da4" th:text="${totalGI}">0</div>
+                <div class="stat-num" style="color:var(--text-badge-gi)" th:text="${totalGI}">0</div>
                 <div class="stat-label">Filière GI</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
-                <div class="stat-num" style="color:#e67e22" th:text="${totalID}">0</div>
+                <div class="stat-num" style="color:var(--text-badge-id)" th:text="${totalID}">0</div>
                 <div class="stat-label">Filière ID</div>
             </div>
         </div>
@@ -114,11 +264,11 @@
     <!-- FILTRES -->
     <div class="filter-bar d-flex gap-3 align-items-center flex-wrap">
         <span class="fw-semibold text-muted"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
-        <a href="/etudiants" class="btn btn-sm btn-outline-secondary rounded-pill">Tous</a>
-        <a href="/etudiants?filiere=GI" class="btn btn-sm btn-outline-primary rounded-pill">Filière GI</a>
-        <a href="/etudiants?filiere=ID" class="btn btn-sm btn-outline-warning rounded-pill">Filière ID</a>
-        <a href="/etudiants?langue=EN" class="btn btn-sm btn-outline-danger rounded-pill">Présentation EN</a>
-        <a href="/etudiants?langue=FR" class="btn btn-sm btn-outline-success rounded-pill">Présentation FR</a>
+        <a th:href="@{/etudiants}" class="btn btn-sm btn-outline-secondary rounded-pill">Tous</a>
+        <a th:href="@{/etudiants(filiere='GI')}" class="btn btn-sm btn-outline-primary rounded-pill">Filière GI</a>
+        <a th:href="@{/etudiants(filiere='ID')}" class="btn btn-sm btn-outline-warning rounded-pill">Filière ID</a>
+        <a th:href="@{/etudiants(langue='EN')}" class="btn btn-sm btn-outline-danger rounded-pill">Présentation EN</a>
+        <a th:href="@{/etudiants(langue='FR')}" class="btn btn-sm btn-outline-success rounded-pill">Présentation FR</a>
     </div>
 
     <!-- TABLEAU -->
@@ -166,7 +316,7 @@
                 <tr th:if="${etudiants.isEmpty()}">
                     <td colspan="7" class="text-center text-muted py-5">
                         <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        Aucun étudiant trouvé. <a href="/etudiants/nouveau">Ajouter le premier</a>
+                        Aucun étudiant trouvé. <a th:href="@{/etudiants/nouveau}">Ajouter le premier</a>
                     </td>
                 </tr>
             </tbody>
@@ -176,10 +326,28 @@
 
 <footer class="py-3">
     <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques & Informatique — 2024/2025
+        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── THEME TOGGLE ──
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    
+    // Load saved theme or prefer system
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    html.setAttribute('data-theme', initialTheme);
+    
+    themeToggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    });
+</script>
 </body>
 </html>
