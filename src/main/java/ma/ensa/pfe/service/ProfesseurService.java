@@ -29,7 +29,8 @@ public class ProfesseurService {
 
     @Transactional(readOnly = true)
     public List<Professeur> findAll() {
-        return professeurRepository.findAllWithContraintes();
+        // ✅ Utilise la méthode avec JOIN FETCH pour charger les étudiants encadrés
+        return professeurRepository.findAllWithEtudiants();
     }
 
     @Transactional(readOnly = true)
@@ -40,11 +41,19 @@ public class ProfesseurService {
 
     @Transactional(readOnly = true)
     public List<Professeur> findBySpecialite(String specialite) {
+        // ✅ Utilise la méthode avec JOIN FETCH pour éviter LazyInitializationException
         return professeurRepository.findBySpecialite(specialite);
     }
 
     @Transactional(readOnly = true)
+    public List<Professeur> findByParleAnglais(Boolean parleAnglais) {
+        // ✅ NOUVELLE MÉTHODE : avec JOIN FETCH pour les étudiants
+        return professeurRepository.findByParleAnglais(parleAnglais);
+    }
+
+    @Transactional(readOnly = true)
     public List<Professeur> findAnglophones() {
+        // ✅ Utilise la méthode avec JOIN FETCH
         return professeurRepository.findByParleAnglais(true);
     }
 

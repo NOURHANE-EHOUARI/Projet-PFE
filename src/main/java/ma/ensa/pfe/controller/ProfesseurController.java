@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/professeurs")
@@ -29,15 +30,24 @@ public class ProfesseurController {
 
         List<Professeur> professeurs;
 
+        // ✅ Filtrage combiné : spécialité + anglophone
         if (specialite != null && !specialite.isBlank() && anglophone != null) {
-            professeurs = professeurService.findAll().stream()
-                    .filter(p -> p.getSpecialite().equals(specialite) && p.getParleAnglais().equals(anglophone))
-                    .toList();
-        } else if (specialite != null && !specialite.isBlank()) {
+            // On charge par spécialité puis on filtre en mémoire pour l'anglophone
+            // (plus simple que d'ajouter une nouvelle requête repo)
+            professeurs = professeurService.findBySpecialite(specialite).stream()
+                    .filter(p -> p.getParleAnglais().equals(anglophone))
+                    .collect(Collectors.toList());
+        } 
+        // ✅ Filtrage par spécialité uniquement
+        else if (specialite != null && !specialite.isBlank()) {
             professeurs = professeurService.findBySpecialite(specialite);
-        } else if (Boolean.TRUE.equals(anglophone)) {
-            professeurs = professeurService.findAnglophones();
-        } else {
+        } 
+        // ✅ Filtrage par anglophone uniquement
+        else if (anglophone != null) {
+            professeurs = professeurService.findByParleAnglais(anglophone);
+        } 
+        // ✅ Aucun filtre : tous les professeurs
+        else {
             professeurs = professeurService.findAll();
         }
 
@@ -48,6 +58,7 @@ public class ProfesseurController {
         model.addAttribute("specialiteActive", specialite);
         model.addAttribute("anglophoneActive", anglophone);
         model.addAttribute("activePage", "professeurs");
+        
         return "professeurs/liste";
     }
 

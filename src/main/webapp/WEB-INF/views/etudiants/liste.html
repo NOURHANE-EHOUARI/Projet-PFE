@@ -261,14 +261,44 @@
         </div>
     </div>
 
-    <!-- FILTRES -->
+    <!-- ✅ FILTRES CORRIGÉS -->
     <div class="filter-bar d-flex gap-3 align-items-center flex-wrap">
         <span class="fw-semibold text-muted"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
-        <a th:href="@{/etudiants}" class="btn btn-sm btn-outline-secondary rounded-pill">Tous</a>
-        <a th:href="@{/etudiants(filiere='GI')}" class="btn btn-sm btn-outline-primary rounded-pill">Filière GI</a>
-        <a th:href="@{/etudiants(filiere='ID')}" class="btn btn-sm btn-outline-warning rounded-pill">Filière ID</a>
-        <a th:href="@{/etudiants(langue='EN')}" class="btn btn-sm btn-outline-danger rounded-pill">Présentation EN</a>
-        <a th:href="@{/etudiants(langue='FR')}" class="btn btn-sm btn-outline-success rounded-pill">Présentation FR</a>
+        
+        <!-- Tous -->
+        <a th:href="@{/etudiants}" 
+           class="btn btn-sm rounded-pill"
+           th:classappend="${filiereActive == null and langueActive == null} ? 'btn-outline-secondary active' : 'btn-outline-secondary'">
+            Tous
+        </a>
+        
+        <!-- Filière GI -->
+        <a th:href="@{/etudiants(filiere=${'GI'})}" 
+           class="btn btn-sm rounded-pill"
+           th:classappend="${filiereActive == 'GI'} ? 'btn-primary active' : 'btn-outline-primary'">
+            Filière GI
+        </a>
+        
+        <!-- Filière ID -->
+        <a th:href="@{/etudiants(filiere=${'ID'})}" 
+           class="btn btn-sm rounded-pill"
+           th:classappend="${filiereActive == 'ID'} ? 'btn-warning active' : 'btn-outline-warning'">
+            Filière ID
+        </a>
+        
+        <!-- Langue EN -->
+        <a th:href="@{/etudiants(langue=${'EN'})}" 
+           class="btn btn-sm rounded-pill"
+           th:classappend="${langueActive == 'EN'} ? 'btn-danger active' : 'btn-outline-danger'">
+            Présentation EN
+        </a>
+        
+        <!-- Langue FR -->
+        <a th:href="@{/etudiants(langue=${'FR'})}" 
+           class="btn btn-sm rounded-pill"
+           th:classappend="${langueActive == 'FR'} ? 'btn-success active' : 'btn-outline-success'">
+            Présentation FR
+        </a>
     </div>
 
     <!-- TABLEAU -->
