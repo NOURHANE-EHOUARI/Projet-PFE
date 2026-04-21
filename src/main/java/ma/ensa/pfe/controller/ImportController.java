@@ -14,6 +14,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * Contrôleur Spring MVC gérant l'import du fichier Excel de données PFE.
+ * <p>
+ * Lit les feuilles suivantes du fichier .xlsx :
+ * <ul>
+ *   <li>{@code professeurs} — nom, prénom, spécialité, parle_anglais</li>
+ *   <li>{@code salles}      — nom, capacité</li>
+ *   <li>{@code etudiants}   — nom, prénom, filière, langue, encadrant</li>
+ * </ul>
+ * Génère un rapport détaillé des lignes invalides.
+ *
+ * @author Membre B — ENSA Al Hoceima 2024/2025
+ * @version 1.0
+ */
 @Controller
 @RequestMapping("/import")
 public class ImportController {

@@ -170,6 +170,24 @@
                 <failOnMissingWebXml>true</failOnMissingWebXml>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.5.0</version>
+            <configuration>
+                <source>17</source>
+                <outputDirectory>${project.basedir}/docs/javadoc</outputDirectory>
+                <author>true</author>
+                <version>true</version>
+                <windowtitle>PFE Planning — Documentation Technique</windowtitle>
+                <doctitle>PFE Planning — Documentation Technique</doctitle>
+            </configuration>
+         </plugin>
+         <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-surefire-plugin</artifactId>
+             <version>3.1.2</version>
+         </plugin>
       </plugins> 
    </build>
 

@@ -33,6 +33,7 @@
         <property name="templateEngine" ref="templateEngine"/>
         <property name="characterEncoding" value="UTF-8"/>
     </bean>
+   
     <!-- Résolveur multipart pour l'upload -->
     <bean id="multipartResolver"
       class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>

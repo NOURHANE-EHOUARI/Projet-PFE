@@ -8,6 +8,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Contrôleur Spring MVC pour la gestion CRUD des salles de soutenance.
+ * <p>
+ * Expose les endpoints :
+ * <ul>
+ *   <li>GET  {@code /salles}              — liste toutes les salles</li>
+ *   <li>GET  {@code /salles/ajouter}      — formulaire d'ajout</li>
+ *   <li>POST {@code /salles/enregistrer}  — enregistrer une salle</li>
+ *   <li>GET  {@code /salles/modifier/{id}} — formulaire de modification</li>
+ *   <li>GET  {@code /salles/supprimer/{id}} — suppression</li>
+ * </ul>
+ *
+ * @author Membre B — ENSA Al Hoceima 2024/2025
+ * @version 1.0
+ */
 @Controller
 @RequestMapping("/salles")
 public class SalleController {
