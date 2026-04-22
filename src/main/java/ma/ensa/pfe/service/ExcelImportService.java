@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,12 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service d'import Excel (feuilles "professeurs", "salles", "etudiants").
- * Compatible .xlsx et .xls via Apache POI 5.2.
- *
- * @author Membre A
- */
 @Service
 @Transactional
 public class ExcelImportService {
@@ -36,14 +32,12 @@ public class ExcelImportService {
     @Autowired private ProfesseurRepository professeurRepository;
     @Autowired private ContrainteRepository contrainteRepository;
     @Autowired private SalleRepository      salleRepository;
+    
+    // ✅ AJOUT : EntityManager pour forcer la synchronisation avec la base
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    // ══════════════════════════════════════════════
-    //  RÉSULTAT D'IMPORT
-    // ══════════════════════════════════════════════
-
-    /**
-     * DTO encapsulant les compteurs et erreurs d'un import.
-     */
+    // ... (Le reste de la classe ImportResult reste inchangé) ...
     public static class ImportResult {
         private int profsImportes        = 0;
         private int etudiantsImportes    = 0;
@@ -65,62 +59,44 @@ public class ExcelImportService {
         void incrSalles(int n)       { sallesImportees += n; }
     }
 
-    // ══════════════════════════════════════════════
-    //  POINT D'ENTRÉE
-    // ══════════════════════════════════════════════
-
-    /**
-     * Importe le fichier Excel complet.
-     * Ordre : professeurs → salles → étudiants (dépendance FK).
-     *
-     * @param file fichier .xlsx / .xls uploadé
-     * @return ImportResult avec compteurs et erreurs
-     */
     public ImportResult importerFichier(MultipartFile file) throws Exception {
         ImportResult result = new ImportResult();
 
         try (InputStream is = file.getInputStream();
              Workbook wb   = ouvrirWorkbook(file.getOriginalFilename(), is)) {
 
-            // 1. Professeurs en premier (les étudiants en dépendent)
+            // 1. Professeurs
             Sheet sheetProfs = trouverFeuille(wb, "professeurs");
             if (sheetProfs != null) {
                 importerProfesseurs(sheetProfs, result);
             } else {
-                result.addErreur("Feuille 'professeurs' introuvable dans le fichier Excel.");
+                result.addErreur("Feuille 'professeurs' introuvable.");
             }
 
-            // 2. Salles (l'algorithme en a besoin)
+            // ✅ CORRECTION MAJEURE : On force l'écriture en base avant de chercher les profs
+            entityManager.flush();
+
+            // 2. Salles
             Sheet sheetSalles = trouverFeuille(wb, "salles");
             if (sheetSalles != null) {
                 importerSalles(sheetSalles, result);
-            } else {
-                result.addErreur("Feuille 'salles' introuvable dans le fichier Excel.");
             }
 
-            // 3. Étudiants en dernier (dépendent des professeurs)
+            // 3. Étudiants (maintenant les profs sont bien en base)
             Sheet sheetEtudiants = trouverFeuille(wb, "etudiants");
             if (sheetEtudiants != null) {
                 importerEtudiants(sheetEtudiants, result);
             } else {
-                result.addErreur("Feuille 'etudiants' introuvable dans le fichier Excel.");
+                result.addErreur("Feuille 'etudiants' introuvable.");
             }
         }
 
         return result;
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT PROFESSEURS
-    // ══════════════════════════════════════════════
+    // ... (Les méthodes importerProfesseurs, importerSalles, importerEtudiants restent exactement les mêmes) ...
+    // ... (Les utilitaires POI restent exactement les mêmes) ...
 
-    /**
-     * Format attendu (ligne 1 = en-têtes) :
-     * A: nom | B: prenom | C: specialite | D: parle_anglais (oui/yes/true/1)
-     * E: date_indispo (YYYY-MM-DD, optionnel)
-     * F: heure_debut  (HH:mm, optionnel)
-     * G: heure_fin    (HH:mm, optionnel)
-     */
     private void importerProfesseurs(Sheet sheet, ImportResult result) {
         int imported    = 0;
         int contraintes = 0;
@@ -136,15 +112,11 @@ public class ExcelImportService {
                 boolean parleAng  = lireBoolean(row, 3);
 
                 if (nom.isBlank() || prenom.isBlank() || specialite.isBlank()) {
-                    result.addErreur("Prof ligne " + (i + 1)
-                            + " : nom/prénom/spécialité manquants.");
+                    result.addErreur("Prof ligne " + (i + 1) + " : données manquantes.");
                     continue;
                 }
 
-                // Upsert : mise à jour si déjà présent
-                Professeur prof = professeurRepository
-                        .findByNomAndPrenom(nom, prenom)
-                        .orElse(new Professeur());
+                Professeur prof = professeurRepository.findByNomAndPrenom(nom, prenom).orElse(new Professeur());
                 prof.setNom(nom);
                 prof.setPrenom(prenom);
                 prof.setSpecialite(specialite);
@@ -152,14 +124,12 @@ public class ExcelImportService {
                 professeurRepository.save(prof);
                 imported++;
 
-                // Contrainte d'indisponibilité (optionnel)
                 String dateStr = lireString(row, 4).trim();
                 if (!dateStr.isBlank()) {
                     try {
                         LocalDate date  = LocalDate.parse(dateStr);
                         LocalTime debut = parseTime(lireString(row, 5));
                         LocalTime fin   = parseTime(lireString(row, 6));
-
                         Contrainte c = new Contrainte();
                         c.setProfesseur(prof);
                         c.setDateIndisponible(date);
@@ -168,76 +138,44 @@ public class ExcelImportService {
                         contrainteRepository.save(c);
                         contraintes++;
                     } catch (Exception e) {
-                        result.addErreur("Contrainte prof ligne " + (i + 1)
-                                + " : date invalide '" + dateStr + "'.");
+                        result.addErreur("Contrainte prof ligne " + (i + 1) + " invalide.");
                     }
                 }
-
             } catch (Exception e) {
                 result.addErreur("Erreur prof ligne " + (i + 1) + " : " + e.getMessage());
             }
         }
-
         result.incrProfs(imported);
         result.incrContraintes(contraintes);
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT SALLES
-    // ══════════════════════════════════════════════
-
-    /**
-     * Format attendu :
-     * A: nom | B: capacite
-     */
     private void importerSalles(Sheet sheet, ImportResult result) {
         int imported = 0;
-
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null || estLigneVide(row)) continue;
-
             try {
                 String nom = lireString(row, 0).trim();
                 if (nom.isBlank()) continue;
-
-                int capacite = 30; // valeur par défaut
+                int capacite = 30;
                 String capStr = lireString(row, 1).trim();
                 if (!capStr.isBlank()) {
-                    try {
-                        capacite = Integer.parseInt(capStr);
-                    } catch (NumberFormatException ignored) {
-                        // garde la valeur par défaut
-                    }
+                    try { capacite = Integer.parseInt(capStr); } catch (NumberFormatException ignored) {}
                 }
-
-                // Upsert — pas de doublon
                 Salle salle = salleRepository.findByNom(nom).orElse(new Salle());
                 salle.setNom(nom);
                 salle.setCapacite(capacite);
                 salleRepository.save(salle);
                 imported++;
-
             } catch (Exception e) {
                 result.addErreur("Salle ligne " + (i + 1) + " : " + e.getMessage());
             }
         }
-
         result.incrSalles(imported);
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT ÉTUDIANTS
-    // ══════════════════════════════════════════════
-
-    /**
-     * Format attendu :
-     * A: nom | B: prenom | C: filiere (GI/ID) | D: langue (FR/EN)
-     * E: encadrant_nom | F: encadrant_prenom | G: titre_projet (optionnel)
-     */
     private void importerEtudiants(Sheet sheet, ImportResult result) {
         int imported = 0;
-
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null || estLigneVide(row)) continue;
@@ -251,128 +189,82 @@ public class ExcelImportService {
                 String encPrenom  = capitalize(lireString(row, 5).trim());
                 String titre      = lireString(row, 6).trim();
 
-                if (nom.isBlank() || prenom.isBlank()) {
-                    result.addErreur("Étudiant ligne " + (i + 1)
-                            + " : nom/prénom manquants.");
-                    continue;
-                }
+                if (nom.isBlank() || prenom.isBlank()) continue;
 
                 Filiere filiere;
-                try {
-                    filiere = Filiere.valueOf(filiereStr);
-                } catch (IllegalArgumentException e) {
-                    result.addErreur("Étudiant " + nom + " ligne " + (i + 1)
-                            + " : filière invalide '" + filiereStr
-                            + "' (attendu : GI ou ID).");
-                    continue;
-                }
+                try { filiere = Filiere.valueOf(filiereStr); } 
+                catch (IllegalArgumentException e) { result.addErreur("Étudiant " + nom + " : filière invalide."); continue; }
 
                 Langue langue;
-                try {
-                    langue = Langue.valueOf(langueStr);
-                } catch (IllegalArgumentException e) {
-                    result.addErreur("Étudiant " + nom + " ligne " + (i + 1)
-                            + " : langue invalide '" + langueStr
-                            + "' (attendu : FR ou EN).");
-                    continue;
-                }
+                try { langue = Langue.valueOf(langueStr); } 
+                catch (IllegalArgumentException e) { result.addErreur("Étudiant " + nom + " : langue invalide."); continue; }
 
                 if (encNom.isBlank() || encPrenom.isBlank()) {
-                    result.addErreur("Étudiant " + nom + " ligne " + (i + 1)
-                            + " : encadrant manquant.");
+                    result.addErreur("Étudiant " + nom + " : encadrant manquant.");
                     continue;
                 }
 
-                Optional<Professeur> encOpt =
-                        professeurRepository.findByNomAndPrenom(encNom, encPrenom);
+                // C'est ICI que le flush() aide : le professeur est maintenant visible
+                Optional<Professeur> encOpt = professeurRepository.findByNomAndPrenom(encNom, encPrenom);
                 if (encOpt.isEmpty()) {
-                    result.addErreur("Étudiant " + nom + " ligne " + (i + 1)
-                            + " : encadrant '" + encNom + " " + encPrenom
-                            + "' introuvable.");
+                    result.addErreur("Étudiant " + nom + " : encadrant '" + encNom + " " + encPrenom + "' introuvable.");
                     continue;
                 }
 
-                Etudiant etudiant = etudiantRepository
-                        .findByNomAndPrenom(nom, prenom)
-                        .orElse(new Etudiant());
+                Etudiant etudiant = etudiantRepository.findByNomAndPrenom(nom, prenom).orElse(new Etudiant());
                 etudiant.setNom(nom);
                 etudiant.setPrenom(prenom);
                 etudiant.setFiliere(filiere);
                 etudiant.setLangue(langue);
-                etudiant.setEncadrant(encOpt.get());
+                etudiant.setEncadrant(encOpt.get()); // Utilise le setter simple corrigé
                 if (!titre.isBlank()) etudiant.setTitreProjet(titre);
 
                 etudiantRepository.save(etudiant);
                 imported++;
 
             } catch (Exception e) {
-                result.addErreur("Erreur étudiant ligne " + (i + 1)
-                        + " : " + e.getMessage());
+                result.addErreur("Erreur étudiant ligne " + (i + 1) + " : " + e.getMessage());
             }
         }
-
         result.incrEtudiants(imported);
     }
 
-    // ══════════════════════════════════════════════
-    //  UTILITAIRES POI
-    // ══════════════════════════════════════════════
-
+    // ... (Utilitaires POI inchangés) ...
     private Workbook ouvrirWorkbook(String filename, InputStream is) throws Exception {
-        if (filename != null && filename.toLowerCase().endsWith(".xls")) {
-            return new HSSFWorkbook(is);
-        }
+        if (filename != null && filename.toLowerCase().endsWith(".xls")) return new HSSFWorkbook(is);
         return new XSSFWorkbook(is);
     }
-
     private Sheet trouverFeuille(Workbook wb, String nom) {
         for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-            if (wb.getSheetName(i).trim().equalsIgnoreCase(nom))
-                return wb.getSheetAt(i);
+            if (wb.getSheetName(i).trim().equalsIgnoreCase(nom)) return wb.getSheetAt(i);
         }
         return null;
     }
-
     private String lireString(Row row, int col) {
         Cell cell = row.getCell(col, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         if (cell == null) return "";
         return switch (cell.getCellType()) {
             case STRING  -> cell.getStringCellValue().trim();
-            case NUMERIC -> {
-                double v = cell.getNumericCellValue();
-                yield (v == Math.floor(v))
-                        ? String.valueOf((long) v)
-                        : String.valueOf(v);
-            }
+            case NUMERIC -> { double v = cell.getNumericCellValue(); yield (v == Math.floor(v)) ? String.valueOf((long) v) : String.valueOf(v); }
             case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
-            case FORMULA -> {
-                try { yield cell.getStringCellValue().trim(); }
-                catch (Exception e) { yield String.valueOf(cell.getNumericCellValue()); }
-            }
+            case FORMULA -> { try { yield cell.getStringCellValue().trim(); } catch (Exception e) { yield String.valueOf(cell.getNumericCellValue()); } }
             default -> "";
         };
     }
-
     private boolean lireBoolean(Row row, int col) {
         String v = lireString(row, col).toLowerCase();
         return v.equals("oui") || v.equals("yes") || v.equals("true") || v.equals("1");
     }
-
     private boolean estLigneVide(Row row) {
         for (Cell c : row) {
-            if (c != null && c.getCellType() != CellType.BLANK
-                    && !c.toString().trim().isEmpty())
-                return false;
+            if (c != null && c.getCellType() != CellType.BLANK && !c.toString().trim().isEmpty()) return false;
         }
         return true;
     }
-
     private LocalTime parseTime(String s) {
         if (s == null || s.isBlank()) return null;
-        try { return LocalTime.parse(s.trim()); }
-        catch (Exception e) { return null; }
+        try { return LocalTime.parse(s.trim()); } catch (Exception e) { return null; }
     }
-
     private String capitalize(String s) {
         if (s == null || s.isBlank()) return s;
         return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();

@@ -3,7 +3,6 @@ package ma.ensa.pfe.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +42,22 @@ public class Etudiant {
 
     @Column(name = "titre_projet")
     private String titreProjet;
+
+    // ✅ Setter SIMPLE pour l'import Excel (ne synchronise pas la collection LAZY)
+    public void setEncadrant(Professeur encadrant) {
+        this.encadrant = encadrant;
+    }
+
+    // ✅ Setter avec synchronisation bidirectionnelle (à utiliser uniquement dans un service @Transactional)
+    public void setEncadrantWithSync(Professeur encadrant) {
+        if (this.encadrant != null) {
+            this.encadrant.getEtudiantsEncadres().remove(this);
+        }
+        this.encadrant = encadrant;
+        if (encadrant != null) {
+            encadrant.getEtudiantsEncadres().add(this);
+        }
+    }
 
     // Enums
     public enum Filiere { GI, ID }

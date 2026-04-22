@@ -321,13 +321,15 @@
                             <i class="bi bi-globe2 me-1"></i>EN + FR
                         </span>
                         <span th:unless="${prof.parleAnglais}" class="badge-fr-only">
-                            🇫 FR seulement
+                            🇫🇷 FR seulement
                         </span>
                     </td>
                     <td>
-                        <span class="text-muted small"
-                              th:text="${prof.etudiantsEncadres != null ? prof.etudiantsEncadres.size() : 0} + ' étudiant(s)'">
-                            0 étudiant(s)
+                        <!-- ✅ VERSION SÉCURISÉE : évite LazyInitializationException -->
+                        <span class="text-muted small">
+                            <th:block th:if="${prof.etudiantsEncadres != null}" 
+                                      th:text="${prof.etudiantsEncadres.size()} + ' étudiant(s)'"/>
+                            <th:block th:unless="${prof.etudiantsEncadres != null}">0 étudiant(s)</th:block>
                         </span>
                     </td>
                     <td>
@@ -377,30 +379,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ── THEME TOGGLE ──
-    const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    const body = document.body;
-    
-    // Load saved theme or prefer system
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    
-    // Apply theme to both html and body
-    html.setAttribute('data-theme', initialTheme);
-    body.setAttribute('data-theme', initialTheme);
-    
-    themeToggle.addEventListener('click', () => {
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
+    // ── THEME TOGGLE (version protégée) ──
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('themeToggle');
+        if (!themeToggle) return; // ← Protection si l'élément n'existe pas
         
-        // Apply to both html and body
-        html.setAttribute('data-theme', next);
-        body.setAttribute('data-theme', next);
+        const html = document.documentElement;
+        const body = document.body;
         
-        // Save to localStorage
-        localStorage.setItem('theme', next);
+        // Load saved theme or prefer system
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        
+        // Apply theme to both html and body
+        html.setAttribute('data-theme', initialTheme);
+        body.setAttribute('data-theme', initialTheme);
+        
+        themeToggle.addEventListener('click', function() {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            
+            // Apply to both html and body
+            html.setAttribute('data-theme', next);
+            body.setAttribute('data-theme', next);
+            
+            // Save to localStorage
+            localStorage.setItem('theme', next);
+        });
     });
 </script>
 </body>
