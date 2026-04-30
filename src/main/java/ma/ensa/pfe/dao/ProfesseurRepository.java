@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,15 +14,15 @@ import java.util.Optional;
 public interface ProfesseurRepository extends JpaRepository<Professeur, Long> {
 
     // ✅ Avec JOIN FETCH pour charger les étudiants
-    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.specialite = :specialite")
+    @Query("SELECT DISTINCT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres LEFT JOIN FETCH p.contraintes WHERE p.specialite = :specialite")
     List<Professeur> findBySpecialite(@Param("specialite") String specialite);
 
     // ✅ Avec JOIN FETCH
-    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.parleAnglais = :parleAnglais")
+    @Query("SELECT DISTINCT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres LEFT JOIN FETCH p.contraintes WHERE p.parleAnglais = :parleAnglais")
     List<Professeur> findByParleAnglais(@Param("parleAnglais") Boolean parleAnglais);
 
     // ✅ Avec JOIN FETCH pour les deux critères
-    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.specialite = :specialite AND p.parleAnglais = :parleAnglais")
+    @Query("SELECT DISTINCT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres LEFT JOIN FETCH p.contraintes WHERE p.specialite = :specialite AND p.parleAnglais = :parleAnglais")
     List<Professeur> findBySpecialiteAndParleAnglais(@Param("specialite") String specialite, @Param("parleAnglais") Boolean parleAnglais);
 
     Optional<Professeur> findByNomAndPrenom(String nom, String prenom);
@@ -36,6 +37,11 @@ public interface ProfesseurRepository extends JpaRepository<Professeur, Long> {
     @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres ORDER BY p.nom")
     List<Professeur> findAllWithEtudiants();
     
+// Dans l'interface, ajoute :
+    @Query("SELECT DISTINCT p FROM Professeur p " +
+       "LEFT JOIN FETCH p.contraintes " +
+       "LEFT JOIN FETCH p.etudiantsEncadres")
+    List<Professeur> findAllWithDetails(); 
     // ✅ Comptages
     long countByParleAnglais(boolean parleAnglais);
     long countBySpecialite(String specialite);

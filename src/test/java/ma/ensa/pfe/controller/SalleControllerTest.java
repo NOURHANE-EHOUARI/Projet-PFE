@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
+import ma.ensa.pfe.dao.SoutenanceRepository;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,7 +26,8 @@ class SalleControllerTest {
 
     @Mock
     private SalleRepository salleRepository;
-
+    @Mock
+    private SoutenanceRepository soutenanceRepository;
     @InjectMocks
     private SalleController salleController;
 
@@ -81,29 +82,36 @@ class SalleControllerTest {
         verify(salleRepository, times(1)).save(nouvelleSalle);
     }
 
-    @Test
+    @Test 
     @DisplayName("enregistrer - redirige avec erreur si salle déjà existante")
     void enregistrer_erreurSiSalleExisteDeja() {
-        when(salleRepository.existsByNom("S4A")).thenReturn(true);
-        RedirectAttributesModelMap ra = new RedirectAttributesModelMap();
+    // Salle avec ID=2 différent de salle1 (ID=1) — donc nom pris par AUTRE salle
+      Salle autreSalle = new Salle("S4A", 30);
+      autreSalle.setId(2L);
 
-        String result = salleController.enregistrer(salle1, ra);
+      when(salleRepository.existsByNom("S4A")).thenReturn(true);
+      when(salleRepository.findByNom("S4A")).thenReturn(Optional.of(autreSalle));
+      RedirectAttributesModelMap ra = new RedirectAttributesModelMap();
 
-        assertEquals("redirect:/salles", result);
-        verify(salleRepository, never()).save(any());
-        assertNotNull(ra.getFlashAttributes().get("erreur"));
+    // salle1 a ID=1, autreSalle a ID=2 → nom pris par une autre salle → erreur
+      String result = salleController.enregistrer(salle1, ra);
+
+      assertEquals("redirect:/salles", result);
+      verify(salleRepository, never()).save(any());
+      assertNotNull(ra.getFlashAttributes().get("erreur"));
     }
-
     @Test
     @DisplayName("supprimer - appelle deleteById et redirige")
     void supprimer_supprimeLaSalleEtRedirige() {
-        RedirectAttributesModelMap ra = new RedirectAttributesModelMap();
-        doNothing().when(salleRepository).deleteById(1L);
+       when(salleRepository.findById(1L)).thenReturn(Optional.of(salle1));
+       when(soutenanceRepository.findBySalle(salle1)).thenReturn(List.of());
+       doNothing().when(salleRepository).deleteById(1L);
+       RedirectAttributesModelMap ra = new RedirectAttributesModelMap();
 
-        String result = salleController.supprimer(1L, ra);
+       String result = salleController.supprimer(1L, ra);
 
-        assertEquals("redirect:/salles", result);
-        verify(salleRepository, times(1)).deleteById(1L);
+       assertEquals("redirect:/salles", result);
+       verify(salleRepository, times(1)).deleteById(1L);
     }
 
     @Test

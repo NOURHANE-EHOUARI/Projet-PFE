@@ -1,4 +1,5 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Salle.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/VersionPlanning.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ProfesseurController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/PlanificationService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/ExportService.java
@@ -6,11 +7,12 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/EtudiantController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/ProfesseurRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/StatistiquesController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/VersionPlanningRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/PlanificationController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Contrainte.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Soutenance.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Etudiant.java
-/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ExportController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/AffectationService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/EtudiantService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/SalleRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/StatistiquesService.java

@@ -30,7 +30,7 @@ public class ProfesseurService {
     @Transactional(readOnly = true)
     public List<Professeur> findAll() {
         // ✅ Utilise la méthode avec JOIN FETCH pour charger les étudiants encadrés
-        return professeurRepository.findAllWithEtudiants();
+        return professeurRepository.findAllWithDetails();
     }
 
     @Transactional(readOnly = true)

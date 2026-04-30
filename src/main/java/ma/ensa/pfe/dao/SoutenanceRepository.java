@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import ma.ensa.pfe.model.VersionPlanning;
 
 @Repository
 public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
@@ -27,6 +28,7 @@ public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
     List<Soutenance> findByDate(LocalDate date);
     List<Soutenance> findBySalle(Salle salle);
     List<Soutenance> findBySalleAndDate(Salle salle, LocalDate date);
+    List<Soutenance> findByVersion(VersionPlanning version);
 
     @Query("SELECT s FROM Soutenance s WHERE s.date = :date AND " +
            "(s.encadrant = :prof OR s.jury1 = :prof OR s.jury2 = :prof)")

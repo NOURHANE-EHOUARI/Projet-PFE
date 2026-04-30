@@ -1,413 +1,247 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Professeurs — PFE Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PFE Planning — Professeurs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
-        :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
-            
-            /* Light Theme */
-            --bg-body: #f5f7fa;
-            --bg-card: #ffffff;
-            --bg-filter: #ffffff;
-            --bg-table-header: var(--ensa-primary);
-            --bg-table-row-hover: #f0f4ff;
-            --bg-badge-spec: #eef2ff; --text-badge-spec: #4f46e5;
-            --bg-badge-anglo: #d1fae5; --text-badge-anglo: #065f46;
-            --bg-badge-fr: #fef3c7; --text-badge-fr: #92400e;
-            --text-primary: #374151;
-            --text-secondary: #6c757d;
-            --text-muted: #6c757d;
-            --text-inverse: #ffffff;
-            --border-table: #f0f0f0;
-            --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
-            --shadow-table: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-filter: 0 2px 10px rgba(0,0,0,0.06);
-            --navbar-bg: var(--ensa-primary);
-            --footer-bg: var(--ensa-primary);
-            --footer-text: rgba(255,255,255,0.6);
-            --theme-toggle-bg: rgba(255,255,255,0.1);
-            --theme-toggle-border: rgba(255,255,255,0.2);
-            --theme-toggle-hover: rgba(255,255,255,0.2);
-            --alert-bg-success: #d4edda; --alert-text-success: #155724;
-            --alert-bg-danger: #fdeaea; --alert-text-danger: #e74c3c;
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);
         }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
 
-        /* Dark Theme */
-        [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-filter: #1e293b;
-            --bg-table-header: #0f172a;
-            --bg-table-row-hover: #334155;
-            --bg-badge-spec: rgba(79,70,229,0.15); --text-badge-spec: #818cf8;
-            --bg-badge-anglo: rgba(6,95,70,0.15); --text-badge-anglo: #34d399;
-            --bg-badge-fr: rgba(146,64,14,0.15); --text-badge-fr: #fbbf24;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #94a3b8;
-            --border-table: #334155;
-            --shadow-card: 0 2px 12px rgba(0,0,0,0.4);
-            --shadow-table: 0 4px 20px rgba(0,0,0,0.5);
-            --shadow-filter: 0 2px 10px rgba(0,0,0,0.3);
-            --navbar-bg: #0f172a;
-            --footer-bg: #0f172a;
-            --footer-text: #94a3b8;
-            --theme-toggle-bg: rgba(255,255,255,0.05);
-            --theme-toggle-border: rgba(255,255,255,0.1);
-            --theme-toggle-hover: rgba(255,255,255,0.15);
-            --alert-bg-success: rgba(46,125,50,0.15); --alert-text-success: #4ade80;
-            --alert-bg-danger: rgba(198,40,40,0.15); --alert-text-danger: #f87171;
-        }
+        /* NAV */
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;padding:14px 20px;background:rgba(22,27,34,0.8);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(12px);}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;}
+        .nav-links{display:flex;gap:6px;flex-wrap:wrap;}
+        .nav-link{padding:7px 13px;border-radius:8px;font-size:13px;color:var(--t1);text-decoration:none;transition:all .18s;border:1px solid transparent;}
+        .nav-link:hover{color:var(--t0);background:var(--hover);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.25);}
 
-        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-        
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Segoe UI', sans-serif; 
-            color: var(--text-primary);
-        }
-        
-        .navbar { 
-            background-color: var(--navbar-bg) !important; 
-            transition: background-color 0.3s ease;
-        }
-        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
-        
-        /* Theme Toggle */
-        .theme-toggle {
-            background: var(--theme-toggle-bg);
-            border: 1px solid var(--theme-toggle-border);
-            color: white;
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-        .theme-toggle:hover { background: var(--theme-toggle-hover); transform: rotate(15deg); }
-        .theme-toggle svg { width: 18px; height: 18px; }
-        
-        [data-theme="dark"] .sun-icon { display: none; }
-        [data-theme="light"] .moon-icon { display: none; }
-        .sun-icon { display: inline; }
-        .moon-icon { display: none; }
-        [data-theme="dark"] .moon-icon { display: inline; }
-        
-        footer { 
-            background-color: var(--footer-bg); 
-            color: var(--footer-text); 
-            font-size: 0.85rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            border: none; border-radius: 12px;
-            box-shadow: var(--shadow-card);
-            padding: 20px; text-align: center;
-            background: var(--bg-card);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .stat-num { font-size: 2rem; font-weight: 700; color: var(--text-primary); transition: color 0.3s ease; }
-        .stat-label { color: var(--text-secondary); font-size: 0.85rem; transition: color 0.3s ease; }
-        
-        .table-card {
-            border: none; border-radius: 16px;
-            box-shadow: var(--shadow-table); overflow: hidden;
-            background: var(--bg-card);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .table { margin-bottom: 0; }
-        .table thead { background-color: var(--bg-table-header); color: white; transition: background-color 0.3s ease; }
-        .table thead th { border: none; padding: 14px 16px; font-weight: 600; }
-        .table tbody tr { transition: background 0.15s; }
-        .table tbody tr:hover { background-color: var(--bg-table-row-hover); transition: background-color 0.3s ease; }
-        .table tbody td { 
-            padding: 12px 16px; vertical-align: middle; 
-            border-color: var(--border-table);
-            color: var(--text-primary);
-            transition: color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        .badge-spec { background-color: var(--bg-badge-spec); color: var(--text-badge-spec); font-weight: 600; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; transition: background-color 0.3s ease, color 0.3s ease; }
-        .badge-anglophone { background-color: var(--bg-badge-anglo); color: var(--text-badge-anglo); font-weight: 600; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; transition: background-color 0.3s ease, color 0.3s ease; }
-        .badge-fr-only { background-color: var(--bg-badge-fr); color: var(--text-badge-fr); font-weight: 600; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; transition: background-color 0.3s ease, color 0.3s ease; }
-        
-        .btn-action { padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; }
-        
-        .filter-bar { 
-            background: var(--bg-filter); 
-            border-radius: 12px; 
-            padding: 16px 20px; 
-            margin-bottom: 20px; 
-            box-shadow: var(--shadow-filter);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .text-muted { color: var(--text-muted) !important; transition: color 0.3s ease; }
-        .fw-semibold { color: var(--text-primary); transition: color 0.3s ease; }
-        
-        .alert-success { background: var(--alert-bg-success); color: var(--alert-text-success); border: none; transition: background-color 0.3s ease, color 0.3s ease; }
-        .alert-success .btn-close { filter: invert(0.3); }
-        [data-theme="dark"] .alert-success .btn-close { filter: invert(0.8); }
-        
-        .alert-danger { background: var(--alert-bg-danger); color: var(--alert-text-danger); border: none; transition: background-color 0.3s ease, color 0.3s ease; }
-        .alert-danger .btn-close { filter: invert(0.3); }
-        [data-theme="dark"] .alert-danger .btn-close { filter: invert(0.8); }
-        
-        .btn-warning { background: var(--ensa-accent); color: var(--ensa-primary); border: none; transition: opacity 0.2s; }
-        .btn-warning:hover { opacity: 0.9; color: var(--ensa-primary); }
-        
-        .prof-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; font-weight: 700; font-size: 0.85rem;
-            display: inline-flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .filter-btn.active-filter { font-weight: 700; box-shadow: 0 0 0 2px currentColor; }
+        /* HEADER */
+        .page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px;}
+        .page-title h1{font-size:28px;font-weight:700;margin-bottom:4px;}
+        .page-title p{font-size:14px;color:var(--t1);}
+
+        /* ALERTS */
+        .alert{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:12px;margin-bottom:24px;font-size:14px;}
+        .alert-success{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#4ade80;}
+        .alert-error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;}
+
+        /* STATS */
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+        .stat-purple::before{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+        .stat-green::before{background:linear-gradient(90deg,var(--green),var(--green2));}
+        .stat-amber::before{background:linear-gradient(90deg,var(--amber),var(--amber2));}
+        .stat-num{font-size:28px;font-weight:800;margin-bottom:4px;}
+        .stat-label{font-size:12px;color:var(--t1);}
+        .stat-purple .stat-num{color:var(--accent2);}
+        .stat-green  .stat-num{color:var(--green2);}
+        .stat-amber  .stat-num{color:var(--amber2);}
+
+        /* FILTERS */
+        .filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;padding:16px 20px;background:var(--card);border:1px solid var(--border);border-radius:14px;}
+        .filter-label{font-size:12px;color:var(--t2);font-weight:500;margin-right:4px;}
+        .filter-btn{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:500;text-decoration:none;transition:all .18s;border:1px solid var(--border);color:var(--t1);background:transparent;}
+        .filter-btn:hover{color:var(--t0);border-color:rgba(255,255,255,0.2);}
+        .filter-btn.active{color:var(--accent2);background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);}
+        .filter-btn.active-green{color:var(--green2);background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);}
+
+        /* TABLE */
+        .table-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .table-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+        .table-title{font-size:15px;font-weight:600;}
+        .count-badge{padding:3px 10px;border-radius:100px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.2);font-size:11px;color:var(--accent3);font-weight:600;}
+        table{width:100%;border-collapse:collapse;}
+        th{padding:10px 20px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--t2);border-bottom:1px solid var(--border);}
+        td{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;transition:background .15s;}
+        tr:last-child td{border-bottom:none;}
+        tr:hover td{background:var(--hover);}
+
+        /* AVATAR */
+        .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+        .prof-name{font-weight:600;font-size:14px;}
+
+        /* BADGES */
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+        .badge-spec{background:rgba(99,102,241,0.1);color:var(--accent3);border:1px solid rgba(99,102,241,0.2);}
+        .badge-en{background:rgba(34,197,94,0.1);color:var(--green2);border:1px solid rgba(34,197,94,0.2);}
+        .badge-fr{background:rgba(245,158,11,0.1);color:var(--amber2);border:1px solid rgba(245,158,11,0.2);}
+        .badge-count{background:var(--bg3);color:var(--t1);border:1px solid var(--border);}
+
+        /* ACTIONS */
+        .actions{display:flex;gap:6px;align-items:center;}
+        .btn-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .15s;text-decoration:none;border:none;}
+        .btn-edit{background:rgba(99,102,241,0.1);color:var(--accent2);border:1px solid rgba(99,102,241,0.2);}
+        .btn-edit:hover{background:rgba(99,102,241,0.2);}
+        .btn-cal{background:rgba(245,158,11,0.1);color:var(--amber2);border:1px solid rgba(245,158,11,0.2);}
+        .btn-cal:hover{background:rgba(245,158,11,0.2);}
+        .btn-del{background:rgba(239,68,68,0.08);color:var(--red2);border:1px solid rgba(239,68,68,0.2);}
+        .btn-del:hover{background:rgba(239,68,68,0.15);}
+
+        /* ADD BUTTON */
+        .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);transition:all .18s;border:none;cursor:pointer;}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
+
+        /* EMPTY */
+        .empty-state{text-align:center;padding:56px 24px;color:var(--t2);}
+        .empty-icon{font-size:40px;margin-bottom:12px;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .anim{animation:fadeUp .4s ease both;}
+        .d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}
+
+        @media(max-width:700px){.stats{grid-template-columns:1fr 1fr;}}
     </style>
 </head>
-<body data-theme="light">
+<body>
+<div class="wrap">
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload me-1"></i>Import Excel</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/etudiants}"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{/professeurs}"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/export}"><i class="bi bi-download me-1"></i>Export</a></li>
-                <li class="nav-item">
-                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
-                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"/>
-                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                        </svg>
-                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<!-- PAGE HEADER -->
-<div class="page-header">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-            <h2 class="mb-1 fw-bold"><i class="bi bi-person-badge me-2"></i>Professeurs</h2>
-            <p class="mb-0 opacity-75">Gestion du corps enseignant — encadrants &amp; jurys</p>
-        </div>
-        <a th:href="@{/professeurs/nouveau}" class="btn btn-warning fw-bold px-4">
-            <i class="bi bi-plus-lg me-2"></i>Nouveau professeur
+    <nav class="anim">
+        <a href="/pfe-planning/" class="logo">
+            <div class="logo-icon">📋</div>PFE Planning
         </a>
-    </div>
-</div>
+        <div class="nav-links">
+            <a href="/pfe-planning/" class="nav-link">Accueil</a>
+            <a href="/pfe-planning/import" class="nav-link">Import</a>
+            <a href="/pfe-planning/etudiants" class="nav-link">Étudiants</a>
+            <a href="/pfe-planning/professeurs" class="nav-link active">Professeurs</a>
+            <a href="/pfe-planning/salles" class="nav-link">Salles</a>
+            <a href="/pfe-planning/planning" class="nav-link">Planning</a>
+        </div>
+    </nav>
 
-<div class="container mb-5">
+    <div class="page-header anim d1">
+        <div class="page-title">
+            <h1>👨‍🏫 Professeurs</h1>
+            <p>Gestion du corps enseignant — encadrants &amp; jurys</p>
+        </div>
+        <a href="/pfe-planning/professeurs/nouveau" class="btn-primary">➕ Nouveau professeur</a>
+    </div>
 
-    <!-- MESSAGES FLASH -->
-    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle me-2"></i>
-        <span th:text="${successMsg}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <span th:text="${errorMsg}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <!-- ALERTS -->
+    <div th:if="${successMsg}" class="alert alert-success anim"><span>✅</span><span th:text="${successMsg}"></span></div>
+    <div th:if="${errorMsg}" class="alert alert-error anim"><span>⚠️</span><span th:text="${errorMsg}"></span></div>
 
     <!-- STATS -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-num" th:text="${totalProfs}">0</div>
-                <div class="stat-label">Total professeurs</div>
-            </div>
+    <div class="stats anim d1">
+        <div class="stat-card stat-purple">
+            <div class="stat-num" th:text="${totalProfs}">0</div>
+            <div class="stat-label">Total professeurs</div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-num" style="color:var(--text-badge-anglo)" th:text="${totalAnglophones}">0</div>
-                <div class="stat-label">Anglophones (EN)</div>
-            </div>
+        <div class="stat-card stat-green">
+            <div class="stat-num" th:text="${totalAnglophones}">0</div>
+            <div class="stat-label">Anglophones (EN)</div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-num" style="color:var(--text-badge-spec)" th:text="${specialites.size()}">0</div>
-                <div class="stat-label">Spécialités</div>
-            </div>
+        <div class="stat-card stat-amber">
+            <div class="stat-num" th:text="${specialites.size()}">0</div>
+            <div class="stat-label">Spécialités</div>
         </div>
     </div>
 
-    <!-- FILTRES -->
-    <div class="filter-bar d-flex gap-3 align-items-center flex-wrap">
-        <span class="fw-semibold text-muted"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
+    <!-- FILTERS -->
+    <div class="filters anim d2">
+        <span class="filter-label">🔍 Filtrer :</span>
         <a th:href="@{/professeurs}"
-           th:classappend="${specialiteActive == null and anglophoneActive == null} ? 'active-filter' : ''"
-           class="btn btn-sm btn-outline-secondary rounded-pill filter-btn">Tous</a>
-        <a th:href="@{/professeurs(anglophone=${true})}"
-           th:classappend="${anglophoneActive == true} ? 'active-filter' : ''"
-           class="btn btn-sm btn-outline-success rounded-pill filter-btn">
-            <i class="bi bi-globe2 me-1"></i>Anglophones
+           th:class="${specialiteActive == null and anglophoneActive == null} ? 'filter-btn active' : 'filter-btn'">
+            Tous
         </a>
-        <!-- Filtre par spécialité dynamique -->
-        <th:block th:each="spec : ${specialites}">
-            <a th:href="@{/professeurs(specialite=${spec})}"
-               th:text="${spec}"
-               th:classappend="${specialiteActive == spec} ? 'active-filter' : ''"
-               class="btn btn-sm btn-outline-primary rounded-pill filter-btn"></a>
-        </th:block>
+        <a th:href="@{/professeurs(anglophone=true)}"
+           th:class="${anglophoneActive == true} ? 'filter-btn active-green' : 'filter-btn'">
+            🌍 Anglophones
+        </a>
+        <a th:each="spec : ${specialites}"
+           th:href="@{/professeurs(specialite=${spec})}"
+           th:text="${spec}"
+           th:class="${specialiteActive == spec} ? 'filter-btn active' : 'filter-btn'">
+        </a>
     </div>
 
-    <!-- TABLEAU -->
-    <div class="table-card">
-        <table class="table table-hover mb-0">
+    <!-- TABLE -->
+    <div class="table-card anim d3">
+        <div class="table-header">
+            <span class="table-title">Liste des professeurs</span>
+            <span class="count-badge" th:text="${#lists.size(professeurs)} + ' prof(s)'"></span>
+        </div>
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Professeur</th>
                     <th>Spécialité</th>
                     <th>Langue</th>
-                    <th>Étudiants encadrés</th>
-                    <th>Indisponibilités</th>
-                    <th class="text-center">Actions</th>
+                    <th>Étudiants</th>
+                    <th>Indispos</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="prof, stat : ${professeurs}">
-                    <td class="text-muted" th:text="${stat.index + 1}">1</td>
+                    <td style="color:var(--t2)" th:text="${stat.index + 1}"></td>
                     <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="prof-avatar"
-                                 th:text="${#strings.substring(prof.nom, 0, 1) + #strings.substring(prof.prenom, 0, 1)}">
-                                AB
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="avatar"
+                                 th:text="${#strings.substring(prof.nom,0,1) + #strings.substring(prof.prenom,0,1)}">
                             </div>
-                            <div>
-                                <div class="fw-semibold" th:text="${prof.nomComplet}">Nom</div>
-                            </div>
+                            <span class="prof-name" th:text="${prof.nom + ' ' + prof.prenom}"></span>
                         </div>
                     </td>
+                    <td><span class="badge badge-spec" th:text="${prof.specialite}"></span></td>
                     <td>
-                        <span class="badge-spec" th:text="${prof.specialite}">Spécialité</span>
+                        <span th:if="${prof.parleAnglais}" class="badge badge-en">🌍 EN + FR</span>
+                        <span th:unless="${prof.parleAnglais}" class="badge badge-fr">🇫🇷 FR</span>
                     </td>
                     <td>
-                        <span th:if="${prof.parleAnglais}" class="badge-anglophone">
-                            <i class="bi bi-globe2 me-1"></i>EN + FR
-                        </span>
-                        <span th:unless="${prof.parleAnglais}" class="badge-fr-only">
-                            🇫🇷 FR seulement
-                        </span>
-                    </td>
-                    <td>
-                        <!-- ✅ VERSION SÉCURISÉE : évite LazyInitializationException -->
-                        <span class="text-muted small">
-                            <th:block th:if="${prof.etudiantsEncadres != null}" 
-                                      th:text="${prof.etudiantsEncadres.size()} + ' étudiant(s)'"/>
-                            <th:block th:unless="${prof.etudiantsEncadres != null}">0 étudiant(s)</th:block>
+                        <span class="badge badge-count"
+                              th:text="${prof.etudiantsEncadres != null ? prof.etudiantsEncadres.size() : 0} + ' étud.'">
                         </span>
                     </td>
                     <td>
-                        <span class="text-muted small"
+                        <span class="badge badge-count"
                               th:text="${prof.contraintes != null ? prof.contraintes.size() : 0} + ' créneaux'">
-                            0 créneaux
                         </span>
                     </td>
-                    <td class="text-center">
-                        <a th:href="@{/professeurs/modifier/{id}(id=${prof.id})}"
-                           class="btn btn-sm btn-outline-primary btn-action me-1"
-                           title="Modifier">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a th:href="@{/professeurs/{id}/contraintes(id=${prof.id})}"
-                           class="btn btn-sm btn-outline-secondary btn-action me-1"
-                           title="Gérer les indisponibilités">
-                            <i class="bi bi-calendar-x"></i>
-                        </a>
-                        <form th:action="@{/professeurs/supprimer/{id}(id=${prof.id})}"
-                              method="post" class="d-inline"
-                              onsubmit="return confirm('Supprimer ce professeur ? Cette action est irréversible.')">
-                            <button type="submit"
-                                    class="btn btn-sm btn-outline-danger btn-action"
-                                    title="Supprimer">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                    <td>
+                        <div class="actions">
+                            <a th:href="@{/professeurs/modifier/{id}(id=${prof.id})}"
+                               class="btn-icon btn-edit" title="Modifier">✏️</a>
+                            <a th:href="@{/professeurs/{id}/contraintes(id=${prof.id})}"
+                               class="btn-icon btn-cal" title="Indisponibilités">📅</a>
+                            <form th:action="@{/professeurs/supprimer/{id}(id=${prof.id})}"
+                                  method="post" style="display:inline"
+                                  onsubmit="return confirm('Supprimer ce professeur ?')">
+                                <button type="submit" class="btn-icon btn-del" title="Supprimer">🗑️</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
-                <tr th:if="${professeurs.isEmpty()}">
-                    <td colspan="7" class="text-center text-muted py-5">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        Aucun professeur trouvé. <a th:href="@{/professeurs/nouveau}">Ajouter le premier</a>
+                <tr th:if="${#lists.isEmpty(professeurs)}">
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-icon">👨‍🏫</div>
+                            <div>Aucun professeur trouvé</div>
+                        </div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
 </div>
-
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // ── THEME TOGGLE (version protégée) ──
-    document.addEventListener('DOMContentLoaded', function() {
-        const themeToggle = document.getElementById('themeToggle');
-        if (!themeToggle) return; // ← Protection si l'élément n'existe pas
-        
-        const html = document.documentElement;
-        const body = document.body;
-        
-        // Load saved theme or prefer system
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-        
-        // Apply theme to both html and body
-        html.setAttribute('data-theme', initialTheme);
-        body.setAttribute('data-theme', initialTheme);
-        
-        themeToggle.addEventListener('click', function() {
-            const current = html.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            
-            // Apply to both html and body
-            html.setAttribute('data-theme', next);
-            body.setAttribute('data-theme', next);
-            
-            // Save to localStorage
-            localStorage.setItem('theme', next);
-        });
-    });
-</script>
 </body>
 </html>

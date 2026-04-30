@@ -10,11 +10,13 @@ ma/ensa/pfe/config/HibernateConfig.class
 ma/ensa/pfe/controller/SalleController.class
 ma/ensa/pfe/service/ExcelImportService.class
 ma/ensa/pfe/service/ProfesseurService.class
-ma/ensa/pfe/controller/ExportController.class
-ma/ensa/pfe/service/PlanificationService$PaireJury.class
+ma/ensa/pfe/service/PlanificationService$ListeJury.class
+ma/ensa/pfe/dao/VersionPlanningRepository.class
 ma/ensa/pfe/dao/EtudiantRepository.class
+ma/ensa/pfe/model/VersionPlanning.class
 ma/ensa/pfe/model/Contrainte.class
 ma/ensa/pfe/dao/ContrainteRepository.class
+ma/ensa/pfe/service/AffectationService.class
 ma/ensa/pfe/controller/ProfesseurController.class
 ma/ensa/pfe/model/Etudiant.class
 ma/ensa/pfe/model/Professeur.class
