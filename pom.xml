@@ -21,7 +21,7 @@
 
     <dependencies>
 
-        <!-- ===== SPRING MVC ===== -->
+        <!-- ===== SPRING MVC & WEB ===== -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -42,6 +42,12 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
+        <!-- ✅ AJOUT : Spring Context Support pour certaines fonctionnalités -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 
         <!-- Spring Data JPA — version compatible Spring 6 -->
         <dependency>
@@ -50,7 +56,7 @@
             <version>3.1.3</version>
         </dependency>
 
-        <!-- ===== THYMELEAF — spring6 (pas spring5 !) ===== -->
+        <!-- ===== THYMELEAF — spring6 ===== -->
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring6</artifactId>
@@ -64,7 +70,7 @@
             <version>${hibernate.version}</version>
         </dependency>
 
-        <!-- Jakarta Persistence (remplace javax.persistence) -->
+        <!-- Jakarta Persistence -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -76,10 +82,10 @@
            <groupId>jakarta.servlet</groupId>
            <artifactId>jakarta.servlet-api</artifactId>
            <version>6.0.0</version>
-           <!-- <scope>provided</scope>  ← COMMENTÉ pour Eclipse WTP -->
+           <scope>provided</scope> <!-- ✅ REMIS : Tomcat fournit déjà cette API -->
         </dependency>
 
-        <!-- ===== H2 — base en mémoire pour dev ===== -->
+        <!-- ===== H2 Database ===== -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -122,28 +128,34 @@
             <scope>provided</scope>
         </dependency>
 
-<!-- Jakarta Validation --> 
+        <!-- Jakarta Validation --> 
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <version>3.0.2</version>
         </dependency>
 
-<!-- Hibernate Validator (implémentation) -->
+        <!-- Hibernate Validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>8.0.0.Final</version>
         </dependency>
 
-<!-- HikariCP (connection pool) -->
+        <!-- HikariCP -->
         <dependency>
              <groupId>com.zaxxer</groupId>
              <artifactId>HikariCP</artifactId>
              <version>5.0.1</version>
         </dependency> 
 
- 
+        <!-- ✅ AJOUT : SLF4J Simple pour éviter les warnings de log -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+   
     </dependencies>
 
     <build>
@@ -166,28 +178,15 @@
             <artifactId>maven-war-plugin</artifactId>
             <version>3.4.0</version>
             <configuration>
-                <!-- Pointe explicitement vers ton dossier webapp -->
                 <warSourceDirectory>src/main/webapp</warSourceDirectory>
                 <failOnMissingWebXml>true</failOnMissingWebXml>
             </configuration>
         </plugin>
+        
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.5.0</version>
-            <configuration>
-                <source>17</source>
-                <outputDirectory>${project.basedir}/docs/javadoc</outputDirectory>
-                <author>true</author>
-                <version>true</version>
-                <windowtitle>PFE Planning — Documentation Technique</windowtitle>
-                <doctitle>PFE Planning — Documentation Technique</doctitle>
-            </configuration>
-         </plugin>
-         <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-surefire-plugin</artifactId>
-             <version>3.1.2</version>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.1.2</version>
          </plugin>
       </plugins> 
    </build>
