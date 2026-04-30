@@ -2,10 +2,11 @@ package ma.ensa.pfe.controller;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,13 +49,6 @@ public class PlanificationController {
             model.addAttribute("soutenances", new ArrayList<>());
             model.addAttribute("messageInfo", "Aucun planning généré pour le moment.");
         }
-
-        // Pour le formulaire de génération, on propose les 3 prochains jours par défaut
-        List<LocalDate> joursDefaut = new ArrayList<>();
-        joursDefaut.add(LocalDate.now().plusDays(1));
-        joursDefaut.add(LocalDate.now().plusDays(2));
-        joursDefaut.add(LocalDate.now().plusDays(3));
-        model.addAttribute("joursDefaut", joursDefaut);
         
         model.addAttribute("activePage", "planning");
         return "planning/tableau";
@@ -93,25 +87,37 @@ public class PlanificationController {
 
     /**
      * ÉTAPE 2 : Générer le Planning Temporel (Dates, Heures, Salles).
-     * Utilise les jurys déjà affectés ou les affecte à la volée si nécessaire.
+     * Reçoit les dates sous forme de chaîne séparée par des virgules (ex: "2026-05-20,2026-05-21")
+     * depuis le calendrier Flatpickr.
      */
     @PostMapping("/generer-temporel")
     public String genererPlanningTemporel(
-            @RequestParam(value = "jours", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            List<LocalDate> jours,
+            @RequestParam(value = "jours", required = false) String joursStr,
             RedirectAttributes redirectAttrs) {
 
-        if (jours == null || jours.isEmpty()) {
+        if (joursStr == null || joursStr.isEmpty()) {
             redirectAttrs.addFlashAttribute("erreurPlanning", "Veuillez sélectionner au moins un jour de soutenance.");
             return "redirect:/planning";
         }
 
         try {
-            // On appelle le service qui crée la VersionPlanning et place les soutenances dans le temps
+            // Convertir la String "YYYY-MM-DD,YYYY-MM-DD" en List<LocalDate>
+            List<LocalDate> jours = Arrays.stream(joursStr.split(","))
+                                          .map(String::trim)
+                                          .map(LocalDate::parse)
+                                          .collect(Collectors.toList());
+
+            // Vérification de sécurité : Max 3 jours
+            if (jours.size() > 3) {
+                 redirectAttrs.addFlashAttribute("erreurPlanning", "Vous ne pouvez sélectionner que 3 jours maximum.");
+                 return "redirect:/planning";
+            }
+
+            // Appel au service qui crée la VersionPlanning et place les soutenances dans le temps
             String resultat = planificationService.genererPlanningComplet(jours);
-            redirectAttrs.addFlashAttribute("successPlanning", "Étape 2/2 : " + resultat);
-        } catch (PlanificationService.PlanificationException e) {
+            redirectAttrs.addFlashAttribute("successPlanning", "Planning généré avec succès : " + resultat);
+            
+        } catch (RuntimeException e) { // ✅ CORRECTION : PlanificationException n'existe plus, on utilise RuntimeException
             redirectAttrs.addFlashAttribute("erreurPlanning", "Erreur de planification : " + e.getMessage());
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("erreurPlanning", "Erreur inattendue : " + e.getMessage());
