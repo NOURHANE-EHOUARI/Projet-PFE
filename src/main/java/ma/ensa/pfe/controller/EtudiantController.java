@@ -35,16 +35,29 @@ public class EtudiantController {
         List<Etudiant> etudiants;
 
         if (filiere != null && !filiere.isEmpty()) {
-            etudiants = etudiantService.findByFiliere(Filiere.valueOf(filiere));
+            try {
+                etudiants = etudiantService.findByFiliere(Filiere.valueOf(filiere));
+            } catch (IllegalArgumentException e) {
+                // Si la filière n'existe pas (ex: ancien ID), on affiche tous les étudiants
+                etudiants = etudiantService.findAll();
+            }
         } else if (langue != null && !langue.isEmpty()) {
-            etudiants = etudiantService.findByLangue(Langue.valueOf(langue));
+            try {
+                etudiants = etudiantService.findByLangue(Langue.valueOf(langue));
+            } catch (IllegalArgumentException e) {
+                etudiants = etudiantService.findAll();
+            }
         } else {
             etudiants = etudiantService.findAll();
         }
 
         model.addAttribute("etudiants", etudiants);
+        
+        // ✅ CORRECTION : Remplacement de ID par TDIA
         model.addAttribute("totalGI", etudiantService.countByFiliere(Filiere.GI));
-        model.addAttribute("totalID", etudiantService.countByFiliere(Filiere.ID));
+        model.addAttribute("totalTDIA", etudiantService.countByFiliere(Filiere.TDIA)); 
+        model.addAttribute("totalDATA", etudiantService.countByFiliere(Filiere.DATA));
+        
         model.addAttribute("filiereActive", filiere);
         model.addAttribute("langueActive", langue);
         model.addAttribute("activePage", "etudiants");
@@ -96,7 +109,6 @@ public class EtudiantController {
         }
 
         try {
-            // FIX : capturer isNew AVANT le save — après save, getId() ne sera plus jamais null
             boolean isNew = etudiant.getId() == null;
             etudiantService.save(etudiant);
             String msg = isNew ? "Étudiant ajouté avec succès !" : "Étudiant modifié avec succès !";

@@ -3,6 +3,7 @@ package ma.ensa.pfe.dao;
 import ma.ensa.pfe.model.Professeur;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,11 +12,18 @@ import java.util.Optional;
 @Repository
 public interface ProfesseurRepository extends JpaRepository<Professeur, Long> {
 
-    List<Professeur> findBySpecialite(String specialite);
-    List<Professeur> findByParleAnglais(Boolean parleAnglais);
-    List<Professeur> findBySpecialiteAndParleAnglais(String specialite, Boolean parleAnglais);
+    // ✅ Avec JOIN FETCH pour charger les étudiants
+    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.specialite = :specialite")
+    List<Professeur> findBySpecialite(@Param("specialite") String specialite);
 
-    // ✅ Requis par ExcelImportService pour l'upsert
+    // ✅ Avec JOIN FETCH
+    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.parleAnglais = :parleAnglais")
+    List<Professeur> findByParleAnglais(@Param("parleAnglais") Boolean parleAnglais);
+
+    // ✅ Avec JOIN FETCH pour les deux critères
+    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres WHERE p.specialite = :specialite AND p.parleAnglais = :parleAnglais")
+    List<Professeur> findBySpecialiteAndParleAnglais(@Param("specialite") String specialite, @Param("parleAnglais") Boolean parleAnglais);
+
     Optional<Professeur> findByNomAndPrenom(String nom, String prenom);
 
     @Query("SELECT DISTINCT p.specialite FROM Professeur p ORDER BY p.specialite")
@@ -23,4 +31,12 @@ public interface ProfesseurRepository extends JpaRepository<Professeur, Long> {
 
     @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.contraintes ORDER BY p.nom")
     List<Professeur> findAllWithContraintes();
+    
+    // ✅ Méthode pour charger TOUS les profs avec étudiants
+    @Query("SELECT p FROM Professeur p LEFT JOIN FETCH p.etudiantsEncadres ORDER BY p.nom")
+    List<Professeur> findAllWithEtudiants();
+    
+    // ✅ Comptages
+    long countByParleAnglais(boolean parleAnglais);
+    long countBySpecialite(String specialite);
 }

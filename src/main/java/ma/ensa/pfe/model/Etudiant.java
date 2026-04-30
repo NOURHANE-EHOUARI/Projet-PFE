@@ -3,10 +3,10 @@ package ma.ensa.pfe.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "etudiants")
@@ -19,6 +19,11 @@ public class Etudiant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ✅ NOUVEAU : Identifiant unique national (pour éviter les doublons à l'import)
+    @NotBlank(message = "Le CNE est obligatoire")
+    @Column(unique = true, nullable = false)
+    private String cne;
+
     @NotBlank(message = "Le nom est obligatoire")
     @Column(nullable = false)
     private String nom;
@@ -26,6 +31,10 @@ public class Etudiant {
     @NotBlank(message = "Le prénom est obligatoire")
     @Column(nullable = false)
     private String prenom;
+
+    // ✅ NOUVEAU : Email académique ou personnel
+    @Column(name = "email_academique")
+    private String email;
 
     @NotNull(message = "La filière est obligatoire")
     @Enumerated(EnumType.STRING)
@@ -44,7 +53,44 @@ public class Etudiant {
     @Column(name = "titre_projet")
     private String titreProjet;
 
-    // Enums
-    public enum Filiere { GI, ID }
-    public enum Langue { FR, EN }
+    // ✅ NOUVEAU : Relation inverse pour le planning
+    // Permet de savoir si un étudiant a déjà une soutenance planifiée
+    @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
+    private List<Soutenance> soutenances;
+
+    // ===== MÉTHODES UTILITAIRES =====
+
+    /**
+     * Setter simple pour l'encadrant (utilisé lors de l'import Excel).
+     * Ne synchronise pas la collection LAZY du professeur pour éviter les erreurs.
+     */
+    public void setEncadrant(Professeur encadrant) {
+        this.encadrant = encadrant;
+    }
+
+    /**
+     * Setter avec synchronisation bidirectionnelle.
+     * À utiliser uniquement dans un service @Transactional quand on manipule l'objet en mémoire.
+     */
+    public void setEncadrantWithSync(Professeur encadrant) {
+        if (this.encadrant != null) {
+            this.encadrant.getEtudiantsEncadres().remove(this);
+        }
+        this.encadrant = encadrant;
+        if (encadrant != null) {
+            encadrant.getEtudiantsEncadres().add(this);
+        }
+    }
+
+    // ===== ENUMS MIS À JOUR SELON TES DONNÉES =====
+    public enum Filiere { 
+        GI,   // Génie Informatique
+        TDIA, // Transformation Digitale et IA
+        DATA  // Ingénierie de Données
+    }
+
+    public enum Langue { 
+        FR, // Français
+        EN  // Anglais
+    }
 }

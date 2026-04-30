@@ -3,6 +3,8 @@ package ma.ensa.pfe.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList; // ✅ Ajouté pour la liste des profs
+import java.util.List;
 
 @Entity
 @Table(name = "soutenances")
@@ -12,17 +14,16 @@ public class Soutenance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // L'étudiant qui soutient
+    // ===== LIENS VERS LES ACTEURS =====
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "etudiant_id", nullable = false)
     private Etudiant etudiant;
 
-    // L'encadrant (prof qui a suivi l'étudiant)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "encadrant_id", nullable = false)
     private Professeur encadrant;
 
-    // Les 2 membres du jury
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jury1_id")
     private Professeur jury1;
@@ -31,20 +32,28 @@ public class Soutenance {
     @JoinColumn(name = "jury2_id")
     private Professeur jury2;
 
-    // La salle
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jury3_id")
+    private Professeur jury3;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "salle_id", nullable = false)
     private Salle salle;
 
-    // Date et heure
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "version_id")
+    private VersionPlanning version;
+
+    // ===== DONNÉES TEMPORELLES =====
+
     @Column(nullable = false)
     private LocalDate date;
 
     @Column(nullable = false)
     private LocalTime heure;
 
-    // Durée en minutes (généralement 30)
-    private int dureeMn = 30;
+    @Column(name = "duree_mn", nullable = false)
+    private int dureeMn = 45;
 
     // Constructeurs
     public Soutenance() {}
@@ -52,25 +61,60 @@ public class Soutenance {
     // Getters / Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
     public Etudiant getEtudiant() { return etudiant; }
     public void setEtudiant(Etudiant etudiant) { this.etudiant = etudiant; }
+
     public Professeur getEncadrant() { return encadrant; }
     public void setEncadrant(Professeur encadrant) { this.encadrant = encadrant; }
+
     public Professeur getJury1() { return jury1; }
     public void setJury1(Professeur jury1) { this.jury1 = jury1; }
+
     public Professeur getJury2() { return jury2; }
     public void setJury2(Professeur jury2) { this.jury2 = jury2; }
+
+    public Professeur getJury3() { return jury3; }
+    public void setJury3(Professeur jury3) { this.jury3 = jury3; }
+
     public Salle getSalle() { return salle; }
     public void setSalle(Salle salle) { this.salle = salle; }
+
+    public VersionPlanning getVersion() { return version; }
+    public void setVersion(VersionPlanning version) { this.version = version; }
+
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
+
     public LocalTime getHeure() { return heure; }
     public void setHeure(LocalTime heure) { this.heure = heure; }
+
     public int getDureeMn() { return dureeMn; }
     public void setDureeMn(int dureeMn) { this.dureeMn = dureeMn; }
 
-    // Méthode utile pour l'algorithme
+    // ===== MÉTHODES UTILITAIRES =====
+
     public LocalTime getHeureFin() {
+        if (heure == null) return null;
         return heure.plusMinutes(dureeMn);
+    }
+
+    public boolean chevauche(Soutenance autre) {
+        if (!this.date.equals(autre.date)) return false;
+        if (!this.salle.getId().equals(autre.salle.getId())) return false;
+        
+        LocalTime finThis = this.getHeureFin();
+        LocalTime finAutre = autre.getHeureFin();
+        
+        return (this.heure.isBefore(finAutre) && finThis.isAfter(autre.heure));
+    }
+
+    public List<Professeur> getAllProfsImpliques() {
+        List<Professeur> profs = new ArrayList<>(); // ✅ Utilise ArrayList importé
+        if (encadrant != null) profs.add(encadrant);
+        if (jury1 != null) profs.add(jury1);
+        if (jury2 != null) profs.add(jury2);
+        if (jury3 != null) profs.add(jury3);
+        return profs;
     }
 }
