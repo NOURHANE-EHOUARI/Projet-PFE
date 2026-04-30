@@ -1,291 +1,357 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Import Excel — PFE Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PFE Planning — Import</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #21262d;
+            --border: rgba(255,255,255,0.08);
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent3: #a5b4fc;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --t0: #f0f6fc;
+            --t1: #8b949e;
+            --t2: #484f58;
+            --card: rgba(255,255,255,0.03);
+            --hover: rgba(99,102,241,0.08);
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover { color: var(--ensa-accent) !important; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 40px;
+
+        body {
+            background: var(--bg);
+            color: var(--t0);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        .upload-card {
-            background: white; border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 40px;
+
+        /* Background mesh */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 15% 0%, rgba(99,102,241,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 100%, rgba(129,140,248,0.1) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
         }
-        .drop-zone {
-            border: 2.5px dashed #c8d8e8;
-            border-radius: 14px;
-            padding: 48px 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #f8fbff;
-            position: relative;
+
+        .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+
+        /* NAV */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 48px;
         }
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--ensa-secondary);
-            background: #eef4fb;
+        .logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 700; font-size: 18px; color: var(--t0);
+            text-decoration: none;
         }
-        .drop-zone input[type="file"] {
-            position: absolute; inset: 0; opacity: 0;
-            cursor: pointer; width: 100%; height: 100%;
+        .logo-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
         }
-        .drop-icon { font-size: 48px; color: #c8d8e8; margin-bottom: 16px; display: block; }
-        .drop-zone.has-file .drop-icon { color: var(--ensa-secondary); }
-        .drop-title { font-size: 1.1rem; font-weight: 600; color: #374151; margin-bottom: 6px; }
-        .drop-sub { font-size: 0.85rem; color: #9ca3af; }
-        .file-name-display {
-            display: none; margin-top: 14px;
-            background: #e8f4fd; border-radius: 8px; padding: 8px 16px;
-            font-size: 0.875rem; color: var(--ensa-secondary); font-weight: 600;
+        .nav-links { display: flex; gap: 8px; }
+        .nav-link {
+            padding: 8px 14px; border-radius: 8px; font-size: 13px;
+            color: var(--t1); text-decoration: none; transition: all .18s;
+            border: 1px solid transparent;
         }
-        .section-title {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--ensa-secondary);
-            margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e8f0fb;
+        .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
+        .nav-link.active { color: var(--accent2); background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.25); }
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom: 40px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 100px;
+            background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+            font-size: 11px; font-weight: 500; color: var(--accent3);
+            letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
         }
-        .format-table { width: 100%; font-size: 0.82rem; border-collapse: separate; border-spacing: 0; }
-        .format-table thead th {
-            background: var(--ensa-primary); color: white;
-            padding: 8px 12px; font-weight: 600;
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+        h1 { font-size: clamp(28px,4vw,42px); font-weight: 700; line-height: 1.1; margin-bottom: 12px; }
+        h1 span { background: linear-gradient(135deg, var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-size: 15px; color: var(--t1); line-height: 1.6; }
+
+        /* ALERTS */
+        .alert {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 14px 18px; border-radius: 12px; margin-bottom: 24px;
+            font-size: 14px; line-height: 1.5;
         }
-        .format-table thead th:first-child { border-radius: 8px 0 0 0; }
-        .format-table thead th:last-child  { border-radius: 0 8px 0 0; }
-        .format-table tbody td { padding: 7px 12px; border-bottom: 1px solid #f0f4f8; }
-        .format-table tbody tr:hover td { background: #f8fbff; }
-        .col-badge {
-            display: inline-block; background: #e8f4fd; color: var(--ensa-secondary);
-            border-radius: 5px; padding: 1px 8px; font-weight: 700; font-size: 0.78rem;
+        .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+        .alert-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #4ade80; }
+        .alert-error   { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2);  color: #f87171; }
+        .alert-warn    { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #fbbf24; }
+        .rapport-list { margin-top: 8px; padding-left: 16px; }
+        .rapport-list li { margin-bottom: 3px; font-size: 12px; opacity: .85; }
+
+        /* MAIN GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* CARD */
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            transition: border-color .2s, box-shadow .2s;
         }
-        .opt-badge {
-            display: inline-block; background: #fef3e8; color: #e67e22;
-            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+        .card:hover { border-color: rgba(99,102,241,0.2); box-shadow: 0 0 30px rgba(99,102,241,0.05); }
+        .card-header {
+            padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
         }
-        .req-badge {
-            display: inline-block; background: #fdeaea; color: #e74c3c;
-            border-radius: 5px; padding: 1px 7px; font-size: 0.75rem; font-weight: 600;
+        .card-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+            flex-shrink: 0;
         }
-        .btn-import {
-            background: var(--ensa-primary); color: white; border: none;
-            padding: 13px 36px; border-radius: 10px; font-weight: 700;
-            font-size: 1rem; transition: all 0.2s; width: 100%;
+        .card-icon-purple { background: rgba(99,102,241,0.15); }
+        .card-icon-green  { background: rgba(34,197,94,0.12); }
+        .card-title { font-size: 15px; font-weight: 600; }
+        .card-desc  { font-size: 12px; color: var(--t1); margin-top: 2px; }
+        .card-body  { padding: 24px; }
+
+        /* UPLOAD ZONE */
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: 12px;
+            padding: 36px 24px; text-align: center; cursor: pointer;
+            transition: all .2s; position: relative; margin-bottom: 20px;
         }
-        .btn-import:hover:not(:disabled) {
-            background: var(--ensa-secondary); transform: translateY(-1px);
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent); background: var(--hover);
         }
-        .btn-import:disabled { opacity: 0.5; cursor: not-allowed; }
-        .progress-wrap { display: none; margin-top: 20px; }
-        .progress { height: 8px; border-radius: 4px; }
-        .progress-bar { background: var(--ensa-secondary); transition: width 0.4s; }
+        .upload-zone input[type=file] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .upload-icon { font-size: 36px; margin-bottom: 12px; }
+        .upload-text { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .upload-hint { font-size: 12px; color: var(--t2); }
+        .upload-hint span { color: var(--accent2); }
+
+        /* FILE SELECTED */
+        .file-selected {
+            display: none; align-items: center; gap: 10px;
+            padding: 12px 16px; border-radius: 10px;
+            background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+            margin-bottom: 20px; font-size: 13px;
+        }
+        .file-selected.show { display: flex; }
+        .file-name { flex: 1; color: var(--accent3); font-weight: 500; }
+        .file-size { color: var(--t2); font-size: 11px; }
+
+        /* BUTTON */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            cursor: pointer; border: none; transition: all .18s; width: 100%;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.45); }
+        .btn-secondary {
+            background: var(--bg3); color: var(--t1);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { color: var(--t0); border-color: rgba(255,255,255,0.15); }
+
+        /* TABLE */
+        .schema-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .schema-table th {
+            padding: 8px 12px; text-align: left; font-size: 10px; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--t2);
+            border-bottom: 1px solid var(--border);
+        }
+        .schema-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .schema-table tr:last-child td { border-bottom: none; }
+        .schema-table tr:hover td { background: var(--hover); }
+        code {
+            background: rgba(99,102,241,0.1); color: var(--accent3);
+            padding: 2px 6px; border-radius: 4px; font-size: 11px; font-family: monospace;
+        }
+
+        /* STEPS */
+        .steps { display: flex; flex-direction: column; gap: 16px; }
+        .step { display: flex; gap: 12px; align-items: flex-start; }
+        .step-num {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; color: var(--accent2);
+        }
+        .step-text { font-size: 13px; color: var(--t1); line-height: 1.5; padding-top: 4px; }
+        .step-text strong { color: var(--t0); }
+
+        /* FULL WIDTH */
+        .full { grid-column: 1 / -1; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .anim { animation: fadeUp .4s ease both; }
+        .d1 { animation-delay: .05s; } .d2 { animation-delay: .1s; } .d3 { animation-delay: .15s; }
+
+        @media(max-width:700px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
+<div class="wrap">
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
+    <nav class="anim">
+        <a href="/pfe-planning/" class="logo">
+            <div class="logo-icon">📋</div>
+            PFE Planning
+        </a>
+        <div class="nav-links">
+            <a href="/pfe-planning/import" class="nav-link active">Import</a>
+            <a href="/pfe-planning/salles" class="nav-link">Salles</a>
+            <a href="/pfe-planning/professeurs" class="nav-link">Profs</a>
+            <a href="/pfe-planning/etudiants" class="nav-link">Étudiants</a>
+        </div>
+    </nav>
+
+    <div class="page-header anim d1">
+        <div class="badge">Étape 1</div>
+        <h1>Import du fichier <span>Excel</span></h1>
+        <p class="subtitle">Chargez votre fichier .xlsx pour démarrer la planification des soutenances PFE.</p>
+    </div>
+
+    <!-- Alerts -->
+    <div th:if="${erreur}" class="alert alert-error anim">
+        <span class="alert-icon">⚠️</span>
+        <div th:text="${erreur}"></div>
+    </div>
+    <div th:if="${succes}" class="alert alert-success anim">
+        <span class="alert-icon">✅</span>
+        <div>
+            <div th:text="${succes}"></div>
+            <ul class="rapport-list" th:if="${rapport != null and !#lists.isEmpty(rapport)}">
+                <li th:each="l : ${rapport}" th:text="${l}"></li>
             </ul>
         </div>
     </div>
-</nav>
 
-<div class="page-header">
-    <div class="container">
-        <h2 class="mb-1 fw-bold"><i class="bi bi-upload me-2"></i>Import Excel</h2>
-        <p class="mb-0 opacity-75">Importez le fichier Excel contenant les professeurs et les étudiants.</p>
-    </div>
-</div>
+    <div class="grid">
 
-<div class="container mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <!-- Erreur upload -->
-            <div th:if="${erreurUpload}"
-                 class="alert alert-danger alert-dismissible fade show rounded-3 mb-4">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <span th:text="${erreurUpload}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-
-            <div class="upload-card">
-
-                <!-- ✅ FORM CORRIGÉ : action vers /import/traiter, pas de onclick sur le bouton -->
-                <form method="post"
-                      th:action="@{/import/traiter}"
-                      enctype="multipart/form-data"
-                      id="uploadForm">
-
-                    <div class="drop-zone" id="dropZone">
-                        <input type="file" name="fichier" id="fileInput"
-                               accept=".xlsx,.xls" onchange="onFileSelected(this)" />
-                        <i class="bi bi-file-earmark-excel drop-icon" id="dropIcon"></i>
-                        <div class="drop-title">Glissez votre fichier Excel ici</div>
-                        <div class="drop-sub">ou cliquez pour parcourir — .xlsx / .xls, max 10 Mo</div>
-                        <div class="file-name-display" id="fileNameDisplay">
-                            <i class="bi bi-check-circle me-2"></i>
-                            <span id="fileNameText"></span>
-                        </div>
-                    </div>
-
-                    <div class="progress-wrap" id="progressWrap">
-                        <div class="d-flex justify-content-between mb-1"
-                             style="font-size:0.82rem;color:#6c757d;">
-                            <span>Traitement en cours...</span>
-                            <span id="progressPct">0%</span>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-animated"
-                                 id="progressBar" style="width:0%"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <!-- ✅ CORRIGÉ : plus de onclick ici -->
-                        <button type="submit" class="btn-import" id="btnImport" disabled>
-                            <i class="bi bi-cloud-upload me-2"></i>Lancer l'import
-                        </button>
-                    </div>
-                </form>
-
-                <hr class="my-4" style="border-color:#f0f4f8;">
-
-                <!-- Format attendu -->
-                <div class="section-title">
-                    <i class="bi bi-table me-2"></i>Format du fichier Excel
-                </div>
-
-                <p class="text-muted mb-3" style="font-size:0.85rem;">
-                    Le fichier doit contenir deux feuilles nommées exactement
-                    <strong>professeurs</strong> et <strong>etudiants</strong>
-                    (ligne 1 = en-têtes ignorés).
-                </p>
-
-                <div class="mb-3">
-                    <div class="fw-semibold mb-2" style="font-size:0.875rem;">
-                        <i class="bi bi-person-badge text-primary me-1"></i>
-                        Feuille « professeurs »
-                    </div>
-                    <table class="format-table">
-                        <thead>
-                            <tr><th>Colonne</th><th>Champ</th><th>Exemple</th><th>Statut</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><span class="col-badge">A</span></td><td>Nom</td><td>BADI</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">B</span></td><td>Prénom</td><td>Imad</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">C</span></td><td>Spécialité</td><td>Génie Informatique</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">D</span></td><td>Parle anglais</td><td>oui / non</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">E</span></td><td>Date indisponibilité</td><td>2025-06-10</td><td><span class="opt-badge">Optionnel</span></td></tr>
-                            <tr><td><span class="col-badge">F</span></td><td>Heure début</td><td>08:00</td><td><span class="opt-badge">Optionnel</span></td></tr>
-                            <tr><td><span class="col-badge">G</span></td><td>Heure fin</td><td>10:00</td><td><span class="opt-badge">Optionnel</span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
+        <!-- UPLOAD CARD -->
+        <div class="card anim d2" style="grid-column: 1 / -1">
+            <div class="card-header">
+                <div class="card-icon card-icon-purple">📥</div>
                 <div>
-                    <div class="fw-semibold mb-2" style="font-size:0.875rem;">
-                        <i class="bi bi-mortarboard text-warning me-1"></i>
-                        Feuille « etudiants »
-                    </div>
-                    <table class="format-table">
-                        <thead>
-                            <tr><th>Colonne</th><th>Champ</th><th>Exemple</th><th>Statut</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><span class="col-badge">A</span></td><td>Nom</td><td>CHENTOUF</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">B</span></td><td>Prénom</td><td>Ismail</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">C</span></td><td>Filière</td><td>GI ou ID</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">D</span></td><td>Langue</td><td>FR ou EN</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">E</span></td><td>Nom encadrant</td><td>BADI</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">F</span></td><td>Prénom encadrant</td><td>Imad</td><td><span class="req-badge">Requis</span></td></tr>
-                            <tr><td><span class="col-badge">G</span></td><td>Titre du projet</td><td>Système de gestion...</td><td><span class="opt-badge">Optionnel</span></td></tr>
-                        </tbody>
-                    </table>
+                    <div class="card-title">Sélectionner le fichier</div>
+                    <div class="card-desc">Format accepté : .xlsx uniquement · Taille max : 10 Mo</div>
                 </div>
-
+            </div>
+            <div class="card-body">
+                <form th:action="@{/import/excel}" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-zone" id="dropZone">
+                        <input type="file" name="fichier" accept=".xlsx" id="fileInput" required/>
+                        <div class="upload-icon">📊</div>
+                        <div class="upload-text">Glissez votre fichier ici ou cliquez pour parcourir</div>
+                        <div class="upload-hint">Fichiers <span>.xlsx</span> supportés</div>
+                    </div>
+                    <div class="file-selected" id="fileSelected">
+                        <span>📄</span>
+                        <span class="file-name" id="fileName">—</span>
+                        <span class="file-size" id="fileSize">—</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        ⚡ Lancer l'import
+                    </button>
+                </form>
             </div>
         </div>
+
+        <!-- SCHEMA CARD -->
+        <div class="card anim d2">
+            <div class="card-header">
+                <div class="card-icon card-icon-purple">📋</div>
+                <div>
+                    <div class="card-title">Structure attendue</div>
+                    <div class="card-desc">4 feuilles requises dans le fichier Excel</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="schema-table">
+                    <thead><tr><th>Feuille</th><th>Colonnes</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>etudiants</code></td><td>nom, prenom, filiere, langue, encadrant</td></tr>
+                        <tr><td><code>professeurs</code></td><td>nom, prenom, specialite, parle_anglais</td></tr>
+                        <tr><td><code>salles</code></td><td>nom, capacite</td></tr>
+                        <tr><td><code>contraintes</code></td><td>prof_nom, date, heure_debut, heure_fin</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- STEPS CARD -->
+        <div class="card anim d3">
+            <div class="card-header">
+                <div class="card-icon card-icon-green">🚀</div>
+                <div>
+                    <div class="card-title">Étapes suivantes</div>
+                    <div class="card-desc">Après l'import réussi</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-text"><strong>Import Excel</strong> — chargement des données</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-text"><strong>Génération</strong> — algorithme de planification</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-text"><strong>Visualisation</strong> — tableau du planning</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-text"><strong>Export</strong> — Excel, PDF ou dossier PVs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const dropZone        = document.getElementById('dropZone');
-    const fileInput       = document.getElementById('fileInput');
-    const btnImport       = document.getElementById('btnImport');
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    const fileNameText    = document.getElementById('fileNameText');
+const fileInput = document.getElementById('fileInput');
+const fileSelected = document.getElementById('fileSelected');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+const dropZone = document.getElementById('dropZone');
 
-    function onFileSelected(input) {
-        if (input.files && input.files[0]) {
-            const name = input.files[0].name;
-            fileNameText.textContent = name;
-            fileNameDisplay.style.display = 'block';
-            dropZone.classList.add('has-file');
-            btnImport.disabled = false;
-        }
+fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) {
+        const f = fileInput.files[0];
+        fileName.textContent = f.name;
+        fileSize.textContent = (f.size / 1024).toFixed(1) + ' Ko';
+        fileSelected.classList.add('show');
     }
+});
 
-    // Drag & drop
-    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-    dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        if (files.length) {
-            fileInput.files = files;
-            onFileSelected(fileInput);
-        }
-    });
-
-    // ✅ FIX PRINCIPAL : écouter le submit, pas le onclick
-    document.getElementById('uploadForm').addEventListener('submit', function() {
-        const pw = document.getElementById('progressWrap');
-        const pb = document.getElementById('progressBar');
-        const pp = document.getElementById('progressPct');
-        pw.style.display = 'block';
-        btnImport.disabled = true;
-        btnImport.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Traitement en cours...';
-        let p = 0;
-        const iv = setInterval(() => {
-            p = Math.min(p + Math.random() * 15, 90);
-            pb.style.width = p.toFixed(0) + '%';
-            pp.textContent = p.toFixed(0) + '%';
-            if (p >= 90) clearInterval(iv);
-        }, 200);
-        // ✅ Pas de e.preventDefault() — le formulaire se soumet normalement
-    });
+['dragover','dragenter'].forEach(e => dropZone.addEventListener(e, ev => {
+    ev.preventDefault(); dropZone.classList.add('dragover');
+}));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+    ev.preventDefault(); dropZone.classList.remove('dragover');
+}));
 </script>
 </body>
 </html>

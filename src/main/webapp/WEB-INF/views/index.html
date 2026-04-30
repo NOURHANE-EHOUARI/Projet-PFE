@@ -1,878 +1,257 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil — Planification Soutenances PFE</title>
-    
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PFE Planning — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <style>
-        /* ── VARIABLES CSS (Light/Dark) ── */
-        :root {
-            /* Couleurs principales */
-            --primary: #1a3a5c;
-            --primary-dark: #13304f;
-            --primary-light: #2e6da4;
-            --accent: #f0a500;
-            --accent-hover: #d48f00;
-            
-            /* Backgrounds */
-            --bg-body: #f4f6f9;
-            --bg-card: #ffffff;
-            --bg-nav: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            --bg-header: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            --bg-panel-head: rgba(26,58,92,0.04);
-            
-            /* Textes */
-            --text-primary: #1a2433;
-            --text-secondary: #6b7a8d;
-            --text-muted: #94a3b8;
-            --text-inverse: #ffffff;
-            
-            /* Bordures */
-            --border: rgba(0,0,0,0.08);
-            --border-hover: var(--primary-light);
-            
-            /* Ombres */
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(26,58,92,0.08);
-            --shadow-lg: 0 8px 24px rgba(26,58,92,0.12);
-            
-            /* Statuts */
-            --success: #2e7d32; --success-bg: #e8f5e9; --success-dot: #4caf50;
-            --warning: #b45309; --warning-bg: #fff8e1; --warning-dot: #ff9800;
-            --info: #1565c0; --info-bg: #e3f2fd; --info-dot: #2196f3;
-            --error: #c62828; --error-bg: #ffebee; --error-dot: #f44336;
-            
-            /* UI */
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            /* Search */
-            --search-bg: rgba(255,255,255,0.9);
-            --search-border: rgba(0,0,0,0.1);
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --blue:#3b82f6;--blue2:#60a5fa;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);
         }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+        body::before{
+            content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:
+                radial-gradient(ellipse 80% 50% at 10% -5%,rgba(99,102,241,0.18) 0%,transparent 55%),
+                radial-gradient(ellipse 60% 40% at 90% 110%,rgba(34,197,94,0.08) 0%,transparent 55%);
+        }
+        .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
 
-        /* ── DARK MODE ── */
-        [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-nav: linear-gradient(135deg, #0f172a, #1e293b);
-            --bg-header: linear-gradient(135deg, #0f172a, #1e293b);
-            --bg-panel-head: rgba(255,255,255,0.05);
-            
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            
-            --border: rgba(255,255,255,0.1);
-            --border-hover: var(--accent);
-            
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
-            
-            --search-bg: rgba(30,41,59,0.9);
-            --search-border: rgba(255,255,255,0.15);
-            
-            /* Statuts dark */
-            --success-bg: rgba(46,125,50,0.15);
-            --warning-bg: rgba(180,83,9,0.15);
-            --info-bg: rgba(21,101,192,0.15);
-            --error-bg: rgba(198,40,40,0.15);
-        }
+        /* NAV */
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:56px;padding:14px 20px;background:rgba(22,27,34,0.8);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(12px);}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(99,102,241,0.4);}
+        .nav-links{display:flex;gap:6px;}
+        .nav-link{padding:8px 14px;border-radius:8px;font-size:13px;color:var(--t1);text-decoration:none;transition:all .18s;border:1px solid transparent;}
+        .nav-link:hover{color:var(--t0);background:var(--hover);border-color:var(--border);}
 
-        /* ── BASE ── */
-        * { box-sizing: border-box; }
-        body { 
-            background: var(--bg-body); 
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
-            margin: 0; 
-            color: var(--text-primary);
-            line-height: 1.5;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
+        /* HERO */
+        .hero{text-align:center;margin-bottom:64px;}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);font-size:12px;color:var(--accent3);font-weight:500;margin-bottom:24px;letter-spacing:0.06em;}
+        .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+        .hero h1{font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.05;margin-bottom:20px;letter-spacing:-0.02em;}
+        .hero h1 .grad{background:linear-gradient(135deg,var(--accent2),var(--accent3),#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .hero p{font-size:17px;color:var(--t1);max-width:520px;margin:0 auto 36px;line-height:1.7;}
+        .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:11px;font-size:14px;font-weight:600;text-decoration:none;transition:all .18s;cursor:pointer;border:none;}
+        .btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;box-shadow:0 4px 16px rgba(99,102,241,0.35);}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,0.45);}
+        .btn-secondary{background:var(--bg3);color:var(--t0);border:1px solid var(--border);}
+        .btn-secondary:hover{border-color:rgba(255,255,255,0.18);background:var(--bg2);}
 
-        /* ── ANIMATIONS ── */
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
-        .animate-in { animation: fadeInUp 0.4s ease forwards; opacity: 0; }
-        .animate-in:nth-child(1) { animation-delay: 0.05s; }
-        .animate-in:nth-child(2) { animation-delay: 0.1s; }
-        .animate-in:nth-child(3) { animation-delay: 0.15s; }
-        .animate-in:nth-child(4) { animation-delay: 0.2s; }
+        /* STATS */
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px;}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+        .stat-card:hover{border-color:rgba(99,102,241,0.2);transform:translateY(-2px);}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+        .stat-purple::before{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+        .stat-green::before{background:linear-gradient(90deg,var(--green),var(--green2));}
+        .stat-amber::before{background:linear-gradient(90deg,var(--amber),var(--amber2));}
+        .stat-blue::before{background:linear-gradient(90deg,var(--blue),var(--blue2));}
+        .stat-icon{font-size:22px;margin-bottom:12px;}
+        .stat-num{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px;}
+        .stat-label{font-size:12px;color:var(--t1);font-weight:500;}
+        .stat-purple .stat-num{color:var(--accent2);}
+        .stat-green  .stat-num{color:var(--green2);}
+        .stat-amber  .stat-num{color:var(--amber2);}
+        .stat-blue   .stat-num{color:var(--blue2);}
 
-        /* ── NAVBAR ── */
-        .topnav {
-            background: var(--bg-nav);
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-        .topnav-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .topnav-brand .logo {
-            width: 32px; height: 32px;
-            background: var(--accent);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--primary);
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(240,165,0,0.3);
-        }
-        .topnav-brand span {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-inverse);
-            letter-spacing: 0.01em;
-        }
-        .topnav-links { display: flex; gap: 4px; align-items: center; }
-        .topnav-links a {
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 7px 14px;
-            border-radius: 8px;
-            transition: var(--transition);
-            position: relative;
-        }
-        .topnav-links a:hover { background: rgba(255,255,255,0.12); color: white; }
-        .topnav-links a.active { background: rgba(240,165,0,0.2); color: var(--accent); font-weight: 600; }
-        .topnav-links a.active::after {
-            content: ''; position: absolute; bottom: -2px; left: 50%;
-            transform: translateX(-50%); width: 20px; height: 2px;
-            background: var(--accent); border-radius: 2px;
-        }
-        
-        /* Theme toggle button */
-        .theme-toggle {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-left: 10px;
-        }
-        .theme-toggle:hover { background: rgba(255,255,255,0.2); transform: rotate(15deg); }
-        .theme-toggle svg { width: 18px; height: 18px; }
-        [data-theme="dark"] .sun-icon { display: none; }
-        [data-theme="light"] .moon-icon { display: none; }
-        .sun-icon { display: inline; }
-        .moon-icon { display: none; }
-        [data-theme="dark"] .moon-icon { display: inline; }
+        /* SECTION */
+        .sec-label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--t2);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+        .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-        /* ── HEADER ── */
-        .page-header {
-            background: var(--bg-header);
-            padding: 1.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            flex-wrap: wrap;
-            gap: 1rem;
-            transition: var(--transition);
-        }
-        .page-header h1 {
-            font-size: 22px; font-weight: 700; color: var(--text-inverse);
-            margin: 0 0 6px; letter-spacing: -0.02em;
-        }
-        .page-header h1 span { color: var(--accent); }
-        .page-header p { font-size: 14px; color: rgba(255,255,255,0.65); margin: 0; }
-        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        
-        .btn-accent {
-            background: var(--accent); color: var(--primary); border: none;
-            padding: 9px 22px; border-radius: 10px; font-size: 13px; font-weight: 600;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
-            transition: var(--transition); box-shadow: 0 2px 8px rgba(240,165,0,0.25);
-        }
-        .btn-accent:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(240,165,0,0.35); }
-        
-        .btn-ghost {
-            background: rgba(255,255,255,0.1); color: white;
-            border: 1px solid rgba(255,255,255,0.25); padding: 9px 22px; border-radius: 10px;
-            font-size: 13px; font-weight: 500; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 7px; transition: var(--transition);
-        }
-        .btn-ghost:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+        /* QUICK ACTIONS */
+        .actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:48px;}
+        .action-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;text-decoration:none;color:var(--t0);transition:all .2s;display:flex;flex-direction:column;gap:12px;}
+        .action-card:hover{border-color:rgba(99,102,241,0.25);background:var(--hover);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+        .action-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .ai-purple{background:rgba(99,102,241,0.15);}
+        .ai-green{background:rgba(34,197,94,0.12);}
+        .ai-amber{background:rgba(245,158,11,0.12);}
+        .ai-blue{background:rgba(59,130,246,0.12);}
+        .ai-red{background:rgba(239,68,68,0.1);}
+        .ai-teal{background:rgba(20,184,166,0.12);}
+        .action-title{font-size:14px;font-weight:600;}
+        .action-desc{font-size:12px;color:var(--t1);line-height:1.5;}
+        .action-arrow{font-size:16px;color:var(--t2);align-self:flex-end;transition:transform .18s;}
+        .action-card:hover .action-arrow{transform:translate(4px,-4px);color:var(--accent2);}
 
-        /* ── SEARCH BAR ── */
-        .search-container {
-            padding: 1rem 1.5rem 0;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .search-box {
-            position: relative;
-            max-width: 400px;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 10px 16px 10px 40px;
-            border: 1px solid var(--search-border);
-            border-radius: 10px;
-            background: var(--search-bg);
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(240,165,0,0.15);
-        }
-        .search-box svg {
-            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-            width: 16px; height: 16px; color: var(--text-secondary);
-        }
-        .search-box .clear-btn {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: var(--text-secondary);
-            cursor: pointer; padding: 4px; display: none;
-        }
-        .search-box .clear-btn.visible { display: block; }
+        /* WORKFLOW */
+        .workflow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:48px;}
+        .wf-step{padding:24px 20px;border-right:1px solid var(--border);position:relative;}
+        .wf-step:last-child{border-right:none;}
+        .wf-num{font-size:11px;font-weight:700;color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+        .wf-icon{font-size:24px;margin-bottom:10px;}
+        .wf-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+        .wf-desc{font-size:11px;color:var(--t1);line-height:1.5;}
+        .wf-arrow{position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:20px;height:20px;background:var(--bg3);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;z-index:1;}
+        .wf-step:last-child .wf-arrow{display:none;}
 
-        /* ── STATS BAR ── */
-        .stats-bar {
-            background: var(--bg-card);
-            padding: 0.5rem 1.5rem;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0;
-            border-bottom: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-        .stat-item {
-            display: flex; flex-direction: column; align-items: center;
-            padding: 1rem 0.5rem; border-right: 1px solid var(--border);
-            transition: var(--transition); cursor: pointer;
-        }
-        .stat-item:hover { background: rgba(26,58,92,0.03); transform: translateY(-2px); }
-        .stat-item:first-child { border-left: none; }
-        .stat-item:last-child { border-right: none; }
-        
-        .stat-icon {
-            width: 40px; height: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 8px; font-size: 18px;
-            transition: var(--transition);
-        }
-        .stat-item:hover .stat-icon { transform: scale(1.1); }
-        .stat-icon.blue { background: #e3f2fd; color: #1565c0; }
-        .stat-icon.purple { background: #f3e8fd; color: #6b21a8; }
-        .stat-icon.orange { background: #fff3e0; color: #b45309; }
-        .stat-icon.green { background: #e8f5e9; color: #2e7d32; }
-        [data-theme="dark"] .stat-icon.blue { background: rgba(21,101,192,0.15); }
-        [data-theme="dark"] .stat-icon.purple { background: rgba(107,33,168,0.15); }
-        [data-theme="dark"] .stat-icon.orange { background: rgba(180,83,9,0.15); }
-        [data-theme="dark"] .stat-icon.green { background: rgba(46,125,50,0.15); }
-        
-        .stat-num { font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-        .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-top: 3px; }
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .anim{animation:fadeUp .45s ease both;}
+        .d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}.d4{animation-delay:.2s}
 
-        /* ── BODY ── */
-        .page-body { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
-
-        .section-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+        @media(max-width:800px){
+            .stats{grid-template-columns:1fr 1fr;}
+            .actions-grid{grid-template-columns:1fr 1fr;}
+            .workflow{grid-template-columns:1fr 1fr;}
+            .wf-step{border-right:none;border-bottom:1px solid var(--border);}
         }
-        .section-label {
-            font-size: 12px; font-weight: 700; color: var(--text-secondary);
-            text-transform: uppercase; letter-spacing: 0.08em;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .section-label::before {
-            content: ''; width: 24px; height: 3px;
-            background: var(--accent); border-radius: 2px;
-        }
-        
-        /* Filters */
-        .filters { display: flex; gap: 8px; flex-wrap: wrap; }
-        .filter-btn {
-            padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
-            background: var(--bg-card); border: 1px solid var(--border);
-            color: var(--text-secondary); cursor: pointer; transition: var(--transition);
-        }
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--primary); color: white; border-color: var(--primary);
-        }
-
-        /* ── MODULE CARDS ── */
-        .modules-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px; margin-bottom: 2rem;
-        }
-        .mod-card {
-            background: var(--bg-card); border-radius: var(--radius);
-            border: 1px solid var(--border); padding: 1.25rem;
-            text-decoration: none; display: block; transition: var(--transition);
-            position: relative; overflow: hidden;
-        }
-        .mod-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0; transition: var(--transition);
-        }
-        .mod-card:hover {
-            border-color: var(--border-hover); box-shadow: var(--shadow-lg);
-            transform: translateY(-4px); color: inherit;
-        }
-        .mod-card:hover::before { opacity: 1; }
-        .mod-card.hidden { display: none; }
-        
-        .mod-icon {
-            width: 48px; height: 48px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 14px; transition: var(--transition);
-        }
-        .mod-card:hover .mod-icon { transform: scale(1.05); }
-        .mod-card h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0 0 6px; }
-        .mod-card p { font-size: 13px; color: var(--text-secondary); margin: 0 0 12px; line-height: 1.5; }
-        .mod-link {
-            font-size: 12px; color: var(--primary-light); font-weight: 600;
-            display: inline-flex; align-items: center; gap: 4px; transition: var(--transition);
-        }
-        .mod-card:hover .mod-link { gap: 8px; }
-
-        /* ── BOTTOM PANELS ── */
-        .bottom-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px; margin-bottom: 2rem;
-        }
-        .panel {
-            background: var(--bg-card); border-radius: var(--radius);
-            border: 1px solid var(--border); overflow: hidden;
-            box-shadow: var(--shadow-sm); transition: var(--transition);
-        }
-        .panel:hover { box-shadow: var(--shadow-md); }
-        .panel-head {
-            padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
-            font-size: 14px; font-weight: 600; color: var(--text-primary);
-            display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-panel-head); transition: var(--transition);
-        }
-        .panel-head::before {
-            content: ''; width: 4px; height: 16px;
-            background: var(--accent); border-radius: 2px; margin-right: 8px;
-        }
-        .panel-body { padding: 0.5rem 1.25rem 1rem; }
-
-        .step-row {
-            display: flex; align-items: flex-start; gap: 14px;
-            padding: 0.9rem 0; border-bottom: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        .step-row:hover { 
-            background: rgba(26,58,92,0.03); 
-            margin: 0 -1.25rem; padding-left: 1.25rem; padding-right: 1.25rem; 
-            border-radius: 8px; 
-        }
-        .step-row:last-child { border-bottom: none; }
-        .step-num {
-            width: 28px; height: 28px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
-            box-shadow: 0 2px 6px rgba(26,58,92,0.2);
-        }
-        .step-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-        .step-desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-
-        .status-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0.9rem 0; border-bottom: 1px solid var(--border);
-        }
-        .status-row:last-child { border-bottom: none; }
-        .status-name { font-size: 14px; color: var(--text-primary); font-weight: 500; display: flex; align-items: center; gap: 6px; }
-        
-        .badge {
-            font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 600;
-            display: inline-flex; align-items: center; gap: 5px;
-        }
-        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8; }
-        .badge-ok { background: var(--success-bg); color: var(--success); }
-        .badge-warn { background: var(--warning-bg); color: var(--warning); }
-        .badge-info { background: var(--info-bg); color: var(--info); }
-        .badge-error { background: var(--error-bg); color: var(--error); }
-
-        /* ── CHART CONTAINER ── */
-        .chart-container {
-            position: relative; height: 200px; width: 100%;
-            margin-top: 1rem;
-        }
-
-        /* ── TOAST NOTIFICATIONS ── */
-        .toast-container {
-            position: fixed; top: 80px; right: 20px; z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px; max-width: 350px;
-        }
-        .toast {
-            background: var(--bg-card); border-left: 4px solid var(--accent);
-            border-radius: var(--radius-sm); padding: 1rem 1.25rem;
-            box-shadow: var(--shadow-lg); display: flex; align-items: flex-start; gap: 10px;
-            animation: slideIn 0.3s ease; border: 1px solid var(--border);
-        }
-        .toast.success { border-left-color: var(--success); }
-        .toast.warning { border-left-color: var(--warning); }
-        .toast.error { border-left-color: var(--error); }
-        .toast.info { border-left-color: var(--info); }
-        
-        .toast-icon { font-size: 18px; margin-top: 2px; }
-        .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; font-size: 14px; color: var(--text-primary); margin-bottom: 2px; }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close {
-            background: none; border: none; color: var(--text-secondary);
-            cursor: pointer; padding: 2px; font-size: 18px; line-height: 1;
-            transition: var(--transition);
-        }
-        .toast-close:hover { color: var(--text-primary); }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 992px) {
-            .stats-bar { grid-template-columns: repeat(2, 1fr); }
-            .stat-item:nth-child(2) { border-right: none; }
-            .stat-item:nth-child(3) { border-right: 1px solid var(--border); }
-        }
-        @media (max-width: 768px) {
-            .topnav { padding: 0 1rem; }
-            .topnav-links { gap: 2px; }
-            .topnav-links a { padding: 6px 10px; font-size: 12px; }
-            .page-header { flex-direction: column; align-items: flex-start; padding: 1.25rem 1rem; }
-            .header-actions { width: 100%; justify-content: flex-start; }
-            .stats-bar { grid-template-columns: 1fr; padding: 0.25rem 1rem; }
-            .stat-item { flex-direction: row; justify-content: space-between; padding: 0.75rem 0; border-right: none; border-bottom: 1px solid var(--border); }
-            .stat-item:last-child { border-bottom: none; }
-            .page-body { padding: 1rem; }
-            .modules-grid { grid-template-columns: 1fr; }
-            .bottom-grid { grid-template-columns: 1fr; }
-            .search-container { padding: 0.75rem 1rem 0; }
-            .toast-container { right: 10px; left: 10px; max-width: none; }
-        }
-
-        /* ── ACCESSIBILITY ── */
-        a:focus, button:focus, input:focus {
-            outline: 2px solid var(--accent); outline-offset: 2px;
-        }
-        @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important; }
+        @media(max-width:500px){
+            .stats{grid-template-columns:1fr 1fr;}
+            .actions-grid{grid-template-columns:1fr;}
         }
     </style>
 </head>
-<body data-theme="light">
+<body>
+<div class="wrap">
 
-<!-- NAVBAR -->
-<nav class="topnav">
-    <a class="topnav-brand" th:href="@{/}">
-        <div class="logo">PFE</div>
-        <span>Planification Soutenances</span>
-    </a>
-    <div class="topnav-links">
-        <a th:href="@{/}" class="active">🏠 Accueil</a>
-        <a th:href="@{/import}">📥 Import</a>
-        <a th:href="@{/etudiants}">🎓 Étudiants</a>
-        <a th:href="@{/professeurs}">👨‍🏫 Profs</a>
-        <a th:href="@{/salles}">🏢 Salles</a>
-        <a th:href="@{/planning}">📅 Planning</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
-            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-    </div>
-</nav>
-
-<!-- HEADER -->
-<div class="page-header animate-in">
-    <div>
-        <h1>Tableau de bord <span>— Soutenances PFE</span></h1>
-        <p>Gestion centralisée et planification intelligente des soutenances</p>
-    </div>
-    <div class="header-actions">
-        <a th:href="@{/import}" class="btn-accent">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Importer
+    <nav class="anim">
+        <a href="/pfe-planning/" class="logo">
+            <div class="logo-icon">📋</div>
+            PFE Planning
         </a>
-        <a th:href="@{/planning}" class="btn-ghost">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Planning
-        </a>
-    </div>
-</div>
-
-<!-- SEARCH -->
-<div class="search-container">
-    <div class="search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" id="searchInput" placeholder="Rechercher un module..." aria-label="Rechercher">
-        <button class="clear-btn" id="clearSearch" aria-label="Effacer la recherche">×</button>
-    </div>
-</div>
-
-<!-- STATS BAR -->
-<div class="stats-bar">
-    <div class="stat-item animate-in" onclick="showToast('info', 'Étudiants', 'Consultez la liste complète des étudiants inscrits')">
-        <div class="stat-icon blue">🎓</div>
-        <div class="stat-num" th:text="${nbEtudiants != null ? nbEtudiants : '—'}">—</div>
-        <div class="stat-label">Étudiants</div>
-    </div>
-    <div class="stat-item animate-in" onclick="showToast('info', 'Professeurs', 'Gérez les encadrants et membres de jury')">
-        <div class="stat-icon purple">👨‍🏫</div>
-        <div class="stat-num" th:text="${nbProfesseurs != null ? nbProfesseurs : '—'}">—</div>
-        <div class="stat-label">Professeurs</div>
-    </div>
-    <div class="stat-item animate-in" onclick="showToast('info', 'Salles', 'Consultez les disponibilités des salles')">
-        <div class="stat-icon orange">🏢</div>
-        <div class="stat-num" th:text="${nbSalles != null ? nbSalles : '—'}">—</div>
-        <div class="stat-label">Salles</div>
-    </div>
-    <div class="stat-item animate-in" onclick="showToast('success', 'Soutenances', 'Planning généré avec succès!')">
-        <div class="stat-icon green">✅</div>
-        <div class="stat-num" th:text="${nbSoutenances != null ? nbSoutenances : '—'}">—</div>
-        <div class="stat-label">Soutenances</div>
-    </div>
-</div>
-
-<!-- BODY -->
-<div class="page-body">
-
-    <!-- Modules Section -->
-    <div class="section-header">
-        <div class="section-label">Modules principaux</div>
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">Tous</button>
-            <button class="filter-btn" data-filter="data">📊 Données</button>
-            <button class="filter-btn" data-filter="planning">📅 Planning</button>
-            <button class="filter-btn" data-filter="users">👥 Utilisateurs</button>
+        <div class="nav-links">
+            <a href="/pfe-planning/import" class="nav-link">Import</a>
+            <a href="/pfe-planning/salles" class="nav-link">Salles</a>
+            <a href="/pfe-planning/professeurs" class="nav-link">Profs</a>
+            <a href="/pfe-planning/etudiants" class="nav-link">Étudiants</a>
+            <a href="/pfe-planning/export/excel" class="nav-link">Export</a>
         </div>
-    </div>
-    
-    <div class="modules-grid">
-        <a th:href="@{/import}" class="mod-card animate-in" data-category="data">
-            <div class="mod-icon" style="background:#e3f2fd;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565c0" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <h3>📥 Import Excel</h3>
-            <p>Chargez étudiants, encadrants et salles en un clic</p>
-            <div class="mod-link">Accéder →</div>
-        </a>
+    </nav>
 
-        <a th:href="@{/planning}" class="mod-card animate-in" data-category="planning">
-            <div class="mod-icon" style="background:#e8f5e9;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <h3>📅 Planning Intelligent</h3>
-            <p>Génération auto avec contraintes et disponibilités</p>
-            <div class="mod-link">Voir →</div>
-        </a>
-
-        <a th:href="@{/etudiants}" class="mod-card animate-in" data-category="users">
-            <div class="mod-icon" style="background:#f3e8fd;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b21a8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <h3>🎓 Étudiants</h3>
-            <p>Gérez les inscrits, projets et affectations</p>
-            <div class="mod-link">Gérer →</div>
-        </a>
-
-        <a th:href="@{/professeurs}" class="mod-card animate-in" data-category="users">
-            <div class="mod-icon" style="background:#fff3e0;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <h3>👨‍🏫 Professeurs</h3>
-            <p>Encadrants, jury et contraintes de planning</p>
-            <div class="mod-link">Gérer →</div>
-        </a>
-    </div>
-
-    <!-- Bottom Panels -->
-    <div class="bottom-grid">
-        
-        <!-- Workflow -->
-        <div class="panel animate-in">
-            <div class="panel-head">
-                <span>🔄 Workflow</span>
-                <small style="font-weight:400;color:var(--text-secondary)">4 étapes</small>
-            </div>
-            <div class="panel-body">
-                <div class="step-row">
-                    <div class="step-num">1</div><div><div class="step-title">Importer</div><div class="step-desc">Fichier Excel étudiants/profs/salles</div></div>
-                </div>
-                <div class="step-row">
-                    <div class="step-num">2</div><div><div class="step-title">Valider</div><div class="step-desc">Vérification des données importées</div></div>
-                </div>
-                <div class="step-row">
-                    <div class="step-num">3</div><div><div class="step-title">Générer</div><div class="step-desc">Algorithme d'optimisation des créneaux</div></div>
-                </div>
-                <div class="step-row">
-                    <div class="step-num">4</div><div><div class="step-title">Exporter</div><div class="step-desc">PDF, Excel, PVs par encadrant</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Status + Chart -->
-        <div class="panel animate-in">
-            <div class="panel-head">
-                <span>📊 État du système</span>
-                <small style="font-weight:400;color:var(--text-secondary);cursor:pointer" onclick="refreshStatus()">↻ Actualiser</small>
-            </div>
-            <div class="panel-body">
-                <div class="status-row">
-                    <span class="status-name">🗄️ Base de données</span>
-                    <span class="badge badge-ok">● Connectée</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-name">📋 Données</span>
-                    <span th:class="${nbEtudiants != null and nbEtudiants > 0} ? 'badge badge-ok' : 'badge badge-warn'"
-                          th:text="${nbEtudiants != null and nbEtudiants > 0} ? '✓ Importées' : '⏳ En attente'">En attente</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-name">📅 Planning</span>
-                    <span th:class="${nbSoutenances != null and nbSoutenances > 0} ? 'badge badge-ok' : 'badge badge-warn'"
-                          th:text="${nbSoutenances != null and nbSoutenances > 0} ? '✓ Généré' : '⚙️ Non généré'">Non généré</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-name">📤 Export</span>
-                    <span th:class="${nbSoutenances != null and nbSoutenances > 0} ? 'badge badge-info' : 'badge badge-warn'"
-                          th:text="${nbSoutenances != null and nbSoutenances > 0} ? '✓ Prêt' : '⏳ Indisponible'">Indisponible</span>
-                </div>
-                <!-- Mini Chart -->
-                <div class="chart-container">
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </div>
+    <!-- HERO -->
+    <div class="hero anim d1">
+        <div class="hero-badge">ENSA Al Hoceima · 2024/2025</div>
+        <h1>Gestion des soutenances<br><span class="grad">PFE automatisée</span></h1>
+        <p>Planification intelligente des soutenances de Projets de Fin d'Études — import Excel, algorithme de répartition équitable, export PDF & PVs.</p>
+        <div class="hero-actions">
+            <a href="/pfe-planning/import" class="btn btn-primary">📥 Importer un fichier Excel</a>
+            <a href="/pfe-planning/export/pdf" class="btn btn-secondary">📄 Exporter le planning</a>
         </div>
     </div>
 
-    <!-- Footer -->
-    <div style="text-align:center;padding:2rem 1rem;color:var(--text-secondary);font-size:13px;border-top:1px solid var(--border);margin-top:1rem">
-        <p style="margin:0">© 2024 Planification PFE — <span id="lastUpdate">Dernière mise à jour: --:--</span></p>
-    </div>
-</div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Main JS -->
-<script>
-// ── DARK MODE TOGGLE ──
-const themeToggle = document.getElementById('themeToggle');
-const html = document.documentElement;
-
-// Load saved theme or prefer system
-const savedTheme = localStorage.getItem('theme');
-const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-html.setAttribute('data-theme', initialTheme);
-
-themeToggle.addEventListener('click', () => {
-    const current = html.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-    showToast('info', 'Thème', `Mode ${next === 'dark' ? 'sombre' : 'clair'} activé ✨`);
-});
-
-// ── SEARCH FUNCTIONALITY ──
-const searchInput = document.getElementById('searchInput');
-const clearBtn = document.getElementById('clearSearch');
-const modCards = document.querySelectorAll('.mod-card');
-
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    clearBtn.classList.toggle('visible', query.length > 0);
-    
-    modCards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        const matches = text.includes(query);
-        card.classList.toggle('hidden', !matches);
-    });
-});
-
-clearBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    clearBtn.classList.remove('visible');
-    modCards.forEach(card => card.classList.remove('hidden'));
-    searchInput.focus();
-});
-
-// ── FILTERS ──
-const filterBtns = document.querySelectorAll('.filter-btn');
-filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        
-        modCards.forEach(card => {
-            if (filter === 'all' || card.dataset.category === filter) {
-                card.classList.remove('hidden');
-                card.style.opacity = '0';
-                setTimeout(() => card.style.opacity = '1', 50);
-            } else {
-                card.classList.add('hidden');
-            }
-        });
-    });
-});
-
-// ── TOAST NOTIFICATIONS ──
-function showToast(type, title, message, duration = 4000) {
-    const container = document.getElementById('toastContainer');
-    const icons = { success: '✓', warning: '⚠', error: '✕', info: 'ℹ' };
-    
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || 'ℹ'}</span>
-        <div class="toast-content">
-            <div class="toast-title">${title}</div>
-            <div class="toast-message">${message}</div>
+    <!-- STATS -->
+    <div class="sec-label anim d2">Statistiques</div>
+    <div class="stats anim d2">
+        <div class="stat-card stat-purple">
+            <div class="stat-icon">👨‍🎓</div>
+            <div class="stat-num" th:text="${nbEtudiants ?: 0}">0</div>
+            <div class="stat-label">Étudiants</div>
         </div>
-        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-    `;
-    
-    container.appendChild(toast);
-    
-    // Auto-remove
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
-    
-    return toast;
-}
+        <div class="stat-card stat-green">
+            <div class="stat-icon">👨‍🏫</div>
+            <div class="stat-num" th:text="${nbProfs ?: 0}">0</div>
+            <div class="stat-label">Professeurs</div>
+        </div>
+        <div class="stat-card stat-amber">
+            <div class="stat-icon">🏛️</div>
+            <div class="stat-num" th:text="${nbSalles ?: 0}">0</div>
+            <div class="stat-label">Salles</div>
+        </div>
+        <div class="stat-card stat-blue">
+            <div class="stat-icon">📋</div>
+            <div class="stat-num" th:text="${nbSoutenances ?: 0}">0</div>
+            <div class="stat-label">Soutenances planifiées</div>
+        </div>
+    </div>
 
-// ── CHART.JS INIT ──
-function initChart() {
-    const ctx = document.getElementById('statusChart');
-    if (!ctx) return;
-    
-    const isDark = html.getAttribute('data-theme') === 'dark';
-    const textColor = isDark ? '#94a3b8' : '#6b7a8d';
-    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
-    
-    // Get values from Thymeleaf or defaults
-    const etudiants = parseInt('[[${nbEtudiants != null ? nbEtudiants : 0}]]') || 0;
-    const profs = parseInt('[[${nbProfesseurs != null ? nbProfesseurs : 0}]]') || 0;
-    const salles = parseInt('[[${nbSalles != null ? nbSalles : 0}]]') || 0;
-    const soutenances = parseInt('[[${nbSoutenances != null ? nbSoutenances : 0}]]') || 0;
-    
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Étudiants', 'Profs', 'Salles', 'Soutenances'],
-            datasets: [{
-                data: [etudiants, profs, salles, soutenances].map(v => v > 0 ? v : 1),
-                backgroundColor: ['#1565c0', '#6b21a8', '#b45309', '#2e7d32'],
-                borderWidth: 0,
-                spacing: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: isDark ? '#1e293b' : '#fff',
-                    titleColor: isDark ? '#f1f5f9' : '#1a2433',
-                    bodyColor: isDark ? '#94a3b8' : '#6b7a8d',
-                    borderColor: gridColor,
-                    borderWidth: 1
-                }
-            },
-            animation: { animateScale: true, animateRotate: true }
-        }
-    });
-}
+    <!-- QUICK ACTIONS -->
+    <div class="sec-label anim d3">Actions rapides</div>
+    <div class="actions-grid anim d3">
+        <a href="/pfe-planning/import" class="action-card">
+            <div class="action-icon ai-purple">📥</div>
+            <div>
+                <div class="action-title">Import Excel</div>
+                <div class="action-desc">Chargez étudiants, profs, salles et contraintes depuis un fichier .xlsx</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+        <a href="/pfe-planning/etudiants" class="action-card">
+            <div class="action-icon ai-blue">👨‍🎓</div>
+            <div>
+                <div class="action-title">Gérer les étudiants</div>
+                <div class="action-desc">Consulter, ajouter ou modifier les étudiants et leurs encadrants</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+        <a href="/pfe-planning/professeurs" class="action-card">
+            <div class="action-icon ai-green">👨‍🏫</div>
+            <div>
+                <div class="action-title">Gérer les profs</div>
+                <div class="action-desc">Spécialités, disponibilités et contraintes des professeurs</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+        <a href="/pfe-planning/salles" class="action-card">
+            <div class="action-icon ai-amber">🏛️</div>
+            <div>
+                <div class="action-title">Gérer les salles</div>
+                <div class="action-desc">Ajouter et configurer les salles disponibles pour les soutenances</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+        <a href="/pfe-planning/export/excel" class="action-card">
+            <div class="action-icon ai-teal">📊</div>
+            <div>
+                <div class="action-title">Exporter Excel</div>
+                <div class="action-desc">Planning complet en 3 feuilles — global, par salle, par prof</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+        <a href="/pfe-planning/export/pvs" class="action-card">
+            <div class="action-icon ai-red">📁</div>
+            <div>
+                <div class="action-title">Dossier PVs</div>
+                <div class="action-desc">Archive ZIP avec un PV PDF par étudiant groupé par encadrant</div>
+            </div>
+            <div class="action-arrow">↗</div>
+        </a>
+    </div>
 
-// ── STATUS REFRESH (Simulation) ──
-function refreshStatus() {
-    showToast('info', 'Actualisation', 'Vérification des statuts en cours...');
-    
-    // Simulate API call
-    setTimeout(() => {
-        document.getElementById('lastUpdate').textContent = 
-            'Dernière mise à jour: ' + new Date().toLocaleTimeString('fr-FR');
-        showToast('success', 'Succès', 'Statuts actualisés avec succès ✓');
-    }, 1000);
-}
+    <!-- WORKFLOW -->
+    <div class="sec-label anim d4">Comment ça marche</div>
+    <div class="workflow anim d4">
+        <div class="wf-step">
+            <div class="wf-num">Étape 01</div>
+            <div class="wf-icon">📥</div>
+            <div class="wf-title">Import Excel</div>
+            <div class="wf-desc">Chargez votre fichier avec les feuilles etudiants, profs, salles, contraintes</div>
+            <div class="wf-arrow">→</div>
+        </div>
+        <div class="wf-step">
+            <div class="wf-num">Étape 02</div>
+            <div class="wf-icon">⚙️</div>
+            <div class="wf-title">Algorithme</div>
+            <div class="wf-desc">Répartition équitable avec respect de toutes les contraintes métier</div>
+            <div class="wf-arrow">→</div>
+        </div>
+        <div class="wf-step">
+            <div class="wf-num">Étape 03</div>
+            <div class="wf-icon">📋</div>
+            <div class="wf-title">Visualisation</div>
+            <div class="wf-desc">Tableau interactif du planning avec filtres par date, salle et prof</div>
+            <div class="wf-arrow">→</div>
+        </div>
+        <div class="wf-step">
+            <div class="wf-num">Étape 04</div>
+            <div class="wf-icon">📤</div>
+            <div class="wf-title">Export</div>
+            <div class="wf-desc">Excel, PDF planning et dossier PVs ZIP prêts à distribuer</div>
+            <div class="wf-arrow">→</div>
+        </div>
+    </div>
 
-// ── ANIMATIONS ON SCROLL ──
-document.addEventListener('DOMContentLoaded', () => {
-    // Show elements on load
-    document.querySelectorAll('.animate-in').forEach((el, i) => {
-        setTimeout(() => {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-        }, 100 + i * 50);
-    });
-    
-    // Init chart
-    initChart();
-    
-    // Update timestamp
-    document.getElementById('lastUpdate').textContent = 
-        'Dernière mise à jour: ' + new Date().toLocaleTimeString('fr-FR');
-    
-    // Welcome toast (only once per session)
-    if (!sessionStorage.getItem('welcomeShown')) {
-        setTimeout(() => {
-            showToast('info', '👋 Bienvenue', 'Utilisez la recherche ou les filtres pour naviguer rapidement');
-            sessionStorage.setItem('welcomeShown', 'true');
-        }, 1000);
-    }
-});
-
-// ── KEYBOARD SHORTCUTS ──
-document.addEventListener('keydown', (e) => {
-    // Ctrl+K or Cmd+K to focus search
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInput.focus();
-        searchInput.select();
-    }
-    // Escape to clear search
-    if (e.key === 'Escape' && document.activeElement === searchInput) {
-        searchInput.blur();
-        clearBtn.click();
-    }
-});
-</script>
+</div>
 </body>
 </html>

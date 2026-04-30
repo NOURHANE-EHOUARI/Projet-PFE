@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PFE Planning — Historique</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:rgba(255,255,255,0.08);--accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;--green:#22c55e;--t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;--card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);}
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px;}
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;}
+        .nav-links{display:flex;gap:8px;}
+        .nav-link{padding:8px 14px;border-radius:8px;font-size:13px;color:var(--t1);text-decoration:none;transition:all .18s;border:1px solid transparent;}
+        .nav-link:hover{color:var(--t0);background:var(--hover);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.25);}
+
+        .page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px;}
+        .page-title h1{font-size:28px;font-weight:700;margin-bottom:4px;}
+        .page-title p{font-size:14px;color:var(--t1);}
+
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s;cursor:pointer;border:none;}
+        .btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+        .btn-primary:hover{transform:translateY(-1px);}
+
+        .versions-list{display:flex;flex-direction:column;gap:12px;}
+        .version-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:20px;transition:all .2s;}
+        .version-card:hover{border-color:rgba(99,102,241,0.2);transform:translateY(-1px);}
+        .version-icon{width:46px;height:46px;border-radius:12px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+        .version-info{flex:1;}
+        .version-name{font-size:15px;font-weight:600;margin-bottom:4px;}
+        .version-meta{font-size:12px;color:var(--t1);display:flex;gap:16px;}
+        .meta-item{display:flex;align-items:center;gap:4px;}
+        .version-actions{display:flex;gap:8px;}
+        .btn-sm{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s;border:1px solid var(--border);color:var(--t1);background:var(--bg3);}
+        .btn-sm:hover{color:var(--t0);border-color:rgba(255,255,255,0.15);}
+
+        .empty-state{text-align:center;padding:64px 24px;color:var(--t2);}
+        .empty-icon{font-size:48px;margin-bottom:16px;}
+        .empty-title{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:8px;}
+        .empty-desc{font-size:13px;line-height:1.6;}
+
+        .path-info{margin-bottom:24px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--t1);display:flex;align-items:center;gap:8px;}
+        code{background:rgba(99,102,241,0.1);color:var(--accent3);padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .anim{animation:fadeUp .4s ease both;}
+        .d1{animation-delay:.05s}.d2{animation-delay:.1s}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="anim">
+        <a href="/pfe-planning/" class="logo"><div class="logo-icon">📋</div>PFE Planning</a>
+        <div class="nav-links">
+            <a href="/pfe-planning/import" class="nav-link">Import</a>
+            <a href="/pfe-planning/salles" class="nav-link">Salles</a>
+            <a href="/pfe-planning/export/versions" class="nav-link active">Historique</a>
+        </div>
+    </nav>
+
+    <div class="page-header anim d1">
+        <div class="page-title">
+            <h1>📁 Historique des versions</h1>
+            <p>Toutes les générations de planning sauvegardées</p>
+        </div>
+        <a href="/pfe-planning/export/sauvegarder" class="btn btn-primary">💾 Sauvegarder version actuelle</a>
+    </div>
+
+    <div class="path-info anim d1">
+        📂 Dossier de stockage : <code th:text="${dossierBase}"></code>
+    </div>
+
+    <div class="anim d2">
+        <div class="versions-list" th:if="${!#lists.isEmpty(versions)}">
+            <div class="version-card" th:each="v : ${versions}">
+                <div class="version-icon">📦</div>
+                <div class="version-info">
+                    <div class="version-name" th:text="${v.nom}"></div>
+                    <div class="version-meta">
+                        <span class="meta-item">🕐 <span th:text="${v.date}"></span></span>
+                        <span class="meta-item">📄 <span th:text="${v.fichiers}"></span> fichiers</span>
+                        <span class="meta-item">💾 <span th:text="${v.taille}"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(versions)}">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">Aucune version sauvegardée</div>
+            <div class="empty-desc">Cliquez sur "Sauvegarder version actuelle" pour créer votre première version.<br/>Les versions contiennent Excel, PDF et le dossier PVs.</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

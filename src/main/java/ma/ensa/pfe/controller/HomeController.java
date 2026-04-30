@@ -1,9 +1,6 @@
 package ma.ensa.pfe.controller;
 
-import ma.ensa.pfe.dao.EtudiantRepository;
-import ma.ensa.pfe.dao.ProfesseurRepository;
-import ma.ensa.pfe.dao.SalleRepository;
-import ma.ensa.pfe.dao.SoutenanceRepository;
+import ma.ensa.pfe.dao.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,16 +15,11 @@ public class HomeController {
     @Autowired private SoutenanceRepository soutenanceRepository;
 
     @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("nbEtudiants",   etudiantRepository.count());
-        model.addAttribute("nbProfesseurs", professeurRepository.count());
-        model.addAttribute("nbSalles",      salleRepository.count());
+    public String home(Model model) {
+        model.addAttribute("nbEtudiants", etudiantRepository.count());
+        model.addAttribute("nbProfs", professeurRepository.count());
+        model.addAttribute("nbSalles", salleRepository.count());
         model.addAttribute("nbSoutenances", soutenanceRepository.count());
         return "index";
-    }
-
-    @GetMapping("/index")
-    public String home(Model model) {
-        return index(model);
     }
 }

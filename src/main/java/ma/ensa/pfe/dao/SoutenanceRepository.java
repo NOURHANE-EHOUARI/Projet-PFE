@@ -14,29 +14,30 @@ import java.util.List;
 @Repository
 public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
 
-    // Toutes les soutenances d'une date donnée
+    // Charge TOUT en une seule requête — évite LazyInitializationException
+    @Query("SELECT s FROM Soutenance s " +
+           "LEFT JOIN FETCH s.etudiant e " +
+           "LEFT JOIN FETCH e.encadrant " +
+           "LEFT JOIN FETCH s.encadrant " +
+           "LEFT JOIN FETCH s.jury1 " +
+           "LEFT JOIN FETCH s.jury2 " +
+           "LEFT JOIN FETCH s.salle")
+    List<Soutenance> findAllWithDetails();
+
     List<Soutenance> findByDate(LocalDate date);
-
-    // Toutes les soutenances d'une salle donnée
     List<Soutenance> findBySalle(Salle salle);
-
-    // Toutes les soutenances d'une salle à une date donnée
     List<Soutenance> findBySalleAndDate(Salle salle, LocalDate date);
 
-    // Soutenances où un prof est encadrant OU jury — utile pour la contrainte 1h
     @Query("SELECT s FROM Soutenance s WHERE s.date = :date AND " +
            "(s.encadrant = :prof OR s.jury1 = :prof OR s.jury2 = :prof)")
     List<Soutenance> findByDateAndProf(
         @Param("date") LocalDate date,
-        @Param("prof") Professeur prof
-    );
+        @Param("prof") Professeur prof);
 
-    // Vérifier conflit salle + créneau
     @Query("SELECT COUNT(s) > 0 FROM Soutenance s WHERE s.salle = :salle " +
            "AND s.date = :date AND s.heure = :heure")
     boolean existsConflitSalle(
         @Param("salle") Salle salle,
         @Param("date") LocalDate date,
-        @Param("heure") LocalTime heure
-    );
+        @Param("heure") LocalTime heure);
 }

@@ -12,6 +12,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfContentByte;
 import ma.ensa.pfe.model.Soutenance;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -162,49 +163,111 @@ public class ExportService {
      * @param out         flux de sortie vers lequel écrire le PDF
      */
     public void exporterPdf(List<Soutenance> soutenances, OutputStream out) {
-        Document doc = new Document(PageSize.A4.rotate(), 20, 20, 40, 30);
+        Document doc = new Document(PageSize.A4.rotate(), 30, 30, 50, 40);
         try {
-            PdfWriter.getInstance(doc, out);
+            PdfWriter writer = PdfWriter.getInstance(doc, out);
             doc.open();
 
-            com.itextpdf.text.Font titleFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
-            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
-            com.itextpdf.text.Font cellFont   = FontFactory.getFont(FontFactory.HELVETICA, 8);
+            // Couleurs
+            BaseColor violet    = new BaseColor(99,  102, 241);
+            BaseColor violetLt  = new BaseColor(165, 180, 252);
+            BaseColor dark      = new BaseColor(13,  17,  23);
+            BaseColor darkCard  = new BaseColor(22,  27,  34);
+            BaseColor darkRow   = new BaseColor(33,  38,  45);
+            BaseColor textLight = new BaseColor(240, 246, 252);
+            BaseColor textMuted = new BaseColor(139, 148, 158);
+            BaseColor green     = new BaseColor(34,  197, 94);
+            BaseColor amber     = new BaseColor(245, 158, 11);
 
-            Paragraph titre = new Paragraph("ENSA Al Hoceima — Planning des Soutenances PFE 2024/2025", titleFont);
+            com.itextpdf.text.Font titleFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, textLight);
+            com.itextpdf.text.Font subFont    = FontFactory.getFont(FontFactory.HELVETICA, 10, textMuted);
+            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, textLight);
+            com.itextpdf.text.Font cellFont   = FontFactory.getFont(FontFactory.HELVETICA, 8, textLight);
+            com.itextpdf.text.Font mutedFont  = FontFactory.getFont(FontFactory.HELVETICA, 7, textMuted);
+
+            // Background page
+            PdfContentByte canvas = writer.getDirectContentUnder();
+            canvas.setColorFill(dark);
+            canvas.rectangle(0, 0, doc.getPageSize().getWidth(), doc.getPageSize().getHeight());
+            canvas.fill();
+
+            // Header band
+            canvas.setColorFill(darkCard);
+            canvas.rectangle(0, doc.getPageSize().getHeight() - 80, doc.getPageSize().getWidth(), 80);
+            canvas.fill();
+
+            // Accent line top
+            canvas.setColorFill(violet);
+            canvas.rectangle(0, doc.getPageSize().getHeight() - 4, doc.getPageSize().getWidth(), 4);
+            canvas.fill();
+
+            // Titre
+            Paragraph titre = new Paragraph("PLANNING DES SOUTENANCES PFE 2024/2025", titleFont);
             titre.setAlignment(Element.ALIGN_CENTER);
-            titre.setSpacingAfter(15);
+            titre.setSpacingBefore(16);
+            titre.setSpacingAfter(2);
             doc.add(titre);
 
+            Paragraph sub = new Paragraph("ENSA Al Hoceima — Département Mathématiques & Informatique", subFont);
+            sub.setAlignment(Element.ALIGN_CENTER);
+            sub.setSpacingAfter(20);
+            doc.add(sub);
+
+            // Tableau
             PdfPTable table = new PdfPTable(8);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{1.2f, 1f, 1f, 2.5f, 0.8f, 0.7f, 2f, 2f});
+            table.setWidths(new float[]{1.2f, 0.9f, 1f, 2.4f, 0.7f, 0.7f, 2f, 2f});
+            table.setSpacingBefore(8);
 
-            for (String col : new String[]{"Date","Heure","Salle","Etudiant","Filiere","Langue","Encadrant","Jury"}) {
+            // En-têtes
+            String[] cols = {"Date","Heure","Salle","Étudiant","Filière","Langue","Encadrant","Jury"};
+            for (String col : cols) {
                 PdfPCell cell = new PdfPCell(new Phrase(col, headerFont));
-                cell.setBackgroundColor(new BaseColor(13, 71, 161));
-                cell.setPadding(5);
+                cell.setBackgroundColor(violet);
+                cell.setPadding(8);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cell.setBorder(Rectangle.NO_BORDER);
                 table.addCell(cell);
             }
 
-            soutenances.sort(Comparator.comparing(Soutenance::getDate).thenComparing(Soutenance::getHeure));
+            soutenances.sort(Comparator.comparing(Soutenance::getDate)
+                                       .thenComparing(Soutenance::getHeure));
+
             boolean alt = false;
             for (Soutenance s : soutenances) {
-                BaseColor bg = alt ? new BaseColor(232, 240, 254) : BaseColor.WHITE;
+                BaseColor bg = alt ? darkRow : darkCard;
                 alt = !alt;
+
+                // Indicateur langue
+                boolean isEn = s.getEtudiant().getLangue().toString().equals("EN");
+                com.itextpdf.text.Font langFont = FontFactory.getFont(
+                    FontFactory.HELVETICA_BOLD, 7,
+                    isEn ? amber : green);
+
                 ajouterCellule(table, s.getDate().format(DATE_FMT), cellFont, bg);
                 ajouterCellule(table, s.getHeure().format(HEURE_FMT), cellFont, bg);
                 ajouterCellule(table, s.getSalle().getNom(), cellFont, bg);
                 ajouterCellule(table, s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom(), cellFont, bg);
-                ajouterCellule(table, s.getEtudiant().getFiliere().toString(), cellFont, bg);
-                ajouterCellule(table, s.getEtudiant().getLangue().toString(), cellFont, bg);
+                ajouterCellule(table, s.getEtudiant().getFiliere().toString(), mutedFont, bg);
+                ajouterCellule(table, s.getEtudiant().getLangue().toString(), langFont, bg);
                 ajouterCellule(table, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), cellFont, bg);
                 String jury = (s.getJury1() != null ? s.getJury1().getNom() : "") +
                               (s.getJury2() != null ? " / " + s.getJury2().getNom() : "");
-                ajouterCellule(table, jury, cellFont, bg);
+                ajouterCellule(table, jury, mutedFont, bg);
             }
+
             doc.add(table);
+
+            // Footer
+            Paragraph footer = new Paragraph(
+                "Généré automatiquement — PFE Planning ENSA Al Hoceima · " +
+                java.time.LocalDate.now().format(DATE_FMT),
+                FontFactory.getFont(FontFactory.HELVETICA, 7, textMuted));
+            footer.setAlignment(Element.ALIGN_CENTER);
+            footer.setSpacingBefore(16);
+            doc.add(footer);
+
             doc.close();
         } catch (Exception e) {
             throw new RuntimeException("Erreur PDF : " + e.getMessage(), e);
@@ -346,4 +409,119 @@ public class ExportService {
         table.addCell(c1);
         table.addCell(c2);
     }
+    
+    public void genererPvsDocxZip(List<Soutenance> soutenances, OutputStream out) throws IOException {
+        Map<String, List<Soutenance>> parEncadrant = soutenances.stream()
+            .collect(Collectors.groupingBy(
+                s -> s.getEncadrant().getNom() + "_" + s.getEncadrant().getPrenom(),
+                TreeMap::new, Collectors.toList()));
+
+        try (ZipOutputStream zip = new ZipOutputStream(out)) {
+            for (Map.Entry<String, List<Soutenance>> entry : parEncadrant.entrySet()) {
+                String dossier = "PVs_DOCX/" + entry.getKey() + "/";
+                for (Soutenance s : entry.getValue()) {
+                    String fichier = dossier + "PV_" +
+                        s.getEtudiant().getNom() + "_" +
+                        s.getEtudiant().getPrenom() + ".docx";
+                    zip.putNextEntry(new ZipEntry(fichier));
+                    genererUnPvDocx(s, zip);
+                    zip.closeEntry();
+                }
+            }
+        }
+    }
+
+    private void genererUnPvDocx(Soutenance s, OutputStream out) throws IOException {
+        try (org.apache.poi.xwpf.usermodel.XWPFDocument doc =
+                 new org.apache.poi.xwpf.usermodel.XWPFDocument()) {
+
+            // Entête
+            org.apache.poi.xwpf.usermodel.XWPFParagraph header = doc.createParagraph();
+            header.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
+            org.apache.poi.xwpf.usermodel.XWPFRun r = header.createRun();
+            r.setBold(true); r.setFontSize(14);
+            r.setText("ENSA Al Hoceima — Département Mathématiques & Informatique");
+            r.addBreak();
+            r.setText("Année Universitaire 2024/2025");
+
+            doc.createParagraph(); // ligne vide
+
+            // Titre PV
+            org.apache.poi.xwpf.usermodel.XWPFParagraph titre = doc.createParagraph();
+            titre.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
+            org.apache.poi.xwpf.usermodel.XWPFRun rt = titre.createRun();
+            rt.setBold(true); rt.setFontSize(16);
+            rt.setText("PROCÈS-VERBAL DE SOUTENANCE PFE");
+
+            doc.createParagraph();
+
+            // Tableau infos
+            org.apache.poi.xwpf.usermodel.XWPFTable table = doc.createTable(8, 2);
+            table.setWidth("100%");
+            String[][] rows = {
+                {"Étudiant(e)", s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom()},
+                {"Filière", s.getEtudiant().getFiliere().toString()},
+                {"Date", s.getDate().format(DATE_FMT)},
+                {"Heure", s.getHeure().format(HEURE_FMT)},
+                {"Salle", s.getSalle().getNom()},
+                {"Encadrant", s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom()},
+                {"Jury 1", s.getJury1() != null ? s.getJury1().getNom() + " " + s.getJury1().getPrenom() : "-"},
+                {"Jury 2", s.getJury2() != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "-"}
+            };
+            for (int i = 0; i < rows.length; i++) {
+                table.getRow(i).getCell(0).setText(rows[i][0]);
+                table.getRow(i).getCell(1).setText(rows[i][1]);
+            }
+
+            doc.createParagraph();
+
+            // Note et signature
+            org.apache.poi.xwpf.usermodel.XWPFParagraph note = doc.createParagraph();
+            note.createRun().setText("Note finale : _______ / 20");
+            doc.createParagraph().createRun().setText("Mention : _____________________________");
+            doc.createParagraph().createRun().setText("Observations :");
+            doc.createParagraph().createRun().setText("________________________________________________________________");
+            doc.createParagraph().createRun().setText("________________________________________________________________");
+            doc.createParagraph();
+
+            // Signatures
+            org.apache.poi.xwpf.usermodel.XWPFTable sigTable = doc.createTable(1, 3);
+            sigTable.getRow(0).getCell(0).setText("Encadrant\n\n\n_____________");
+            sigTable.getRow(0).getCell(1).setText("Président du jury\n\n\n_____________");
+            sigTable.getRow(0).getCell(2).setText("Membre du jury\n\n\n_____________");
+
+            doc.write(out);
+        }
+    }
+        
+        public void sauvegarderVersion(List<Soutenance> soutenances, String dossierBase) throws IOException {
+            // Trouver le prochain numéro de version
+            java.io.File base = new java.io.File(dossierBase);
+            base.mkdirs();
+            int version = 1;
+            while (new java.io.File(dossierBase + "/version_" + version).exists()) {
+                version++;
+            }
+            java.io.File dossierVersion = new java.io.File(dossierBase + "/version_" + version);
+            dossierVersion.mkdirs();
+
+            // Sauvegarder Excel
+            try (java.io.FileOutputStream excelOut =
+                     new java.io.FileOutputStream(new java.io.File(dossierVersion, "planning.xlsx"))) {
+                exporterExcel(soutenances, excelOut);
+            }
+
+            // Sauvegarder PDF
+            try (java.io.FileOutputStream pdfOut =
+                     new java.io.FileOutputStream(new java.io.File(dossierVersion, "planning.pdf"))) {
+                exporterPdf(soutenances, pdfOut);
+            }
+
+            // Sauvegarder PVs ZIP
+            try (java.io.FileOutputStream zipOut =
+                     new java.io.FileOutputStream(new java.io.File(dossierVersion, "PVs.zip"))) {
+                genererPvsZip(soutenances, zipOut);
+            }
+        }
+    
 }

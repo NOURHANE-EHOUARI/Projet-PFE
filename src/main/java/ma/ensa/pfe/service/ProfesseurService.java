@@ -60,7 +60,7 @@ public class ProfesseurService {
 
     @Transactional(readOnly = true)
     public long countAnglophones() {
-        return professeurRepository.countByParleAnglais(true);
+        return professeurRepository.findByParleAnglais(Boolean.TRUE).size();
     }
 
     // ===== ÉCRITURE =====
