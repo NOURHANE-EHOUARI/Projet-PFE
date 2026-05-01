@@ -252,8 +252,8 @@ public class ExportService {
                 ajouterCellule(table, s.getEtudiant().getFiliere().toString(), mutedFont, bg);
                 ajouterCellule(table, s.getEtudiant().getLangue().toString(), langFont, bg);
                 ajouterCellule(table, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), cellFont, bg);
-                String jury = (s.getJury1() != null ? s.getJury1().getNom() : "") +
-                              (s.getJury2() != null ? " / " + s.getJury2().getNom() : "");
+                String jury = (s.getJury2() != null ? s.getJury2().getNom() : "") +
+                              (s.getJury3() != null ? " / " + s.getJury3().getNom() : "");
                 ajouterCellule(table, jury, mutedFont, bg);
             }
 
@@ -313,69 +313,211 @@ public class ExportService {
     }
 
     private void genererUnPv(Soutenance s, OutputStream out) {
-        Document doc = new Document(PageSize.A4, 50, 50, 60, 50);
-        try {
-            PdfWriter.getInstance(doc, out).setCloseStream(false);
-            doc.open();
+      Document doc = new Document(PageSize.A4, 50, 50, 60, 50);
+      try {
+        PdfWriter.getInstance(doc, out).setCloseStream(false);
+        doc.open();
 
-            com.itextpdf.text.Font titleFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
-            com.itextpdf.text.Font boldFont   = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
-            com.itextpdf.text.Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
-            com.itextpdf.text.Font smallFont  = FontFactory.getFont(FontFactory.HELVETICA, 9);
+        com.itextpdf.text.Font fontTitre    = FontFactory.getFont(FontFactory.TIMES_BOLD, 13);
+        com.itextpdf.text.Font fontNormal   = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11);
+        com.itextpdf.text.Font fontBold     = FontFactory.getFont(FontFactory.TIMES_BOLD, 11);
+        com.itextpdf.text.Font fontSmall    = FontFactory.getFont(FontFactory.TIMES_ROMAN, 10);
+        com.itextpdf.text.Font fontSmallB   = FontFactory.getFont(FontFactory.TIMES_BOLD, 10);
 
-            Paragraph entete = new Paragraph("ENSA Al Hoceima — Departement Mathematiques & Informatique", smallFont);
-            entete.setAlignment(Element.ALIGN_CENTER);
-            doc.add(entete);
-            Paragraph annee = new Paragraph("Annee Universitaire 2024/2025", smallFont);
-            annee.setAlignment(Element.ALIGN_CENTER);
-            doc.add(annee);
-            doc.add(Chunk.NEWLINE);
+        // ── ENTÊTE UNIVERSITÉ ──
+        Paragraph univ = new Paragraph("UNIVERSITE ABDELMALEK ESSAADI", fontBold);
+        univ.setAlignment(Element.ALIGN_CENTER);
+        doc.add(univ);
 
-            Paragraph pvTitle = new Paragraph("PROCES-VERBAL DE SOUTENANCE PFE", titleFont);
-            pvTitle.setAlignment(Element.ALIGN_CENTER);
-            pvTitle.setSpacingAfter(20);
-            doc.add(pvTitle);
+        Paragraph ecole = new Paragraph(
+            "Ecole Nationale des Sciences Appliquées d'Al-Hoceima - Maroc", fontNormal);
+        ecole.setAlignment(Element.ALIGN_CENTER);
+        doc.add(ecole);
 
-            PdfPTable info = new PdfPTable(2);
-            info.setWidthPercentage(100);
-            info.setSpacingAfter(15);
-            ajouterLignePv(info, "Etudiant(e)",  s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom(), boldFont, normalFont);
-            ajouterLignePv(info, "Filiere",      s.getEtudiant().getFiliere().toString(), boldFont, normalFont);
-            ajouterLignePv(info, "Date",         s.getDate().format(DATE_FMT), boldFont, normalFont);
-            ajouterLignePv(info, "Heure",        s.getHeure().format(HEURE_FMT), boldFont, normalFont);
-            ajouterLignePv(info, "Salle",        s.getSalle().getNom(), boldFont, normalFont);
-            ajouterLignePv(info, "Encadrant",    s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), boldFont, normalFont);
-            if (s.getJury1() != null) ajouterLignePv(info, "Jury 1", s.getJury1().getNom() + " " + s.getJury1().getPrenom(), boldFont, normalFont);
-            if (s.getJury2() != null) ajouterLignePv(info, "Jury 2", s.getJury2().getNom() + " " + s.getJury2().getPrenom(), boldFont, normalFont);
-            doc.add(info);
+        Paragraph dept = new Paragraph(
+            "Département de Mathématiques et Informatique", fontNormal);
+        dept.setAlignment(Element.ALIGN_CENTER);
+        dept.setSpacingAfter(14);
+        doc.add(dept);
 
-            doc.add(new Paragraph("Note finale : _______ / 20", boldFont));
-            doc.add(Chunk.NEWLINE);
-            doc.add(new Paragraph("Mention : ________________________________", normalFont));
-            doc.add(Chunk.NEWLINE);
-            doc.add(new Paragraph("Observations :", boldFont));
-            doc.add(new Paragraph("_______________________________________________\n_______________________________________________\n_______________________________________________", normalFont));
-            doc.add(Chunk.NEWLINE);
-            doc.add(Chunk.NEWLINE);
+        // Ligne séparatrice
+        PdfPTable ligne = new PdfPTable(1);
+        ligne.setWidthPercentage(100);
+        ligne.setSpacingAfter(10);
+        PdfPCell ligneCell = new PdfPCell();
+        ligneCell.setBorderWidthBottom(1.5f);
+        ligneCell.setBorderWidthTop(0);
+        ligneCell.setBorderWidthLeft(0);
+        ligneCell.setBorderWidthRight(0);
+        ligneCell.setFixedHeight(2);
+        ligne.addCell(ligneCell);
+        doc.add(ligne);
 
-            PdfPTable sigs = new PdfPTable(3);
-            sigs.setWidthPercentage(100);
-            sigs.setSpacingBefore(20);
-            for (String sig : new String[]{"Encadrant", "President du jury", "Membre du jury"}) {
-                PdfPCell cell = new PdfPCell();
-                cell.addElement(new Paragraph(sig, boldFont));
-                cell.addElement(new Paragraph("\n\n\n_____________________", normalFont));
-                cell.setBorder(Rectangle.NO_BORDER);
-                cell.setPaddingTop(10);
-                sigs.addCell(cell);
-            }
-            doc.add(sigs);
-            doc.close();
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur PV : " + e.getMessage(), e);
+        // ── TITRE FICHE ──
+        Paragraph titre = new Paragraph(
+            "Fiche d'évaluation du Projet de Fin d'Étude", fontTitre);
+        titre.setAlignment(Element.ALIGN_CENTER);
+        titre.setSpacingAfter(4);
+        doc.add(titre);
+
+        Paragraph annee = new Paragraph(
+            "Année Universitaire : 2024-2025", fontNormal);
+        annee.setAlignment(Element.ALIGN_CENTER);
+        annee.setSpacingAfter(16);
+        doc.add(annee);
+
+        // ── NOM ÉTUDIANT ──
+        Paragraph nomLabel = new Paragraph();
+        nomLabel.add(new Chunk("Nom - Prénom de l'élève ingénieur : ", fontBold));
+        doc.add(nomLabel);
+
+        Paragraph nomVal = new Paragraph(
+            "        " + s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom(),
+            fontNormal);
+        nomVal.setSpacingAfter(10);
+        doc.add(nomVal);
+
+        // ── FILIÈRE ──
+        Paragraph filiereLabel = new Paragraph();
+        filiereLabel.add(new Chunk("Filière :          ", fontBold));
+        String filiere = s.getEtudiant().getFiliere().toString();
+
+        String cbID   = (filiere.equals("ID")   || filiere.equals("DATA")) ? "☑" : "☐";
+        String cbGI   = filiere.equals("GI")                               ? "☑" : "☐";
+        String cbTDIA = (filiere.equals("TDIA") || filiere.equals("TD"))   ? "☑" : "☐";
+
+        filiereLabel.add(new Chunk(cbID   + " Ingénierie des Données     ", fontNormal));
+        filiereLabel.add(new Chunk(cbGI   + " Génie Informatique     ", fontNormal));
+        filiereLabel.add(new Chunk(cbTDIA + " Transformation Digitale et Intelligence Artificielle", fontNormal));
+        filiereLabel.setSpacingAfter(10);
+        doc.add(filiereLabel);
+
+        // ── INTITULÉ RAPPORT ──
+        Paragraph rapportLabel = new Paragraph();
+        rapportLabel.add(new Chunk("Intitulé du rapport :", fontBold));
+        doc.add(rapportLabel);
+        Paragraph rapportVal = new Paragraph(
+            "        " + (s.getEtudiant().getTitreProjet() != null ?
+                s.getEtudiant().getTitreProjet() : "…………………………………………………………………………."),
+            fontNormal);
+        rapportVal.setSpacingAfter(10);
+        doc.add(rapportVal);
+
+        // ── ENCADRANT INTERNE ──
+        Paragraph encLabel = new Paragraph();
+        encLabel.add(new Chunk("L'encadrant(e) interne :", fontBold));
+        doc.add(encLabel);
+        Paragraph encVal = new Paragraph(
+            "        Pr.  " + s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(),
+            fontNormal);
+        encVal.setSpacingAfter(10);
+        doc.add(encVal);
+
+        // ── MEMBRES DU JURY ──
+        Paragraph juryLabel = new Paragraph("Membres du jury :", fontBold);
+        juryLabel.setSpacingAfter(6);
+        doc.add(juryLabel);
+
+        // Tableau jury (encadrant = Président, jury2 et jury3 = Rapporteurs)
+        PdfPTable juryTable = new PdfPTable(1);
+        juryTable.setWidthPercentage(100);
+        juryTable.setSpacingAfter(14);
+
+        // Ligne 1 : Encadrant = Président
+        String presidentNom = s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom();
+        PdfPCell cellPresident = new PdfPCell(
+            new Phrase("Pr.   " + presidentNom + "               Président", fontNormal));
+        cellPresident.setPadding(6);
+        juryTable.addCell(cellPresident);
+
+        // Ligne 2 : Jury2 et Jury3 = Rapporteurs
+        String rap1 = s.getJury2() != null ?
+            "Pr.   " + s.getJury2().getNom() + " " + s.getJury2().getPrenom() +
+            "               Rapporteur" : "Pr.   ………………………………………               Rapporteur";
+        String rap2 = s.getJury3() != null ?
+            "Pr.   " + s.getJury3().getNom() + " " + s.getJury3().getPrenom() +
+            "               Rapporteur" : "Pr.   ………………………………………               Rapporteur";
+
+        PdfPCell cellRapporteurs = new PdfPCell();
+        cellRapporteurs.addElement(new Phrase(rap1, fontNormal));
+        cellRapporteurs.addElement(new Phrase(rap2, fontNormal));
+        cellRapporteurs.setPadding(6);
+        juryTable.addCell(cellRapporteurs);
+
+        doc.add(juryTable);
+
+        // ── NOTES ──
+        Paragraph noteContenu = new Paragraph();
+        noteContenu.add(new Chunk("Note du Contenu", fontBold));
+        noteContenu.add(new Chunk(
+            " *(En prenant en compte l'appréciation de l'entreprise)*", fontSmall));
+        doc.add(noteContenu);
+
+        Paragraph noteC = new Paragraph("C  =  ____", fontNormal);
+        noteC.setSpacingAfter(8);
+        doc.add(noteC);
+
+        Paragraph noteMemoireLabel = new Paragraph("Note du Mémoire", fontBold);
+        doc.add(noteMemoireLabel);
+        Paragraph noteM = new Paragraph("M  =  ____", fontNormal);
+        noteM.setSpacingAfter(8);
+        doc.add(noteM);
+
+        Paragraph noteSoutLabel = new Paragraph("Note de la Soutenance", fontBold);
+        doc.add(noteSoutLabel);
+        Paragraph noteS = new Paragraph("S  =  ____", fontNormal);
+        noteS.setSpacingAfter(10);
+        doc.add(noteS);
+
+        // ── TABLEAU MOYENNE ──
+        PdfPTable moyTable = new PdfPTable(1);
+        moyTable.setWidthPercentage(100);
+        moyTable.setSpacingAfter(20);
+
+        PdfPCell moyCell = new PdfPCell();
+        moyCell.addElement(new Phrase("MOYENNE", fontBold));
+        moyCell.addElement(new Phrase(
+            "Moyenne   = C × 0,5 + M × 0,2 + S × 0,3  =  ", fontNormal));
+        moyCell.setPadding(8);
+        moyTable.addCell(moyCell);
+        doc.add(moyTable);
+
+        // ── DATE ET SIGNATURES ──
+        Paragraph dateLine = new Paragraph(
+            "Le :      " + s.getDate().format(DATE_FMT), fontNormal);
+        dateLine.setSpacingAfter(30);
+        doc.add(dateLine);
+
+        Paragraph sigLabel = new Paragraph(
+            "Signature des membres du jury :", fontNormal);
+        sigLabel.setSpacingAfter(20);
+        doc.add(sigLabel);
+
+        // Tableau signatures 3 colonnes
+        PdfPTable sigTable = new PdfPTable(3);
+        sigTable.setWidthPercentage(100);
+
+        String[] sigNoms = {
+            "Pr.  " + s.getEncadrant().getNom(),
+            s.getJury2() != null ? "Pr.  " + s.getJury2().getNom() : "Pr.  …………",
+            s.getJury3() != null ? "Pr.  " + s.getJury3().getNom() : "Pr.  …………"
+        };
+
+        for (String nom : sigNoms) {
+            PdfPCell sig = new PdfPCell();
+            sig.addElement(new Phrase(nom, fontSmall));
+            sig.addElement(new Phrase("\n\n\n_____________________", fontSmall));
+            sig.setBorder(Rectangle.NO_BORDER);
+            sig.setPaddingTop(6);
+            sigTable.addCell(sig);
         }
-    }
+        doc.add(sigTable);
 
+        doc.close();
+     } catch (Exception e) {
+        throw new RuntimeException("Erreur PV : " + e.getMessage(), e);
+     }
+  }
     // ── Helpers ──
     private void creerEntete(Sheet sheet, String[] headers, CellStyle style, int rowIndex) {
         Row row = sheet.createRow(rowIndex);
