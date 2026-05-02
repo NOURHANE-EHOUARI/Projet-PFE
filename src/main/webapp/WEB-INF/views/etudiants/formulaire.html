@@ -7,505 +7,393 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
-            
-            /* Light Theme */
-            --bg-body: #f5f7fa;
-            --bg-card: #ffffff;
-            --bg-input: #ffffff;
-            --bg-input-focus: #ffffff;
-            --bg-radio-default: #ffffff;
-            --bg-radio-checked-gi: #e8f4fd;
-            --bg-radio-checked-id: #fef3e8;
-            --bg-radio-checked-fr: #e8f8e8;
-            --bg-radio-checked-en: #fdeaea;
-            --text-primary: #374151;
-            --text-secondary: #6c757d;
-            --text-muted: #9ca3af;
-            --text-inverse: #ffffff;
-            --text-radio-gi: #2e6da4;
-            --text-radio-id: #e67e22;
-            --text-radio-fr: #27ae60;
-            --text-radio-en: #e74c3c;
-            --border-input: #e0e7ef;
-            --border-input-focus: var(--ensa-secondary);
-            --border-section: #e8f0fb;
-            --border-radio: #e0e7ef;
-            --border-radio-hover: #aab8c2;
-            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
-            --shadow-input: 0 0 0 3px rgba(46,109,164,0.12);
-            --shadow-input-error: 0 0 0 3px rgba(231,76,60,0.1);
-            --navbar-bg: var(--ensa-primary);
-            --footer-bg: var(--ensa-primary);
-            --footer-text: rgba(255,255,255,0.6);
-            --theme-toggle-bg: rgba(255,255,255,0.1);
-            --theme-toggle-border: rgba(255,255,255,0.2);
-            --theme-toggle-hover: rgba(255,255,255,0.2);
-            --alert-bg-danger: #fdeaea;
-            --alert-text-danger: #e74c3c;
-            --btn-cancel-bg: #ffffff;
-            --btn-cancel-border: #dee2e6;
-            --btn-cancel-text: #6c757d;
-            --btn-cancel-hover-bg: #f8f9fa;
-            --btn-cancel-hover-border: #adb5bd;
+            --primary: #1a3a5c; --secondary: #2e6da4; --accent: #f0a500;
+            --bg: #f4f6f9; --card: #ffffff; --border: #e2e8f0;
+            --input-bg: #ffffff; --text: #1e293b; --text-sub: #475569; --text-muted: #64748b;
         }
-
-        /* Dark Theme */
         [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #1e293b;
-            --bg-input-focus: #334155;
-            --bg-radio-default: #1e293b;
-            --bg-radio-checked-gi: rgba(21,101,192,0.15);
-            --bg-radio-checked-id: rgba(180,83,9,0.15);
-            --bg-radio-checked-fr: rgba(46,125,50,0.15);
-            --bg-radio-checked-en: rgba(198,40,40,0.15);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --text-radio-gi: #60a5fa;
-            --text-radio-id: #fb923c;
-            --text-radio-fr: #4ade80;
-            --text-radio-en: #f87171;
-            --border-input: #334155;
-            --border-input-focus: #60a5fa;
-            --border-section: #334155;
-            --border-radio: #334155;
-            --border-radio-hover: #475569;
-            --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
-            --shadow-input: 0 0 0 3px rgba(96,165,250,0.2);
-            --shadow-input-error: 0 0 0 3px rgba(248,113,113,0.2);
-            --navbar-bg: #0f172a;
-            --footer-bg: #0f172a;
-            --footer-text: #94a3b8;
-            --theme-toggle-bg: rgba(255,255,255,0.05);
-            --theme-toggle-border: rgba(255,255,255,0.1);
-            --theme-toggle-hover: rgba(255,255,255,0.15);
-            --alert-bg-danger: rgba(198,40,40,0.15);
-            --alert-text-danger: #f87171;
-            --btn-cancel-bg: #1e293b;
-            --btn-cancel-border: #475569;
-            --btn-cancel-text: #94a3b8;
-            --btn-cancel-hover-bg: #334155;
-            --btn-cancel-hover-border: #64748b;
+            --bg: #0f172a; --card: #1e293b; --border: #334155;
+            --input-bg: #273549; --text: #f1f5f9; --text-sub: #cbd5e1; --text-muted: #94a3b8;
         }
-
-        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-        
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Segoe UI', sans-serif; 
-            color: var(--text-primary);
-        }
-        
-        .navbar { 
-            background-color: var(--navbar-bg) !important; 
-            transition: background-color 0.3s ease;
-        }
-        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover { color: var(--ensa-accent) !important; }
-        .nav-link.active { color: var(--ensa-accent) !important; font-weight: 700; }
-        
-        /* Theme Toggle */
-        .theme-toggle {
-            background: var(--theme-toggle-bg);
-            border: 1px solid var(--theme-toggle-border);
-            color: white;
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-        .theme-toggle:hover { background: var(--theme-toggle-hover); transform: rotate(15deg); }
-        .theme-toggle svg { width: 18px; height: 18px; }
-        
-        [data-theme="dark"] .sun-icon { display: none; }
-        [data-theme="light"] .moon-icon { display: none; }
-        .sun-icon { display: inline; }
-        .moon-icon { display: none; }
-        [data-theme="dark"] .moon-icon { display: inline; }
-        
-        footer { 
-            background-color: var(--footer-bg); 
-            color: var(--footer-text); 
-            font-size: 0.85rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 40px;
-        }
-        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
-        .breadcrumb-item a:hover { color: white; }
-        .breadcrumb-item.active { color: var(--ensa-accent); }
-        
-        .form-card {
-            background: var(--bg-card); border-radius: 16px;
-            box-shadow: var(--shadow-card);
-            padding: 36px 40px;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .section-title {
-            font-size: 0.75rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--ensa-secondary); margin-bottom: 16px;
-            padding-bottom: 8px; border-bottom: 2px solid var(--border-section);
-            transition: border-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .form-label { 
-            font-weight: 600; font-size: 0.875rem; 
-            color: var(--text-primary); margin-bottom: 6px;
-            transition: color 0.3s ease;
-        }
-        .form-label .required { color: #e74c3c; margin-left: 3px; }
-        
-        .form-control, .form-select {
-            border-radius: 10px; border: 1.5px solid var(--border-input);
-            padding: 10px 14px; font-size: 0.9rem;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease, color 0.3s ease;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--border-input-focus);
-            box-shadow: var(--shadow-input);
-            background: var(--bg-input-focus);
-        }
-        .form-control::placeholder, .form-select::placeholder {
-            color: var(--text-muted);
-            transition: color 0.3s ease;
-        }
-        .form-control.is-invalid, .form-select.is-invalid {
-            border-color: #e74c3c; box-shadow: var(--shadow-input-error);
-        }
-        .invalid-feedback { font-size: 0.8rem; color: #e74c3c; }
-        
-        .form-text { color: var(--text-muted) !important; transition: color 0.3s ease; }
-        .text-muted { color: var(--text-muted) !important; transition: color 0.3s ease; }
-        .text-danger { color: #e74c3c !important; }
-
-        /* Langue radio buttons */
-        .langue-options { display: flex; gap: 12px; }
-        .langue-option { flex: 1; }
-        .langue-option input[type="radio"] { display: none; }
-        .langue-option label {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 10px 16px; border-radius: 10px; border: 1.5px solid var(--border-radio);
-            cursor: pointer; font-weight: 600; font-size: 0.9rem;
-            transition: all 0.18s; width: 100%;
-            background: var(--bg-radio-default);
-            color: var(--text-primary);
-        }
-        .langue-option input[type="radio"]:checked + label {
-            border-color: var(--ensa-secondary); 
-            background-color: var(--bg-radio-checked-fr); 
-            color: var(--text-radio-fr);
-        }
-        .langue-option:nth-child(2) input[type="radio"]:checked + label {
-            background-color: var(--bg-radio-checked-en); 
-            color: var(--text-radio-en);
-        }
-        .langue-option label:hover { border-color: var(--border-radio-hover); }
-
-        /* Filière radio buttons */
-        .filiere-options { display: flex; gap: 12px; }
-        .filiere-option { flex: 1; }
-        .filiere-option input[type="radio"] { display: none; }
-        .filiere-option label {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--border-radio);
-            cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            transition: all 0.18s; width: 100%;
-            background: var(--bg-radio-default);
-            color: var(--text-primary);
-        }
-        .filiere-option.gi input[type="radio"]:checked + label {
-            border-color: #2e6da4; background-color: var(--bg-radio-checked-gi); color: var(--text-radio-gi);
-        }
-        .filiere-option.id input[type="radio"]:checked + label {
-            border-color: #e67e22; background-color: var(--bg-radio-checked-id); color: var(--text-radio-id);
-        }
-        .filiere-option label:hover { border-color: var(--border-radio-hover); }
-
-        .btn-save {
-            background-color: var(--ensa-primary); border: none; color: white;
-            padding: 12px 32px; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-        .btn-save:hover { background-color: var(--ensa-secondary); color: white; transform: translateY(-1px); }
-        
-        .btn-cancel {
-            border: 1.5px solid var(--btn-cancel-border); 
-            background: var(--btn-cancel-bg); 
-            color: var(--btn-cancel-text);
-            padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 0.95rem;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-        }
-        .btn-cancel:hover { 
-            background: var(--btn-cancel-hover-bg); 
-            border-color: var(--btn-cancel-hover-border); 
-            color: var(--text-primary);
-        }
-
-        .char-counter { font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-top: 4px; transition: color 0.3s ease; }
-        .char-counter.warning { color: #e67e22 !important; }
-        .char-counter.danger { color: #e74c3c !important; }
-        
-        .alert-danger {
-            background: var(--alert-bg-danger);
-            color: var(--alert-text-danger);
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .alert-danger .btn-close { filter: invert(0.3); }
-        [data-theme="dark"] .alert-danger .btn-close { filter: invert(0.8); }
-        
-        /* Select option styling for dark mode */
-        [data-theme="dark"] select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); transition: background 0.3s, color 0.3s; }
+        .topnav { background: var(--primary); padding: 0 1.5rem; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        [data-theme="dark"] .topnav { background: #0a1628; }
+        .topnav-brand { font-size: 15px; font-weight: 700; color: white; text-decoration: none; }
+        .topnav-brand span { color: var(--accent); }
+        .topnav-links { display: flex; align-items: center; gap: 2px; }
+        .topnav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; padding: 6px 13px; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+        .topnav-links a:hover, .topnav-links a.active { background: rgba(255,255,255,0.12); color: white; }
+        .theme-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; }
+        .page-header { background: linear-gradient(135deg, #1a3a5c, #2e6da4); color: white; padding: 1.8rem 1.5rem; margin-bottom: 2rem; }
+        .page-header h2 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+        .breadcrumb { margin: 0 0 8px; padding: 0; list-style: none; display: flex; gap: 6px; font-size: 12px; }
+        .breadcrumb li { color: rgba(255,255,255,0.55); }
+        .breadcrumb li a { color: rgba(255,255,255,0.7); text-decoration: none; }
+        .breadcrumb li.active { color: var(--accent); }
+        .breadcrumb li:not(:last-child)::after { content: '›'; margin-left: 6px; }
+        .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; transition: background 0.3s; max-width: 720px; margin: 0 auto 2rem; }
+        .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--secondary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid var(--border); }
+        .form-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 5px; display: block; }
+        .req { color: #ef4444; margin-left: 2px; }
+        input[type="text"], select { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--input-bg); color: var(--text); transition: border 0.15s, box-shadow 0.15s, background 0.3s; outline: none; }
+        input[type="text"]:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(46,109,164,0.12); }
+        input.is-invalid, select.is-invalid { border-color: #ef4444 !important; }
+        .err-msg { font-size: 12px; color: #ef4444; margin-top: 3px; }
+        .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-pill input[type="radio"] { display: none; }
+        .radio-pill label { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; border: 1.5px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-sub); background: var(--input-bg); transition: all 0.15s; white-space: nowrap; }
+        .radio-pill label:hover { border-color: var(--secondary); }
+        .radio-pill.gi   input:checked + label { background: #dbeafe; border-color: #1d4ed8; color: #1d4ed8; }
+        .radio-pill.tdia input:checked + label { background: #ede9fe; border-color: #6d28d9; color: #6d28d9; }
+        .radio-pill.data input:checked + label { background: #fef3c7; border-color: #92400e; color: #92400e; }
+        .radio-pill.fr   input:checked + label { background: #dcfce7; border-color: #16a34a; color: #16a34a; }
+        .radio-pill.en   input:checked + label { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+        [data-theme="dark"] .radio-pill.gi   input:checked + label { background: rgba(29,78,216,0.2); border-color: #60a5fa; color: #93c5fd; }
+        [data-theme="dark"] .radio-pill.tdia input:checked + label { background: rgba(109,40,217,0.2); border-color: #a78bfa; color: #c4b5fd; }
+        [data-theme="dark"] .radio-pill.data input:checked + label { background: rgba(146,64,14,0.2); border-color: #fbbf24; color: #fcd34d; }
+        [data-theme="dark"] .radio-pill.fr   input:checked + label { background: rgba(22,163,74,0.2); border-color: #4ade80; color: #86efac; }
+        [data-theme="dark"] .radio-pill.en   input:checked + label { background: rgba(220,38,38,0.2); border-color: #f87171; color: #fca5a5; }
+        .mode-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+        .mode-btn { flex: 1; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--input-bg); color: var(--text-sub); font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; transition: all 0.15s; user-select: none; }
+        .mode-btn.active-auto   { background: #f0fdf4; border-color: #16a34a; color: #15803d; font-weight: 600; }
+        .mode-btn.active-manual { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; font-weight: 600; }
+        [data-theme="dark"] .mode-btn.active-auto   { background: rgba(22,163,74,0.15); border-color: #4ade80; color: #86efac; }
+        [data-theme="dark"] .mode-btn.active-manual { background: rgba(37,99,235,0.15); border-color: #60a5fa; color: #93c5fd; }
+        .auto-msg { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #15803d; }
+        [data-theme="dark"] .auto-msg { background: rgba(22,163,74,0.1); border-color: rgba(74,222,128,0.3); color: #86efac; }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 10px 28px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .btn-save:hover { background: var(--secondary); }
+        .btn-cancel { background: transparent; border: 1.5px solid var(--border); color: var(--text-sub); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+        .btn-cancel:hover { background: var(--bg); color: var(--text); }
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .mb16 { margin-bottom: 16px; }
+        .mb24 { margin-bottom: 24px; }
+        .form-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 8px; }
+        .char-hint { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 3px; }
+        .alert-err  { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+        .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+        .alert-ok   { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+        [data-theme="dark"] .alert-err  { background: rgba(220,38,38,0.1); border-color: rgba(248,113,113,0.2); color: #fca5a5; }
+        [data-theme="dark"] .alert-warn { background: rgba(217,119,6,0.1); border-color: rgba(251,191,36,0.3); color: #fcd34d; }
+        [data-theme="dark"] .alert-ok   { background: rgba(22,163,74,0.1); border-color: rgba(74,222,128,0.3); color: #86efac; }
+        footer { background: var(--primary); color: rgba(255,255,255,0.5); font-size: 12px; text-align: center; padding: 12px; }
+        [data-theme="dark"] footer { background: #0a1628; }
+        [data-theme="dark"] select option { background: #1e293b; color: #f1f5f9; }
     </style>
 </head>
 <body data-theme="light">
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
+<nav class="topnav">
+    <a class="topnav-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
+    <div class="topnav-links">
+        <a th:href="@{/}">Accueil</a>
+        <a th:href="@{/import}">Import</a>
+        <a th:href="@{/etudiants}" class="active">Étudiants</a>
+        <a th:href="@{/professeurs}">Professeurs</a>
+        <a th:href="@{/salles}">Salles</a>
+        <a th:href="@{/planning}">Planning</a>
+        <button class="theme-btn" id="themeBtn">
+            <svg id="iconSun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload me-1"></i>Import Excel</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{/etudiants}"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/professeurs}"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/export}"><i class="bi bi-download me-1"></i>Export</a></li>
-                <li class="nav-item">
-                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
-                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"/>
-                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                        </svg>
-                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </div>
     </div>
 </nav>
 
-<!-- PAGE HEADER -->
 <div class="page-header">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-2">
-            <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
-                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
-                <li class="breadcrumb-item"><a th:href="@{/etudiants}">Étudiants</a></li>
-                <li class="breadcrumb-item active"
-                    th:text="${modeEdition} ? 'Modifier' : 'Nouveau'">Nouveau</li>
-            </ol>
-        </nav>
-        <h2 class="mb-0 fw-bold">
-            <i th:class="${modeEdition} ? 'bi bi-pencil-square me-2' : 'bi bi-plus-circle me-2'"></i>
-            <span th:text="${modeEdition} ? 'Modifier un étudiant' : 'Nouvel étudiant'">Étudiant</span>
-        </h2>
+    <div style="max-width:760px;margin:0 auto;">
+        <ol class="breadcrumb">
+            <li><a th:href="@{/}">Accueil</a></li>
+            <li><a th:href="@{/etudiants}">Étudiants</a></li>
+            <li class="active" th:text="${modeEdition} ? 'Modifier' : 'Nouveau'">Nouveau</li>
+        </ol>
+        <h2 th:text="${modeEdition} ? 'Modifier un étudiant' : 'Nouvel étudiant'">Étudiant</h2>
     </div>
 </div>
 
-<div class="container mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+<div class="form-card">
 
-            <!-- MESSAGE ERREUR MÉTIER -->
-            <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <span th:text="${errorMsg}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- Messages flash -->
+    <div th:if="${errorMsg}" class="alert-err">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${errorMsg}"></span>
+    </div>
+    <div th:if="${juryMsg}" class="alert-ok">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${juryMsg}"></span>
+    </div>
+    <div th:if="${juryWarning}" class="alert-warn">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span th:text="${juryWarning}"></span>
+    </div>
+
+    <form th:action="@{/etudiants/sauvegarder}"
+          th:object="${etudiantForm}"
+          method="post"
+          id="etudiantForm"
+          novalidate>
+
+        <!-- Champs cachés -->
+        <input type="hidden" th:field="*{id}" />
+        <input type="hidden" th:field="*{cne}" />
+
+        <!--
+            ✅ CORRECTION PRINCIPALE : champ caché ancienneLangue
+            Mémorise la langue AVANT modification.
+            En mode édition → prend la valeur actuelle de etudiantForm.langue
+            En mode ajout   → vide (pas de soutenance existante à recalculer)
+        -->
+        <input type="hidden"
+               name="ancienneLangue"
+               th:value="${modeEdition} ? ${etudiantForm.langue} : ''"/>
+
+        <!-- ── IDENTITÉ ───────────────────────────────────────────────── -->
+        <div class="section-title mb16">Identité</div>
+        <div class="row2 mb24">
+            <div>
+                <label class="form-label">Nom <span class="req">*</span></label>
+                <input type="text" th:field="*{nom}"
+                       th:classappend="${errNom != null} ? ' is-invalid'"
+                       placeholder="Ex : CHENTOUF" autocomplete="off"/>
+                <div class="err-msg" th:if="${errNom}" th:text="${errNom}"></div>
+            </div>
+            <div>
+                <label class="form-label">Prénom <span class="req">*</span></label>
+                <input type="text" th:field="*{prenom}"
+                       th:classappend="${errPrenom != null} ? ' is-invalid'"
+                       placeholder="Ex : Ismail" autocomplete="off"/>
+                <div class="err-msg" th:if="${errPrenom}" th:text="${errPrenom}"></div>
+            </div>
+        </div>
+
+        <!-- CNE — optionnel, généré automatiquement si vide -->
+        <div class="mb16">
+            <label class="form-label">
+                CNE
+                <span style="font-weight:400;color:var(--text-muted);font-size:11px;">
+                    (optionnel — généré automatiquement si vide)
+                </span>
+            </label>
+            <input type="text" th:field="*{cne}"
+                   placeholder="Ex : R134567890 — laisser vide pour génération auto"
+                   autocomplete="off"
+                   style="font-family: monospace; letter-spacing: 0.05em;"/>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
+                ℹ️ Si laissé vide, un identifiant unique sera généré automatiquement.
+            </div>
+        </div>
+
+        <!-- Email (optionnel) -->
+        <div class="mb24">
+            <label class="form-label">Email académique <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(optionnel)</span></label>
+            <input type="text" th:field="*{email}"
+                   placeholder="Ex : etudiant@ump.ac.ma" autocomplete="off"/>
+        </div>
+
+        <!-- ── FILIÈRE & LANGUE ───────────────────────────────────────── -->
+        <div class="section-title mb16">Filière &amp; Langue</div>
+        <div class="row2 mb24">
+            <div>
+                <label class="form-label">Filière <span class="req">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-pill gi">
+                        <input type="radio" th:field="*{filiere}" id="fGI" value="GI"/>
+                        <label for="fGI">🎓 GI</label>
+                    </div>
+                    <div class="radio-pill tdia">
+                        <input type="radio" th:field="*{filiere}" id="fTDIA" value="TDIA"/>
+                        <label for="fTDIA">💡 TDIA</label>
+                    </div>
+                    <div class="radio-pill data">
+                        <input type="radio" th:field="*{filiere}" id="fDATA" value="DATA"/>
+                        <label for="fDATA">📊 DATA</label>
+                    </div>
+                </div>
+                <div class="err-msg" th:if="${errFiliere}" th:text="${errFiliere}"></div>
+            </div>
+            <div>
+                <label class="form-label">Langue de soutenance <span class="req">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-pill fr">
+                        <input type="radio" th:field="*{langue}" id="lFR" value="FR"/>
+                        <label for="lFR">🇫🇷 Français</label>
+                    </div>
+                    <div class="radio-pill en">
+                        <input type="radio" th:field="*{langue}" id="lEN" value="EN"/>
+                        <label for="lEN">🇬🇧 English</label>
+                    </div>
+                </div>
+                <div class="err-msg" th:if="${errLangue}" th:text="${errLangue}"></div>
+            </div>
+        </div>
+
+        <!-- ── ENCADRANT ──────────────────────────────────────────────── -->
+        <div class="section-title mb16">
+            Encadrant
+            <span th:if="${!modeEdition}"
+                  style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px;">
+                &nbsp;(optionnel)
+            </span>
+        </div>
+        <div class="mb24">
+
+            <!-- Toggle — uniquement en mode AJOUT -->
+            <div th:if="${!modeEdition}" class="mode-toggle">
+                <div id="btnAuto"   class="mode-btn active-auto"   onclick="setMode('auto')">✨ Affectation automatique</div>
+                <div id="btnManual" class="mode-btn"               onclick="setMode('manual')">👤 Choisir manuellement</div>
             </div>
 
-            <div class="form-card">
-                <form th:action="@{/etudiants/sauvegarder}" th:object="${etudiant}" method="post" novalidate>
+            <!-- Message mode auto -->
+            <div id="autoMsg" th:if="${!modeEdition}" class="auto-msg">
+                <span style="font-size:18px;">🤖</span>
+                <div>
+                    <strong>Affectation automatique activée</strong><br>
+                    <span style="font-size:12px;opacity:0.85;">
+                        L'encadrant sera affecté équitablement lors de la génération du planning.
+                    </span>
+                </div>
+            </div>
 
-                    <!-- Champ caché pour l'id (mode édition) -->
-                    <input type="hidden" th:field="*{id}" />
-
-                    <!-- ===== SECTION 1 : IDENTITÉ ===== -->
-                    <div class="section-title"><i class="bi bi-person me-2"></i>Identité</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label">Nom <span class="required">*</span></label>
-                            <input type="text"
-                                   th:field="*{nom}"
-                                   th:class="${#fields.hasErrors('nom')} ? 'form-control is-invalid' : 'form-control'"
-                                   placeholder="Ex : CHENTOUF"
-                                   autocomplete="off" />
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nom')}"
-                                 th:errors="*{nom}">Erreur</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Prénom <span class="required">*</span></label>
-                            <input type="text"
-                                   th:field="*{prenom}"
-                                   th:class="${#fields.hasErrors('prenom')} ? 'form-control is-invalid' : 'form-control'"
-                                   placeholder="Ex : Ismail"
-                                   autocomplete="off" />
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('prenom')}"
-                                 th:errors="*{prenom}">Erreur</div>
-                        </div>
-                    </div>
-
-                    <!-- ===== SECTION 2 : FILIÈRE & LANGUE ===== -->
-                    <div class="section-title"><i class="bi bi-mortarboard me-2"></i>Filière &amp; Langue</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label">Filière <span class="required">*</span></label>
-                            <div class="filiere-options">
-                                <div class="filiere-option gi">
-                                    <input type="radio" th:field="*{filiere}" id="filiereGI" value="GI" />
-                                    <label for="filiereGI">
-                                        <i class="bi bi-cpu" style="font-size:16px;"></i> GI
-                                    </label>
-                                </div>
-                                <div class="filiere-option id">
-                                    <input type="radio" th:field="*{filiere}" id="filiereID" value="ID" />
-                                    <label for="filiereID">
-                                        <i class="bi bi-bar-chart-line" style="font-size:16px;"></i> ID
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('filiere')}"
-                                 th:errors="*{filiere}">Erreur</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Langue de soutenance <span class="required">*</span></label>
-                            <div class="langue-options">
-                                <div class="langue-option">
-                                    <input type="radio" th:field="*{langue}" id="langueFR" value="FR" />
-                                    <label for="langueFR">🇫🇷 Français</label>
-                                </div>
-                                <div class="langue-option">
-                                    <input type="radio" th:field="*{langue}" id="langueEN" value="EN" />
-                                    <label for="langueEN">🇬🇧 English</label>
-                                </div>
-                            </div>
-                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('langue')}"
-                                 th:errors="*{langue}">Erreur</div>
-                        </div>
-                    </div>
-
-                    <!-- ===== SECTION 3 : ENCADRANT ===== -->
-                    <div class="section-title"><i class="bi bi-person-badge me-2"></i>Encadrant</div>
-                    <div class="mb-4">
-                        <label class="form-label">Professeur encadrant <span class="required">*</span></label>
-                        <select th:field="*{encadrant.id}"
-                                th:class="${#fields.hasErrors('encadrant')} ? 'form-select is-invalid' : 'form-select'">
-                            <option value="">-- Sélectionnez un encadrant --</option>
-                            <option th:each="prof : ${professeurs}"
-                                    th:value="${prof.id}"
-                                    th:text="${prof.nomComplet + ' (' + prof.specialite + ')'}">
-                                Professeur
-                            </option>
-                        </select>
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('encadrant')}"
-                             th:errors="*{encadrant}">Erreur</div>
-                    </div>
-
-                    <!-- ===== SECTION 4 : PROJET ===== -->
-                    <div class="section-title">
-                        <i class="bi bi-file-earmark-text me-2"></i>Projet
-                        <span style="font-weight:400;color:var(--text-muted);text-transform:none;letter-spacing:0;">(optionnel)</span>
-                    </div>
-                    <div class="mb-5">
-                        <label class="form-label">Titre du projet</label>
-                        <input type="text"
-                               th:field="*{titreProjet}"
-                               class="form-control"
-                               id="titreInput"
-                               placeholder="Ex : Système de gestion des absences avec Spring Boot"
-                               maxlength="255"
-                               autocomplete="off" />
-                        <div class="char-counter" id="charCounter">0 / 255</div>
-                        <div class="form-text text-muted" style="font-size:0.8rem;">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Le titre sera utilisé pour la détection automatique de la langue (Phase NLP).
-                        </div>
-                    </div>
-
-                    <!-- ===== BOUTONS ===== -->
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color:var(--border-section) !important; transition:border-color 0.3s ease;">
-                        <a th:href="@{/etudiants}" class="btn-cancel">
-                            <i class="bi bi-arrow-left me-2"></i>Annuler
-                        </a>
-                        <button type="submit" class="btn-save">
-                            <i th:class="${modeEdition} ? 'bi bi-check-lg me-2' : 'bi bi-plus-lg me-2'"></i>
-                            <span th:text="${modeEdition} ? 'Enregistrer les modifications' : 'Ajouter l\'étudiant'">Ajouter</span>
-                        </button>
-                    </div>
-                </form>
+            <div id="manualDiv" th:style="${modeEdition} ? 'display:block' : 'display:none'">
+                <label class="form-label">
+                    Professeur encadrant
+                    <span class="req" th:if="${modeEdition}">*</span>
+                </label>
+                <select id="encadrantSelect"
+                        name="encadrantId"
+                        th:classappend="${errEncadrant != null} ? ' is-invalid'">
+                    <option value="">-- Sélectionnez un encadrant --</option>
+                    <option th:each="prof : ${professeurs}"
+                            th:value="${prof.id}"
+                            th:text="${prof.nom + ' ' + prof.prenom + ' (' + prof.specialite + ')'}"
+                            th:selected="${etudiantForm.encadrantId != null and etudiantForm.encadrantId == prof.id}">
+                    </option>
+                </select>
+                <div class="err-msg" th:if="${errEncadrant}" th:text="${errEncadrant}"></div>
             </div>
 
         </div>
-    </div>
+
+        <!-- ── PROJET ─────────────────────────────────────────────────── -->
+        <div class="section-title mb16">
+            Projet
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px;">
+                (optionnel)
+            </span>
+        </div>
+        <div class="mb24">
+            <label class="form-label">Titre du projet</label>
+            <input type="text" th:field="*{titreProjet}" id="titreInput"
+                   placeholder="Ex : Système de gestion des absences avec Spring Boot"
+                   maxlength="255" autocomplete="off"/>
+            <div class="char-hint" id="charHint">0 / 255</div>
+        </div>
+
+        <!-- ── BOUTONS ────────────────────────────────────────────────── -->
+        <div class="form-footer">
+            <a th:href="@{/etudiants}" class="btn-cancel">← Annuler</a>
+            <button type="submit" class="btn-save"
+                    th:text="${modeEdition} ? 'Enregistrer les modifications' : 'Ajouter l\'étudiant'">
+                Ajouter
+            </button>
+        </div>
+
+    </form>
 </div>
 
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
-</footer>
+<footer>ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ── THEME TOGGLE ──
-    const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    
-    // Load saved theme or prefer system
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    html.setAttribute('data-theme', initialTheme);
-    
-    themeToggle.addEventListener('click', () => {
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
+    // ── THEME ────────────────────────────────────────────────────────────
+    const themeBtn = document.getElementById('themeBtn');
+    const iconSun  = document.getElementById('iconSun');
+    const iconMoon = document.getElementById('iconMoon');
+    const savedTheme = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
+    themeBtn.addEventListener('click', () => {
+        const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
         localStorage.setItem('theme', next);
     });
-
-    // ── CHAR COUNTER ──
-    const titreInput = document.getElementById('titreInput');
-    const counter = document.getElementById('charCounter');
-    
-    function updateCounter() {
-        const len = titreInput.value.length;
-        counter.textContent = len + ' / 255';
-        counter.className = 'char-counter';
-        if (len > 200) counter.classList.add('warning');
-        if (len > 240) counter.classList.add('danger');
+    function applyTheme(t) {
+        document.body.setAttribute('data-theme', t);
+        iconSun.style.display  = t === 'dark'  ? 'none'  : 'block';
+        iconMoon.style.display = t === 'light' ? 'none'  : 'block';
     }
-    
-    titreInput.addEventListener('input', updateCounter);
-    updateCounter();
+
+    // ── ENCADRANT MODE TOGGLE ────────────────────────────────────────────
+    const btnAuto      = document.getElementById('btnAuto');
+    const btnManual    = document.getElementById('btnManual');
+    const autoMsg      = document.getElementById('autoMsg');
+    const manualDiv    = document.getElementById('manualDiv');
+    const encSelect    = document.getElementById('encadrantSelect');
+
+    function setMode(mode) {
+        if (!btnAuto || !btnManual) return; // pas de toggle en mode édition
+        if (mode === 'auto') {
+            btnAuto.className   = 'mode-btn active-auto';
+            btnManual.className = 'mode-btn';
+            if (autoMsg)   autoMsg.style.display  = 'flex';
+            if (manualDiv) manualDiv.style.display = 'none';
+            if (encSelect) {
+                encSelect.removeAttribute('name');
+                encSelect.value = '';
+            }
+        } else {
+            btnAuto.className   = 'mode-btn';
+            btnManual.className = 'mode-btn active-manual';
+            if (autoMsg)   autoMsg.style.display  = 'none';
+            if (manualDiv) manualDiv.style.display = 'block';
+            if (encSelect) encSelect.setAttribute('name', 'encadrantId');
+        }
+    }
+
+    // ── VALIDATION FRONT AVANT SOUMISSION ────────────────────────────────
+    document.getElementById('etudiantForm').addEventListener('submit', function(e) {
+        let valid = true;
+
+        // Nom
+        const nom = document.querySelector('input[name="nom"]');
+        if (nom && !nom.value.trim()) {
+            nom.classList.add('is-invalid');
+            valid = false;
+        } else if (nom) nom.classList.remove('is-invalid');
+
+        // Prénom
+        const prenom = document.querySelector('input[name="prenom"]');
+        if (prenom && !prenom.value.trim()) {
+            prenom.classList.add('is-invalid');
+            valid = false;
+        } else if (prenom) prenom.classList.remove('is-invalid');
+
+        // Filière (au moins 1 radio coché)
+        const filiereChecked = document.querySelector('input[name="filiere"]:checked');
+        if (!filiereChecked) {
+            document.querySelectorAll('.radio-pill.gi label, .radio-pill.tdia label, .radio-pill.data label')
+                .forEach(l => l.style.borderColor = '#ef4444');
+            valid = false;
+        }
+
+        // Langue
+        const langueChecked = document.querySelector('input[name="langue"]:checked');
+        if (!langueChecked) {
+            document.querySelectorAll('.radio-pill.fr label, .radio-pill.en label')
+                .forEach(l => l.style.borderColor = '#ef4444');
+            valid = false;
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
+    // ── CHAR COUNTER TITRE ────────────────────────────────────────────────
+    const titreInput = document.getElementById('titreInput');
+    const charHint   = document.getElementById('charHint');
+    if (titreInput && charHint) {
+        const update = () => charHint.textContent = titreInput.value.length + ' / 255';
+        titreInput.addEventListener('input', update);
+        update();
+    }
 </script>
 </body>
 </html>

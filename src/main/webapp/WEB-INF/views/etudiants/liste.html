@@ -7,377 +7,292 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
-            
-            /* Light Theme */
-            --bg-body: #f5f7fa;
-            --bg-card: #ffffff;
-            --bg-filter: #ffffff;
-            --bg-table-header: var(--ensa-primary);
-            --bg-table-row-hover: #f0f4ff;
-            --bg-badge-gi: #e8f4fd; --text-badge-gi: #2e6da4;
-            --bg-badge-id: #fef3e8; --text-badge-id: #e67e22;
-            --bg-badge-fr: #e8f8e8; --text-badge-fr: #27ae60;
-            --bg-badge-en: #fdeaea; --text-badge-en: #e74c3c;
-            --text-primary: #374151;
-            --text-secondary: #6c757d;
-            --text-muted: #6c757d;
-            --text-inverse: #ffffff;
-            --border-table: #f0f0f0;
-            --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
-            --shadow-table: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-filter: 0 2px 10px rgba(0,0,0,0.06);
-            --navbar-bg: var(--ensa-primary);
-            --footer-bg: var(--ensa-primary);
-            --footer-text: rgba(255,255,255,0.6);
-            --theme-toggle-bg: rgba(255,255,255,0.1);
-            --theme-toggle-border: rgba(255,255,255,0.2);
-            --theme-toggle-hover: rgba(255,255,255,0.2);
-            --alert-bg-success: #d4edda;
-            --alert-text-success: #155724;
+            --primary: #1a3a5c;
+            --secondary: #2e6da4;
+            --accent: #f0a500;
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-sub: #475569;
+            --text-muted: #64748b;
+            --row-hover: #f1f5ff;
+            --thead-bg: #1a3a5c;
         }
-
-        /* Dark Theme */
         [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-filter: #1e293b;
-            --bg-table-header: #0f172a;
-            --bg-table-row-hover: #334155;
-            --bg-badge-gi: rgba(21,101,192,0.15); --text-badge-gi: #60a5fa;
-            --bg-badge-id: rgba(180,83,9,0.15); --text-badge-id: #fb923c;
-            --bg-badge-fr: rgba(46,125,50,0.15); --text-badge-fr: #4ade80;
-            --bg-badge-en: rgba(198,40,40,0.15); --text-badge-en: #f87171;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text: #f1f5f9;
+            --text-sub: #cbd5e1;
             --text-muted: #94a3b8;
-            --border-table: #334155;
-            --shadow-card: 0 2px 12px rgba(0,0,0,0.4);
-            --shadow-table: 0 4px 20px rgba(0,0,0,0.5);
-            --shadow-filter: 0 2px 10px rgba(0,0,0,0.3);
-            --navbar-bg: #0f172a;
-            --footer-bg: #0f172a;
-            --footer-text: #94a3b8;
-            --theme-toggle-bg: rgba(255,255,255,0.05);
-            --theme-toggle-border: rgba(255,255,255,0.1);
-            --theme-toggle-hover: rgba(255,255,255,0.15);
-            --alert-bg-success: rgba(46,125,50,0.15);
-            --alert-text-success: #4ade80;
+            --row-hover: #273549;
+            --thead-bg: #0f172a;
         }
 
-        * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-        
-        body { 
-            background-color: var(--bg-body); 
-            font-family: 'Segoe UI', sans-serif; 
-            color: var(--text-primary);
-        }
-        
-        .navbar { 
-            background-color: var(--navbar-bg) !important; 
-            transition: background-color 0.3s ease;
-        }
-        .navbar-brand { font-weight: 700; color: var(--text-inverse) !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
-        
-        /* Theme Toggle */
-        .theme-toggle {
-            background: var(--theme-toggle-bg);
-            border: 1px solid var(--theme-toggle-border);
-            color: white;
-            width: 40px; height: 40px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-        .theme-toggle:hover { background: var(--theme-toggle-hover); transform: rotate(15deg); }
-        .theme-toggle svg { width: 18px; height: 18px; }
-        
-        [data-theme="dark"] .sun-icon { display: none; }
-        [data-theme="light"] .moon-icon { display: none; }
-        .sun-icon { display: inline; }
-        .moon-icon { display: none; }
-        [data-theme="dark"] .moon-icon { display: inline; }
-        
-        footer { 
-            background-color: var(--footer-bg); 
-            color: var(--footer-text); 
-            font-size: 0.85rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            border: none; border-radius: 12px;
-            box-shadow: var(--shadow-card);
-            padding: 20px; text-align: center;
-            background: var(--bg-card);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .stat-num { font-size: 2rem; font-weight: 700; color: var(--text-primary); transition: color 0.3s ease; }
-        .stat-label { color: var(--text-secondary); font-size: 0.85rem; transition: color 0.3s ease; }
-        
-        .table-card {
-            border: none; border-radius: 16px;
-            box-shadow: var(--shadow-table); overflow: hidden;
-            background: var(--bg-card);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .table { margin-bottom: 0; }
-        .table thead { background-color: var(--bg-table-header); color: white; transition: background-color 0.3s ease; }
-        .table thead th { border: none; padding: 14px 16px; font-weight: 600; }
-        .table tbody tr { transition: background 0.15s; }
-        .table tbody tr:hover { background-color: var(--bg-table-row-hover); transition: background-color 0.3s ease; }
-        .table tbody td { 
-            padding: 12px 16px; vertical-align: middle; 
-            border-color: var(--border-table);
-            color: var(--text-primary);
-            transition: color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        .badge-gi { background-color: var(--bg-badge-gi); color: var(--text-badge-gi); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
-        .badge-id { background-color: var(--bg-badge-id); color: var(--text-badge-id); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
-        .badge-fr { background-color: var(--bg-badge-fr); color: var(--text-badge-fr); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
-        .badge-en { background-color: var(--bg-badge-en); color: var(--text-badge-en); font-weight: 600; padding: 5px 10px; border-radius: 8px; transition: background-color 0.3s ease, color 0.3s ease; }
-        
-        .btn-action { padding: 5px 12px; border-radius: 8px; font-size: 0.82rem; }
-        
-        .filter-bar { 
-            background: var(--bg-filter); 
-            border-radius: 12px; 
-            padding: 16px 20px; 
-            margin-bottom: 20px; 
-            box-shadow: var(--shadow-filter);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .text-muted { color: var(--text-muted) !important; transition: color 0.3s ease; }
-        .fw-semibold { color: var(--text-primary); transition: color 0.3s ease; }
-        
-        .alert-success {
-            background: var(--alert-bg-success);
-            color: var(--alert-text-success);
-            border: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .alert-success .btn-close { filter: invert(0.3); }
-        [data-theme="dark"] .alert-success .btn-close { filter: invert(0.8); }
-        
-        .btn-warning {
-            background: var(--ensa-accent);
-            color: var(--ensa-primary);
-            border: none;
-            transition: opacity 0.2s;
-        }
-        .btn-warning:hover { opacity: 0.9; color: var(--ensa-primary); }
-        
-        .btn-outline-secondary, .btn-outline-primary, .btn-outline-warning, .btn-outline-danger, .btn-outline-success {
-            transition: all 0.2s;
-        }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); transition: background 0.3s, color 0.3s; }
+
+        /* NAVBAR */
+        .topnav { background: var(--primary); padding: 0 1.5rem; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        [data-theme="dark"] .topnav { background: #0a1628; }
+        .topnav-brand { font-size: 15px; font-weight: 700; color: white; text-decoration: none; }
+        .topnav-brand span { color: var(--accent); }
+        .topnav-links { display: flex; align-items: center; gap: 2px; }
+        .topnav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; padding: 6px 13px; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+        .topnav-links a:hover, .topnav-links a.active { background: rgba(255,255,255,0.12); color: white; }
+        .theme-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
+        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* HEADER */
+        .page-header { background: linear-gradient(135deg, #1a3a5c, #2e6da4); color: white; padding: 1.8rem 1.5rem; margin-bottom: 1.5rem; }
+        .page-header h2 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+        .page-header p { font-size: 13px; opacity: 0.7; margin: 0; }
+
+        /* STAT CARDS */
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 14px; transition: background 0.3s, border 0.3s; }
+        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .stat-num { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        /* FILTER BAR */
+        .filter-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; transition: background 0.3s; }
+        .filter-bar .label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 4px; }
+        .filter-pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; text-decoration: none; border: 1.5px solid var(--border); color: var(--text-sub); background: transparent; transition: all 0.15s; cursor: pointer; }
+        .filter-pill:hover { border-color: var(--secondary); color: var(--secondary); }
+        .filter-pill.active-all  { background: var(--primary); border-color: var(--primary); color: white; }
+        .filter-pill.active-gi   { background: #1565c0; border-color: #1565c0; color: white; }
+        .filter-pill.active-tdia { background: #7c3aed; border-color: #7c3aed; color: white; }
+        .filter-pill.active-data { background: #b45309; border-color: #b45309; color: white; }
+        .filter-pill.active-en   { background: #dc2626; border-color: #dc2626; color: white; }
+        .filter-pill.active-fr   { background: #16a34a; border-color: #16a34a; color: white; }
+
+        /* TABLE */
+        .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: background 0.3s; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: var(--thead-bg); }
+        thead th { padding: 11px 14px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border: none; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: var(--row-hover); }
+        tbody td { padding: 11px 14px; font-size: 13px; color: var(--text); vertical-align: middle; }
+        .td-index { color: var(--text-muted); font-size: 12px; width: 40px; }
+        .td-name { font-weight: 600; color: var(--text); }
+        .td-encadrant { color: var(--text-sub); font-size: 13px; }
+        .td-titre { color: var(--text-muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* BADGES */
+        .badge-gi   { background: #dbeafe; color: #1d4ed8; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-tdia { background: #ede9fe; color: #6d28d9; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-data { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-fr   { background: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-en   { background: #fee2e2; color: #b91c1c; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+        [data-theme="dark"] .badge-gi   { background: rgba(29,78,216,0.2); color: #93c5fd; }
+        [data-theme="dark"] .badge-tdia { background: rgba(109,40,217,0.2); color: #c4b5fd; }
+        [data-theme="dark"] .badge-data { background: rgba(146,64,14,0.2); color: #fcd34d; }
+        [data-theme="dark"] .badge-fr   { background: rgba(21,128,61,0.2); color: #86efac; }
+        [data-theme="dark"] .badge-en   { background: rgba(185,28,28,0.2); color: #fca5a5; }
+
+        /* ACTIONS */
+        .btn-edit { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+        .btn-edit:hover { background: #3b82f6; color: white; }
+        .btn-del  { background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+        .btn-del:hover  { background: #ef4444; color: white; }
+
+        .btn-add { background: var(--accent); color: var(--primary); border: none; padding: 9px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-add:hover { opacity: 0.88; color: var(--primary); }
+
+        .empty-state { padding: 3rem; text-align: center; color: var(--text-muted); }
+        .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+
+        .alert-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        [data-theme="dark"] .alert-ok { background: rgba(22,101,52,0.15); border-color: rgba(134,239,172,0.2); color: #86efac; }
+
+        footer { background: var(--primary); color: rgba(255,255,255,0.5); font-size: 12px; text-align: center; padding: 12px; margin-top: 2rem; }
+        [data-theme="dark"] footer { background: #0a1628; }
     </style>
 </head>
 <body data-theme="light">
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
+<!-- NAVBAR -->
+<nav class="topnav">
+    <a class="topnav-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
+    <div class="topnav-links">
+        <a th:href="@{/}">Accueil</a>
+        <a th:href="@{/import}">Import</a>
+        <a th:href="@{/etudiants}" class="active">Étudiants</a>
+        <a th:href="@{/professeurs}">Professeurs</a>
+        <a th:href="@{/salles}">Salles</a>
+        <a th:href="@{/planning}">Planning</a>
+        <button class="theme-btn" id="themeBtn" title="Mode sombre">
+            <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door"></i> Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload"></i> Import Excel</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/planning}"><i class="bi bi-calendar3"></i> Planning</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/export}"><i class="bi bi-download"></i> Export</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/pvs}"><i class="bi bi-file-earmark-text"></i> PVs</a></li>
-                <li class="nav-item">
-                    <button class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre">
-                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"/>
-                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                        </svg>
-                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </div>
     </div>
 </nav>
 
-<!-- PAGE HEADER -->
+<!-- HEADER -->
 <div class="page-header">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
         <div>
-            <h2 class="mb-1 fw-bold"><i class="bi bi-mortarboard me-2"></i>Étudiants</h2>
-            <p class="mb-0 opacity-75">Gestion des étudiants — Filières GI & ID</p>
+            <h2>Étudiants</h2>
+            <p>Gestion des étudiants — Filières GI, TDIA &amp; DATA</p>
         </div>
-        <a th:href="@{/etudiants/nouveau}" class="btn btn-warning fw-bold px-4">
-            <i class="bi bi-plus-lg me-2"></i>Nouvel étudiant
-        </a>
+        <a th:href="@{/etudiants/nouveau}" class="btn-add">+ Nouvel étudiant</a>
     </div>
 </div>
 
-<div class="container mb-5">
+<div style="max-width:1200px;margin:0 auto;padding:0 1.5rem 2rem;">
 
-    <!-- MESSAGE SUCCÈS -->
-    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle me-2"></i>
+    <!-- ALERT SUCCÈS -->
+    <div th:if="${successMsg}" class="alert-ok">
+        <i class="bi bi-check-circle-fill"></i>
         <span th:text="${successMsg}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <!-- STATS -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="stat-card">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.2rem;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;">👥</div>
+            <div>
                 <div class="stat-num" th:text="${etudiants.size()}">0</div>
                 <div class="stat-label">Total étudiants</div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-num" style="color:var(--text-badge-gi)" th:text="${totalGI}">0</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dbeafe;">🎓</div>
+            <div>
+                <div class="stat-num" style="color:#1d4ed8;" th:text="${totalGI}">0</div>
                 <div class="stat-label">Filière GI</div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-num" style="color:var(--text-badge-id)" th:text="${totalID}">0</div>
-                <div class="stat-label">Filière ID</div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ede9fe;">💡</div>
+            <div>
+                <div class="stat-num" style="color:#6d28d9;" th:text="${totalTDIA}">0</div>
+                <div class="stat-label">Filière TDIA</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;">📊</div>
+            <div>
+                <div class="stat-num" style="color:#92400e;" th:text="${totalDATA}">0</div>
+                <div class="stat-label">Filière DATA</div>
             </div>
         </div>
     </div>
 
-    <!-- ✅ FILTRES CORRIGÉS -->
-    <div class="filter-bar d-flex gap-3 align-items-center flex-wrap">
-        <span class="fw-semibold text-muted"><i class="bi bi-funnel me-1"></i>Filtrer :</span>
-        
-        <!-- Tous -->
-        <a th:href="@{/etudiants}" 
-           class="btn btn-sm rounded-pill"
-           th:classappend="${filiereActive == null and langueActive == null} ? 'btn-outline-secondary active' : 'btn-outline-secondary'">
+    <!-- FILTRES -->
+    <div class="filter-bar">
+        <span class="label">Filtrer :</span>
+        <a th:href="@{/etudiants}"
+           th:class="${filiereActive == null and langueActive == null} ? 'filter-pill active-all' : 'filter-pill'">
             Tous
         </a>
-        
-        <!-- Filière GI -->
-        <a th:href="@{/etudiants(filiere=${'GI'})}" 
-           class="btn btn-sm rounded-pill"
-           th:classappend="${filiereActive == 'GI'} ? 'btn-primary active' : 'btn-outline-primary'">
+        <a th:href="@{/etudiants(filiere='GI')}"
+           th:class="${filiereActive == 'GI'} ? 'filter-pill active-gi' : 'filter-pill'">
             Filière GI
         </a>
-        
-        <!-- Filière ID -->
-        <a th:href="@{/etudiants(filiere=${'ID'})}" 
-           class="btn btn-sm rounded-pill"
-           th:classappend="${filiereActive == 'ID'} ? 'btn-warning active' : 'btn-outline-warning'">
-            Filière ID
+        <a th:href="@{/etudiants(filiere='TDIA')}"
+           th:class="${filiereActive == 'TDIA'} ? 'filter-pill active-tdia' : 'filter-pill'">
+            Filière TDIA
         </a>
-        
-        <!-- Langue EN -->
-        <a th:href="@{/etudiants(langue=${'EN'})}" 
-           class="btn btn-sm rounded-pill"
-           th:classappend="${langueActive == 'EN'} ? 'btn-danger active' : 'btn-outline-danger'">
-            Présentation EN
+        <a th:href="@{/etudiants(filiere='DATA')}"
+           th:class="${filiereActive == 'DATA'} ? 'filter-pill active-data' : 'filter-pill'">
+            Filière DATA
         </a>
-        
-        <!-- Langue FR -->
-        <a th:href="@{/etudiants(langue=${'FR'})}" 
-           class="btn btn-sm rounded-pill"
-           th:classappend="${langueActive == 'FR'} ? 'btn-success active' : 'btn-outline-success'">
-            Présentation FR
+        <a th:href="@{/etudiants(langue='EN')}"
+           th:class="${langueActive == 'EN'} ? 'filter-pill active-en' : 'filter-pill'">
+            🇬🇧 Présentation EN
+        </a>
+        <a th:href="@{/etudiants(langue='FR')}"
+           th:class="${langueActive == 'FR'} ? 'filter-pill active-fr' : 'filter-pill'">
+            🇫🇷 Présentation FR
         </a>
     </div>
 
     <!-- TABLEAU -->
-    <div class="table-card">
-        <table class="table table-hover mb-0">
+    <div class="table-wrap">
+        <table>
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Nom & Prénom</th>
+                    <th class="td-index">#</th>
+                    <th>Nom &amp; Prénom</th>
                     <th>Filière</th>
                     <th>Langue</th>
                     <th>Encadrant</th>
                     <th>Titre du projet</th>
-                    <th class="text-center">Actions</th>
+                    <th style="text-align:center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="etudiant, stat : ${etudiants}">
-                    <td class="text-muted" th:text="${stat.index + 1}">1</td>
-                    <td class="fw-semibold" th:text="${etudiant.nom + ' ' + etudiant.prenom}">Nom</td>
+                    <td class="td-index" th:text="${stat.index + 1}">1</td>
+                    <td class="td-name" th:text="${etudiant.nom + ' ' + etudiant.prenom}">Nom</td>
                     <td>
-                        <span th:if="${etudiant.filiere.name() == 'GI'}" class="badge-gi">GI</span>
-                        <span th:if="${etudiant.filiere.name() == 'ID'}" class="badge-id">ID</span>
+                        <span th:if="${etudiant.filiere.name() == 'GI'}"   class="badge-gi">GI</span>
+                        <span th:if="${etudiant.filiere.name() == 'TDIA'}" class="badge-tdia">TDIA</span>
+                        <span th:if="${etudiant.filiere.name() == 'DATA'}" class="badge-data">DATA</span>
                     </td>
                     <td>
                         <span th:if="${etudiant.langue.name() == 'FR'}" class="badge-fr">🇫🇷 FR</span>
                         <span th:if="${etudiant.langue.name() == 'EN'}" class="badge-en">🇬🇧 EN</span>
                     </td>
-                    <td th:text="${etudiant.encadrant != null ? etudiant.encadrant.nomComplet : '—'}">Encadrant</td>
-                    <td class="text-muted small" th:text="${etudiant.titreProjet ?: '—'}">Titre</td>
-                    <td class="text-center">
-                        <a th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}"
-                           class="btn btn-sm btn-outline-primary btn-action me-1">
+                    <td class="td-encadrant" th:text="${etudiant.encadrant != null ? etudiant.encadrant.nomComplet : '—'}">—</td>
+                    <td class="td-titre" th:text="${etudiant.titreProjet ?: '—'}">—</td>
+                    <td style="text-align:center;white-space:nowrap;">
+                        <a th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}" class="btn-edit">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        &nbsp;
                         <form th:action="@{/etudiants/supprimer/{id}(id=${etudiant.id})}"
-                              method="post" class="d-inline"
+                              method="post" style="display:inline;"
                               onsubmit="return confirm('Supprimer cet étudiant ?')">
-                            <button type="submit" class="btn btn-sm btn-outline-danger btn-action">
+                            <button type="submit" class="btn-del">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </td>
                 </tr>
                 <tr th:if="${etudiants.isEmpty()}">
-                    <td colspan="7" class="text-center text-muted py-5">
-                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                        Aucun étudiant trouvé. <a th:href="@{/etudiants/nouveau}">Ajouter le premier</a>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            Aucun étudiant trouvé.
+                            <a th:href="@{/etudiants/nouveau}" style="color:var(--secondary);">Ajouter le premier</a>
+                        </div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
 </div>
 
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
-</footer>
+<footer>ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ── THEME TOGGLE ──
-    const themeToggle = document.getElementById('themeToggle');
-    const html = document.documentElement;
-    
-    // Load saved theme or prefer system
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    html.setAttribute('data-theme', initialTheme);
-    
-    themeToggle.addEventListener('click', () => {
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', next);
+    const btn = document.getElementById('themeBtn');
+    const sun = document.getElementById('iconSun');
+    const moon = document.getElementById('iconMoon');
+    const body = document.body;
+
+    const saved = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(saved);
+
+    btn.addEventListener('click', () => {
+        const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
         localStorage.setItem('theme', next);
     });
+
+    function applyTheme(t) {
+        body.setAttribute('data-theme', t);
+        sun.style.display  = t === 'dark'  ? 'none'  : 'block';
+        moon.style.display = t === 'light' ? 'none'  : 'block';
+    }
 </script>
 </body>
 </html>

@@ -20,36 +20,41 @@ import ma.ensa.pfe.dao.SoutenanceRepository;
 import ma.ensa.pfe.dao.VersionPlanningRepository;
 import ma.ensa.pfe.model.Soutenance;
 import ma.ensa.pfe.model.VersionPlanning;
-import ma.ensa.pfe.service.AffectationService;
 import ma.ensa.pfe.service.PlanificationService;
 
+/**
+ * Module 2 du schéma synoptique : PLANNING DES SOUTENANCES
+ * URL de base : /planning
+ *
+ * Pré-requis : les encadrants doivent être affectés via /affectation
+ */
 @Controller
 @RequestMapping("/planning")
 public class PlanificationController {
 
-    @Autowired private AffectationService affectationService;
-    @Autowired private PlanificationService planificationService;
-    @Autowired private SoutenanceRepository soutenanceRepository;
+    @Autowired private PlanificationService      planificationService;
+    @Autowired private SoutenanceRepository      soutenanceRepository;
     @Autowired private VersionPlanningRepository versionPlanningRepository;
 
     /**
-     * Affiche la liste des soutenances de la DERNIÈRE version générée.
+     * Affiche la liste des soutenances de la dernière version générée.
      */
     @GetMapping
     public String afficherPlanning(Model model) {
-        // Récupérer la dernière version pour l'affichage
-        VersionPlanning derniereVersion = versionPlanningRepository.findFirstByOrderByDateGenerationDesc();
-        
+        VersionPlanning derniereVersion =
+                versionPlanningRepository.findFirstByOrderByDateGenerationDesc();
+
         if (derniereVersion != null) {
-            // Charger les soutenances de cette version spécifique
-            List<Soutenance> soutenances = soutenanceRepository.findByVersion(derniereVersion);
-            model.addAttribute("soutenances", soutenances);
+            List<Soutenance> soutenances =
+                    soutenanceRepository.findByVersion(derniereVersion);
+            model.addAttribute("soutenances",    soutenances);
             model.addAttribute("versionActuelle", derniereVersion);
         } else {
-            model.addAttribute("soutenances", new ArrayList<>());
-            model.addAttribute("messageInfo", "Aucun planning généré pour le moment.");
+            model.addAttribute("soutenances",  new ArrayList<>());
+            model.addAttribute("messageInfo",
+                    "Aucun planning généré. Commencez par affecter les encadrants.");
         }
-        
+
         model.addAttribute("activePage", "planning");
         return "planning/tableau";
     }
@@ -59,9 +64,11 @@ public class PlanificationController {
      */
     @GetMapping("/calendrier")
     public String afficherCalendrier(Model model) {
-        VersionPlanning derniereVersion = versionPlanningRepository.findFirstByOrderByDateGenerationDesc();
+        VersionPlanning derniereVersion =
+                versionPlanningRepository.findFirstByOrderByDateGenerationDesc();
         if (derniereVersion != null) {
-            model.addAttribute("soutenances", soutenanceRepository.findByVersion(derniereVersion));
+            model.addAttribute("soutenances",
+                    soutenanceRepository.findByVersion(derniereVersion));
         } else {
             model.addAttribute("soutenances", new ArrayList<>());
         }
@@ -70,57 +77,47 @@ public class PlanificationController {
     }
 
     /**
-     * ÉTAPE 1 : Affecter les Jurys aux étudiants (sans date ni heure).
-     * Cela prépare les données pour la planification temporelle.
+     * Génère le planning complet (jury + dates + heures + salles).
+     * Pré-requis : tous les étudiants doivent avoir un encadrant.
+     *
+     * @param joursStr dates séparées par virgule ex: "2026-05-20,2026-05-21"
      */
-    @PostMapping("/affecter-jurys")
-    public String affecterJurys(RedirectAttributes redirectAttrs) {
-        try {
-            String resultat = affectationService.genererAffectations();
-            redirectAttrs.addFlashAttribute("successPlanning", "Étape 1/2 : " + resultat);
-        } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("erreurPlanning", "Erreur lors de l'affectation des jurys : " + e.getMessage());
-            e.printStackTrace();
-        }
-        return "redirect:/planning";
-    }
-
-    /**
-     * ÉTAPE 2 : Générer le Planning Temporel (Dates, Heures, Salles).
-     * Reçoit les dates sous forme de chaîne séparée par des virgules (ex: "2026-05-20,2026-05-21")
-     * depuis le calendrier Flatpickr.
-     */
-    @PostMapping("/generer-temporel")
-    public String genererPlanningTemporel(
+    @PostMapping("/generer")
+    public String genererPlanning(
             @RequestParam(value = "jours", required = false) String joursStr,
             RedirectAttributes redirectAttrs) {
 
-        if (joursStr == null || joursStr.isEmpty()) {
-            redirectAttrs.addFlashAttribute("erreurPlanning", "Veuillez sélectionner au moins un jour de soutenance.");
+        // Vérifier que les encadrants sont affectés
+        // (le service lèvera une exception si ce n'est pas le cas)
+
+        if (joursStr == null || joursStr.isBlank()) {
+            redirectAttrs.addFlashAttribute("erreurPlanning",
+                    "Veuillez sélectionner au moins un jour de soutenance.");
             return "redirect:/planning";
         }
 
         try {
-            // Convertir la String "YYYY-MM-DD,YYYY-MM-DD" en List<LocalDate>
             List<LocalDate> jours = Arrays.stream(joursStr.split(","))
-                                          .map(String::trim)
-                                          .map(LocalDate::parse)
-                                          .collect(Collectors.toList());
+                    .map(String::trim)
+                    .map(LocalDate::parse)
+                    .collect(Collectors.toList());
 
-            // Vérification de sécurité : Max 3 jours
             if (jours.size() > 3) {
-                 redirectAttrs.addFlashAttribute("erreurPlanning", "Vous ne pouvez sélectionner que 3 jours maximum.");
-                 return "redirect:/planning";
+                redirectAttrs.addFlashAttribute("erreurPlanning",
+                        "Maximum 3 jours de soutenance autorisés.");
+                return "redirect:/planning";
             }
 
-            // Appel au service qui crée la VersionPlanning et place les soutenances dans le temps
             String resultat = planificationService.genererPlanningComplet(jours);
-            redirectAttrs.addFlashAttribute("successPlanning", "Planning généré avec succès : " + resultat);
-            
-        } catch (RuntimeException e) { // ✅ CORRECTION : PlanificationException n'existe plus, on utilise RuntimeException
-            redirectAttrs.addFlashAttribute("erreurPlanning", "Erreur de planification : " + e.getMessage());
+            redirectAttrs.addFlashAttribute("successPlanning",
+                    "Planning généré avec succès : " + resultat);
+
+        } catch (RuntimeException e) {
+            redirectAttrs.addFlashAttribute("erreurPlanning",
+                    "Erreur de planification : " + e.getMessage());
         } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("erreurPlanning", "Erreur inattendue : " + e.getMessage());
+            redirectAttrs.addFlashAttribute("erreurPlanning",
+                    "Erreur inattendue : " + e.getMessage());
             e.printStackTrace();
         }
         return "redirect:/planning";
@@ -133,7 +130,7 @@ public class PlanificationController {
     public String voirVersion(@PathVariable Long id, Model model) {
         VersionPlanning version = versionPlanningRepository.findById(id).orElse(null);
         if (version != null) {
-            model.addAttribute("soutenances", soutenanceRepository.findByVersion(version));
+            model.addAttribute("soutenances",     soutenanceRepository.findByVersion(version));
             model.addAttribute("versionActuelle", version);
         } else {
             model.addAttribute("soutenances", new ArrayList<>());

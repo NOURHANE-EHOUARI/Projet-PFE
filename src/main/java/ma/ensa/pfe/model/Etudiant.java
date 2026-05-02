@@ -47,7 +47,7 @@ public class Etudiant {
     private Langue langue;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "encadrant_id", nullable = false)
+    @JoinColumn(name = "encadrant_id", nullable = true)
     private Professeur encadrant;
 
     @Column(name = "titre_projet")
