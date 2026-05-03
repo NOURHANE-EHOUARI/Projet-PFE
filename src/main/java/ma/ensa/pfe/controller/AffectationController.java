@@ -10,49 +10,51 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Module 1 du schéma synoptique : AFFECTATION DES ENCADRANTS
- * URL de base : /affectation
- */
+import java.util.Map;
+
 @Controller
 @RequestMapping("/affectation")
 public class AffectationController {
 
     @Autowired private AffectationService affectationService;
 
-    /**
-     * Page d'affectation : affiche la charge actuelle des encadrants
-     * et le nombre d'étudiants sans encadrant.
-     */
     @GetMapping
     public String afficherPage(Model model) {
-        model.addAttribute("chargeEncadrants",       affectationService.getChargeEncadrants());
-        model.addAttribute("nbSansEncadrant",        affectationService.getNbEtudiantsSansEncadrant());
+        Map<String, Long> charge = affectationService.getChargeEncadrants();
+        model.addAttribute("chargeEncadrants", charge);
+        model.addAttribute("nbSansEncadrant",  affectationService.getNbEtudiantsSansEncadrant());
         model.addAttribute("activePage", "affectation");
+
+        // ✅ CORRECTION : calcul du max côté Java
+        // SpEL/Thymeleaf ne supporte pas les lambdas Java (v -> v)
+        // donc on calcule maxCharge ici et on l'envoie directement au template
+        long maxCharge = 1L;
+        if (charge != null && !charge.isEmpty()) {
+            maxCharge = charge.values().stream()
+                .mapToLong(Long::longValue)
+                .max()
+                .orElse(1L);
+        }
+        model.addAttribute("maxCharge", maxCharge);
+
         return "affectation/index";
     }
 
-    /**
-     * Lance l'affectation équitable des encadrants.
-     * Redirige vers la même page avec un message de succès ou d'erreur.
-     */
     @PostMapping("/affecter")
     public String affecterEncadrants(RedirectAttributes redirectAttrs) {
         try {
             AffectationResult result = affectationService.affecterEncadrants();
-
             if (result.hasErreurs()) {
-                redirectAttrs.addFlashAttribute("erreurs",  result.getErreurs());
+                redirectAttrs.addFlashAttribute("erreurs", result.getErreurs());
             }
             redirectAttrs.addFlashAttribute("nbAffectes", result.getNbAffectes());
             redirectAttrs.addFlashAttribute("nbEchecs",   result.getNbEchecs());
             redirectAttrs.addFlashAttribute("details",    result.getDetails());
             redirectAttrs.addFlashAttribute("success",
-                    result.getNbAffectes() + " étudiant(s) affecté(s) avec succès.");
-
+                result.getNbAffectes() + " etudiant(s) affecte(s) avec succes.");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("erreur",
-                    "Erreur lors de l'affectation : " + e.getMessage());
+                "Erreur lors de l'affectation : " + e.getMessage());
             e.printStackTrace();
         }
         return "redirect:/affectation";
