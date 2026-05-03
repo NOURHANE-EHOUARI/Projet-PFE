@@ -135,13 +135,6 @@
         <!-- Champs cachés -->
         <input type="hidden" th:field="*{id}" />
         <input type="hidden" th:field="*{cne}" />
-
-        <!--
-            ✅ CORRECTION PRINCIPALE : champ caché ancienneLangue
-            Mémorise la langue AVANT modification.
-            En mode édition → prend la valeur actuelle de etudiantForm.langue
-            En mode ajout   → vide (pas de soutenance existante à recalculer)
-        -->
         <input type="hidden"
                name="ancienneLangue"
                th:value="${modeEdition} ? ${etudiantForm.langue} : ''"/>
@@ -165,7 +158,7 @@
             </div>
         </div>
 
-        <!-- CNE — optionnel, généré automatiquement si vide -->
+        <!-- CNE -->
         <div class="mb16">
             <label class="form-label">
                 CNE
@@ -182,7 +175,7 @@
             </div>
         </div>
 
-        <!-- Email (optionnel) -->
+        <!-- Email -->
         <div class="mb24">
             <label class="form-label">Email académique <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(optionnel)</span></label>
             <input type="text" th:field="*{email}"
@@ -227,10 +220,14 @@
         </div>
 
         <!-- ── ENCADRANT ──────────────────────────────────────────────── -->
+        <!--
+            ✅ CORRECTION : "Encadrant" est optionnel dans les deux modes
+            (ajout ET édition). Le * a été retiré en mode édition.
+            L'affectation se fait via le module Affectation automatique.
+        -->
         <div class="section-title mb16">
             Encadrant
-            <span th:if="${!modeEdition}"
-                  style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px;">
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px;">
                 &nbsp;(optionnel)
             </span>
         </div>
@@ -242,7 +239,7 @@
                 <div id="btnManual" class="mode-btn"               onclick="setMode('manual')">👤 Choisir manuellement</div>
             </div>
 
-            <!-- Message mode auto -->
+            <!-- Message mode auto — uniquement en mode AJOUT -->
             <div id="autoMsg" th:if="${!modeEdition}" class="auto-msg">
                 <span style="font-size:18px;">🤖</span>
                 <div>
@@ -253,15 +250,18 @@
                 </div>
             </div>
 
+            <!-- Select encadrant — visible dans les deux modes -->
+            <!-- En mode AJOUT : caché par défaut (mode auto), affiché si mode manuel -->
+            <!-- En mode ÉDITION : toujours visible mais optionnel -->
             <div id="manualDiv" th:style="${modeEdition} ? 'display:block' : 'display:none'">
                 <label class="form-label">
                     Professeur encadrant
-                    <span class="req" th:if="${modeEdition}">*</span>
+                    <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(optionnel)</span>
                 </label>
                 <select id="encadrantSelect"
                         name="encadrantId"
                         th:classappend="${errEncadrant != null} ? ' is-invalid'">
-                    <option value="">-- Sélectionnez un encadrant --</option>
+                    <option value="">-- Aucun / Affectation automatique --</option>
                     <option th:each="prof : ${professeurs}"
                             th:value="${prof.id}"
                             th:text="${prof.nom + ' ' + prof.prenom + ' (' + prof.specialite + ')'}"
@@ -269,6 +269,9 @@
                     </option>
                 </select>
                 <div class="err-msg" th:if="${errEncadrant}" th:text="${errEncadrant}"></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                    ℹ️ Laissez vide pour que l'encadrant soit affecté automatiquement.
+                </div>
             </div>
 
         </div>
@@ -322,12 +325,12 @@
         iconMoon.style.display = t === 'light' ? 'none'  : 'block';
     }
 
-    // ── ENCADRANT MODE TOGGLE ────────────────────────────────────────────
-    const btnAuto      = document.getElementById('btnAuto');
-    const btnManual    = document.getElementById('btnManual');
-    const autoMsg      = document.getElementById('autoMsg');
-    const manualDiv    = document.getElementById('manualDiv');
-    const encSelect    = document.getElementById('encadrantSelect');
+    // ── ENCADRANT MODE TOGGLE (mode AJOUT uniquement) ────────────────────
+    const btnAuto   = document.getElementById('btnAuto');
+    const btnManual = document.getElementById('btnManual');
+    const autoMsg   = document.getElementById('autoMsg');
+    const manualDiv = document.getElementById('manualDiv');
+    const encSelect = document.getElementById('encadrantSelect');
 
     function setMode(mode) {
         if (!btnAuto || !btnManual) return; // pas de toggle en mode édition
@@ -349,25 +352,20 @@
         }
     }
 
-    // ── VALIDATION FRONT AVANT SOUMISSION ────────────────────────────────
+    // ── VALIDATION FRONT ─────────────────────────────────────────────────
     document.getElementById('etudiantForm').addEventListener('submit', function(e) {
         let valid = true;
 
-        // Nom
         const nom = document.querySelector('input[name="nom"]');
         if (nom && !nom.value.trim()) {
-            nom.classList.add('is-invalid');
-            valid = false;
+            nom.classList.add('is-invalid'); valid = false;
         } else if (nom) nom.classList.remove('is-invalid');
 
-        // Prénom
         const prenom = document.querySelector('input[name="prenom"]');
         if (prenom && !prenom.value.trim()) {
-            prenom.classList.add('is-invalid');
-            valid = false;
+            prenom.classList.add('is-invalid'); valid = false;
         } else if (prenom) prenom.classList.remove('is-invalid');
 
-        // Filière (au moins 1 radio coché)
         const filiereChecked = document.querySelector('input[name="filiere"]:checked');
         if (!filiereChecked) {
             document.querySelectorAll('.radio-pill.gi label, .radio-pill.tdia label, .radio-pill.data label')
@@ -375,13 +373,15 @@
             valid = false;
         }
 
-        // Langue
         const langueChecked = document.querySelector('input[name="langue"]:checked');
         if (!langueChecked) {
             document.querySelectorAll('.radio-pill.fr label, .radio-pill.en label')
                 .forEach(l => l.style.borderColor = '#ef4444');
             valid = false;
         }
+
+        // ✅ CORRECTION : pas de validation obligatoire pour l'encadrant
+        // ni en mode ajout ni en mode édition
 
         if (!valid) e.preventDefault();
     });

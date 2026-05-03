@@ -20,7 +20,7 @@ public class EtudiantController {
 
     @Autowired private EtudiantService      etudiantService;
     @Autowired private ProfesseurRepository  professeurRepository;
-    @Autowired private PlanificationService  planificationService;  // ← AJOUTÉ
+    @Autowired private PlanificationService  planificationService;
 
     private void addCommonAttributes(Model model) {
         model.addAttribute("professeurs", professeurRepository.findAll());
@@ -71,7 +71,7 @@ public class EtudiantController {
         form.setPrenom(e.getPrenom());
         form.setFiliere(e.getFiliere());
         form.setLangue(e.getLangue());
-        form.setAncienneLangue(e.getLangue()); // ← mémoriser l'ancienne langue
+        form.setAncienneLangue(e.getLangue());
         form.setTitreProjet(e.getTitreProjet());
         form.setEmail(e.getEmail());
         form.setEncadrantId(e.getEncadrant() != null ? e.getEncadrant().getId() : null);
@@ -102,10 +102,10 @@ public class EtudiantController {
             model.addAttribute("errLangue", "Veuillez choisir une langue.");
             hasError = true;
         }
-        if (form.getId() != null && form.getEncadrantId() == null) {
-            model.addAttribute("errEncadrant", "Veuillez selectionner un encadrant.");
-            hasError = true;
-        }
+        // ✅ CORRECTION : la ligne qui rendait l'encadrant obligatoire en mode édition
+        // a été supprimée — l'encadrant est optionnel dans les deux modes.
+        // L'affectation se fait via le module Affectation automatique.
+
         if (hasError) {
             model.addAttribute("modeEdition", form.getId() != null);
             addCommonAttributes(model);
@@ -116,7 +116,6 @@ public class EtudiantController {
             ? etudiantService.findById(form.getId())
             : new Etudiant();
 
-        // Détecter si la langue a changé AVANT de sauvegarder
         Langue ancienneLangue = form.getAncienneLangue();
         boolean langueChangee = form.getId() != null
                 && ancienneLangue != null
@@ -146,14 +145,12 @@ public class EtudiantController {
             boolean isNew = form.getId() == null;
             etudiantService.save(etudiant);
 
-            // ── RECALCUL DU JURY SI LANGUE CHANGÉE ──────────────────────
             if (langueChangee) {
                 try {
                     String msg = planificationService
                             .recalculerJuryPourEtudiant(etudiant.getId(), ancienneLangue);
                     redirectAttrs.addFlashAttribute("juryMsg", msg);
                 } catch (Exception ex) {
-                    // Ne pas bloquer la sauvegarde si le recalcul échoue
                     redirectAttrs.addFlashAttribute("juryWarning",
                         "Étudiant modifié mais jury non mis à jour : " + ex.getMessage());
                 }
@@ -193,7 +190,7 @@ public class EtudiantController {
         private String  prenom;
         private Filiere filiere;
         private Langue  langue;
-        private Langue  ancienneLangue; // ← AJOUTÉ pour détecter le changement
+        private Langue  ancienneLangue;
         private Long    encadrantId;
         private String  titreProjet;
         private String  email;
