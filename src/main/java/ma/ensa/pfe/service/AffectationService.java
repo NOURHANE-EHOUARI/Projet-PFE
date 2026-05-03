@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  *   GI   → encadrant discipline INFORMATIQUE ou GI uniquement
  *   TDIA → encadrant discipline INFORMATIQUE, GI ou MATHEMATIQUE
- *   DATA → encadrant discipline MATHEMATIQUE uniquement
+ *   DATA →  encadrant discipline MATHEMATIQUE uniquement
  *
  *   GESTION et ANGLAIS → ne peuvent jamais encadrer personne
  *

@@ -2,163 +2,376 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="'Indisponibilités — ' + ${professeur.nomComplet} + ' — PFE Planning'">Contraintes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
-        }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover { color: var(--ensa-accent) !important; }
-        .nav-link.active { color: var(--ensa-accent) !important; font-weight: 700; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 30px;
-        }
-        .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
-        .breadcrumb-item a:hover { color: white; }
-        .breadcrumb-item.active { color: var(--ensa-accent); }
-
-        .card-section {
-            border: none; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            background: white; overflow: hidden;
-        }
-        .card-section-header {
-            background: #f8fafc; padding: 16px 24px;
-            border-bottom: 1px solid #e8eef5;
-            font-weight: 700; font-size: 0.85rem;
-            text-transform: uppercase; letter-spacing: 0.05em;
-            color: var(--ensa-secondary);
-        }
-        .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; margin-bottom: 6px; }
-        .form-control, .form-select {
-            border-radius: 10px; border: 1.5px solid #e0e7ef;
-            padding: 10px 14px; font-size: 0.9rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-control:focus {
-            border-color: var(--ensa-secondary);
-            box-shadow: 0 0 0 3px rgba(46,109,164,0.12);
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #21262d;
+            --border: rgba(255,255,255,0.08);
+            --border-strong: rgba(255,255,255,0.15);
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent3: #a5b4fc;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --t0: #f0f6fc;
+            --t1: #8b949e;
+            --t2: #484f58;
+            --card: rgba(255,255,255,0.03);
+            --hover: rgba(99,102,241,0.08);
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
+        body {
+            background: var(--bg);
+            color: var(--t0);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Background subtil */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 15% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 100%, rgba(129,140,248,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
+        }
+
+        .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
+
+        /* ===== ICONES MONOCHROMES ===== */
+        .icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--t1); transition: color 0.15s ease; flex-shrink: 0;
+        }
+        .icon-lg { font-size: 2.5rem; }
+        .icon-md { font-size: 1.25rem; }
+        .icon-sm { font-size: 1rem; }
+        .card:hover .icon, .nav-link:hover .icon, .btn:hover .icon { color: var(--accent2); }
+
+        /* NAVIGATION */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 56px; padding-bottom: 24px;
+            border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; font-size: 18px; color: var(--t0);
+            text-decoration: none; letter-spacing: -0.02em;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon .bi { color: #fff; font-size: 1rem; }
+        
+        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+        .nav-link {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            color: var(--t1); text-decoration: none; transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .nav-link .bi { font-size: 0.9rem; }
+        .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
+        .nav-link.active { 
+            color: var(--accent2); 
+            background: rgba(99,102,241,0.10); 
+            border-color: rgba(99,102,241,0.30);
+            font-weight: 600;
+        }
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom: 48px; padding-top: 8px; }
+        h1 { 
+            font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; 
+            margin-bottom: 16px; letter-spacing: -0.03em;
+            display: flex; align-items: center; gap: 14px;
+        }
+        h1 .bi { color: var(--accent2); }
+        h1 span { 
+            background: linear-gradient(135deg, var(--accent2), var(--accent3)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle { font-size: 16px; color: var(--t1); line-height: 1.6; max-width: 600px; }
+
+        /* BREADCRUMBS */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 16px; font-size: 13px; color: var(--t2);
+        }
+        .breadcrumb a { color: var(--t1); text-decoration: none; transition: color 0.15s; }
+        .breadcrumb a:hover { color: var(--accent2); }
+        .breadcrumb .separator { color: var(--t2); }
+        .breadcrumb .active { color: var(--accent2); font-weight: 500; }
+
+        /* ALERTS */
+        .alert {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 16px 20px; border-radius: 12px; margin-bottom: 32px;
+            font-size: 14px; line-height: 1.5; border-left: 4px solid transparent;
+        }
+        .alert .bi { font-size: 1.1rem; margin-top: 2px; }
+        .alert-success { background: rgba(34,197,94,0.08); border-left-color: var(--green); color: #86efac; }
+        .alert-error { background: rgba(239,68,68,0.08); border-left-color: var(--red); color: #fca5a5; }
+
+        /* GRID LAYOUT */
+        .grid2 { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+
+        /* CARD */
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+        .card-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 14px; font-weight: 600; color: var(--t0);
+        }
+        .card-header .badge {
+            background: rgba(239,68,68,0.15); color: #f87171;
+            padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+        }
+        .card-body { padding: 24px; }
+
+        /* CONTRAINTE ROW */
         .contrainte-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 24px; border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
+            padding: 14px 20px; border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
         }
         .contrainte-row:last-child { border-bottom: none; }
-        .contrainte-row:hover { background: #f8faff; }
-        .contrainte-date { font-weight: 700; color: var(--ensa-primary); }
+        .contrainte-row:hover { background: var(--hover); }
+        .contrainte-info { display: flex; flex-direction: column; gap: 4px; }
+        .contrainte-date { font-weight: 600; color: var(--t0); display: flex; align-items: center; gap: 6px; }
+        .contrainte-date .bi { color: var(--accent2); }
         .contrainte-heure {
-            background: #fff3cd; color: #856404;
-            padding: 4px 10px; border-radius: 20px;
-            font-size: 0.82rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 100px;
+            font-size: 12px; font-weight: 500;
+        }
+        .contrainte-heure.plage {
+            background: rgba(245,158,11,0.15); color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.3);
         }
         .contrainte-heure.toute-journee {
-            background: #fde8e8; color: #c0392b;
+            background: rgba(239,68,68,0.15); color: #f87171;
+            border: 1px solid rgba(239,68,68,0.3);
         }
+        .contrainte-actions { display: flex; gap: 8px; }
 
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--t2); }
+        .empty-state .bi { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; display: block; }
+
+        /* FORM CARD */
+        .form-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            position: sticky; top: 24px;
+        }
+        .form-card .card-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600;
+        }
+        .form-card .card-header .bi { color: var(--accent2); }
+        .form-card .card-body { padding: 24px; }
+
+        /* FORM FIELDS */
+        .field { margin-bottom: 18px; }
+        label {
+            display: block; font-size: 12px; font-weight: 500;
+            color: var(--t1); margin-bottom: 6px;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        input[type="date"], input[type="time"] {
+            width: 100%; padding: 10px 14px; border-radius: 9px;
+            background: var(--bg3); border: 1px solid var(--border);
+            color: var(--t0); font-size: 14px; font-family: 'Inter', sans-serif;
+            transition: border-color 0.18s, box-shadow 0.18s; outline: none;
+        }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+        input::placeholder { color: var(--t2); }
+        .form-hint {
+            font-size: 12px; color: var(--t2); margin-top: 4px;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .form-hint .bi { font-size: 0.85rem; }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 12px 24px; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            border: none; transition: all 0.18s ease; text-decoration: none;
+            letter-spacing: -0.01em;
+        }
+        .btn .bi { font-size: 1rem; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+        .btn-outline {
+            background: transparent; color: var(--t1);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover { color: var(--t0); border-color: var(--border-strong); }
+        .btn-danger {
+            background: rgba(239,68,68,0.15); color: #f87171;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .btn-danger:hover { background: rgba(239,68,68,0.25); color: #fca5a5; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+        .btn-sm .bi { font-size: 0.85rem; }
+        .btn:active { transform: translateY(0); }
+
+        /* PROF BADGE */
         .prof-badge {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; border-radius: 12px; padding: 16px 20px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff; border-radius: 12px; padding: 16px 20px;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+        }
+        .prof-badge .bi { font-size: 1.2rem; }
+        .prof-name { font-weight: 600; font-size: 15px; }
+
+        /* FOOTER */
+        footer {
+            margin-top: 64px; padding: 24px 0;
+            border-top: 1px solid var(--border);
+            text-align: center; font-size: 13px; color: var(--t2);
         }
 
-        .btn-add {
-            background-color: var(--ensa-primary); border: none; color: white;
-            padding: 10px 24px; border-radius: 10px; font-weight: 700;
-            transition: all 0.2s;
+        /* RESPONSIVE & ANIMATIONS */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .anim { animation: fadeUp 0.35s ease both; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
+
+        @media(max-width:1000px) { 
+            .grid2 { grid-template-columns: 1fr; }
+            .form-card { position: static; }
         }
-        .btn-add:hover { background-color: var(--ensa-secondary); color: white; }
+        @media(max-width:850px) { 
+            nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; }
+            .nav-links { width: 100%; justify-content: flex-start; }
+        }
+        @media(max-width:500px) { 
+            .nav-links { gap: 2px; }
+            .nav-link { padding: 7px 10px; font-size: 12px; }
+            .form-row { grid-template-columns: 1fr; }
+            .contrainte-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .contrainte-actions { width: 100%; justify-content: flex-end; }
+            .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/etudiants"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/professeurs"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
-            </ul>
+    <!-- NAVIGATION -->
+    <nav class="anim">
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            <span>PFE Planning</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
+            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
+            <a th:href="@{/professeurs}" class="nav-link active"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
+            <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
+            <a th:href="@{/affectation}" class="nav-link"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
+            <a th:href="@{/planning}" class="nav-link"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3 icon-sm"></i>Calendrier</a>
+            <a th:href="@{/export}" class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
+        </div>
+    </nav>
+
+    <!-- HEADER -->
+    <div class="page-header anim d1">
+        <div>
+            <!-- Breadcrumbs -->
+            <div class="breadcrumb">
+                <a th:href="@{/}">Accueil</a>
+                <span class="separator">/</span>
+                <a th:href="@{/professeurs}">Professeurs</a>
+                <span class="separator">/</span>
+                <span class="active">Indisponibilités</span>
+            </div>
+            <h1><i class="bi bi-calendar-x icon-md"></i>Indisponibilités — <span th:text="${professeur.nomComplet}">Professeur</span></h1>
+            <p class="subtitle">Gérez les créneaux d'indisponibilité de ce professeur pour la planification.</p>
         </div>
     </div>
-</nav>
 
-<!-- PAGE HEADER -->
-<div class="page-header">
-    <div class="container">
-        <nav aria-label="breadcrumb" class="mb-2">
-            <ol class="breadcrumb mb-0" style="font-size:0.85rem;">
-                <li class="breadcrumb-item"><a href="/">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="/professeurs">Professeurs</a></li>
-                <li class="breadcrumb-item active">Indisponibilités</li>
-            </ol>
-        </nav>
-        <h2 class="mb-0 fw-bold">
-            <i class="bi bi-calendar-x me-2"></i>
-            Indisponibilités — <span th:text="${professeur.nomComplet}">Professeur</span>
-        </h2>
-    </div>
-</div>
-
-<div class="container mb-5">
-
-    <!-- MESSAGES FLASH -->
-    <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorMsg}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <!-- PROF BADGE -->
+    <div class="prof-badge anim d2">
+        <i class="bi bi-person-badge"></i>
+        <div>
+            <div class="prof-name" th:text="${professeur.nomComplet}">Nom Prénom</div>
+            <div style="font-size:13px; opacity:0.9;" th:text="${professeur.specialite}">Spécialité</div>
+        </div>
     </div>
 
-    <div class="row g-4">
+    <!-- ALERTS -->
+    <div th:if="${successMsg}" class="alert alert-success anim">
+        <i class="bi bi-check-circle icon"></i>
+        <span th:text="${successMsg}"></span>
+    </div>
+    <div th:if="${errorMsg}" class="alert alert-error anim">
+        <i class="bi bi-exclamation-triangle icon"></i>
+        <span th:text="${errorMsg}"></span>
+    </div>
 
-        <!-- COLONNE GAUCHE : liste des contraintes -->
-        <div class="col-lg-7">
-            <div class="card-section">
-                <div class="card-section-header">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Créneaux d'indisponibilité
-                    <span class="badge bg-danger ms-2" th:text="${contraintes.size()}">0</span>
-                </div>
+    <!-- MAIN GRID -->
+    <div class="grid2 anim d2">
 
-                <div th:if="${contraintes.isEmpty()}" class="text-center text-muted py-5">
-                    <i class="bi bi-calendar-check fs-2 d-block mb-2 text-success"></i>
-                    Aucune indisponibilité déclarée — ce professeur est disponible partout.
+        <!-- LISTE DES CONTRAINTES -->
+        <div class="card">
+            <div class="card-header">
+                <span><i class="bi bi-list-ul icon-sm me-2"></i>Créneaux d'indisponibilité</span>
+                <span class="badge" th:text="${contraintes.size()}">0</span>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div th:if="${contraintes.isEmpty()}" class="empty-state">
+                    <i class="bi bi-calendar-check"></i>
+                    <p class="mb-3">Aucune indisponibilité déclarée.</p>
+                    <p style="font-size:13px;">Ce professeur est disponible sur tous les créneaux.</p>
                 </div>
 
                 <div th:each="c : ${contraintes}" class="contrainte-row">
-                    <div>
+                    <div class="contrainte-info">
                         <div class="contrainte-date">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <!-- Formatage de la date LocalDate -->
+                            <i class="bi bi-calendar3"></i>
                             <span th:text="${#temporals.format(c.dateIndisponible, 'EEEE dd MMMM yyyy', new java.util.Locale('fr'))}">date</span>
                         </div>
-                        <div class="mt-1">
+                        <div>
                             <!-- Cas : plage horaire définie -->
                             <span th:if="${c.heureDebut != null and c.heureFin != null}"
-                                  class="contrainte-heure">
-                                <i class="bi bi-clock me-1"></i>
+                                  class="contrainte-heure plage">
+                                <i class="bi bi-clock"></i>
                                 <span th:text="${#temporals.format(c.heureDebut, 'HH:mm')}">00:00</span>
                                 →
                                 <span th:text="${#temporals.format(c.heureFin, 'HH:mm')}">00:00</span>
@@ -166,91 +379,94 @@
                             <!-- Cas : toute la journée -->
                             <span th:unless="${c.heureDebut != null and c.heureFin != null}"
                                   class="contrainte-heure toute-journee">
-                                <i class="bi bi-x-circle me-1"></i>Toute la journée
+                                <i class="bi bi-x-circle"></i>Toute la journée
                             </span>
                         </div>
                     </div>
-                    <form th:action="@{/professeurs/{profId}/contraintes/supprimer/{cId}(profId=${professeur.id},cId=${c.id})}"
-                          method="post"
-                          onsubmit="return confirm('Supprimer cette indisponibilité ?')">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
+                    <div class="contrainte-actions">
+                        <form th:action="@{/professeurs/{profId}/contraintes/supprimer/{cId}(profId=${professeur.id},cId=${c.id})}"
+                              method="post"
+                              onsubmit="return confirm('Supprimer cette indisponibilité ?')">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- COLONNE DROITE : formulaire ajout -->
-        <div class="col-lg-5">
-            <div class="card-section">
-                <div class="card-section-header">
-                    <i class="bi bi-plus-circle me-2"></i>Ajouter une indisponibilité
-                </div>
-                <div class="p-4">
-                    <form th:action="@{/professeurs/{id}/contraintes/ajouter(id=${professeur.id})}"
-                          th:object="${nouvelleContrainte}"
-                          method="post">
-
-                        <div class="mb-3">
-                            <label class="form-label">Date <span style="color:#e74c3c">*</span></label>
-                            <input type="date" th:field="*{dateIndisponible}" class="form-control" required />
-                        </div>
-
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label class="form-label">Heure début</label>
-                                <input type="time" th:field="*{heureDebut}" class="form-control"
-                                       placeholder="08:00" />
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Heure fin</label>
-                                <input type="time" th:field="*{heureFin}" class="form-control"
-                                       placeholder="12:00" />
-                            </div>
-                        </div>
-
-                        <div class="form-text text-muted mb-3" style="font-size:0.8rem;">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Laissez les heures vides pour bloquer toute la journée.
-                        </div>
-
-                        <button type="submit" class="btn-add w-100">
-                            <i class="bi bi-plus-lg me-2"></i>Ajouter
-                        </button>
-                    </form>
-                </div>
+        <!-- FORMULAIRE D'AJOUT -->
+        <div class="form-card anim d3">
+            <div class="card-header">
+                <i class="bi bi-plus-circle icon-sm"></i>
+                <span>Ajouter une indisponibilité</span>
             </div>
+            <div class="card-body">
+                <form th:action="@{/professeurs/{id}/contraintes/ajouter(id=${professeur.id})}"
+                      th:object="${nouvelleContrainte}"
+                      method="post">
 
-            <!-- Lien retour -->
-            <div class="mt-3">
-                <a href="/professeurs" class="btn btn-outline-secondary w-100 rounded-3">
-                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste
-                </a>
+                    <div class="field">
+                        <label for="dateIndisponible">Date <span style="color:var(--red)">*</span></label>
+                        <input type="date" id="dateIndisponible" th:field="*{dateIndisponible}" class="form-control" required/>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="field">
+                            <label for="heureDebut">Heure début</label>
+                            <input type="time" id="heureDebut" th:field="*{heureDebut}" class="form-control" placeholder="08:00"/>
+                        </div>
+                        <div class="field">
+                            <label for="heureFin">Heure fin</label>
+                            <input type="time" id="heureFin" th:field="*{heureFin}" class="form-control" placeholder="12:00"/>
+                        </div>
+                    </div>
+
+                    <div class="form-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Laissez les heures vides pour bloquer toute la journée.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px;">
+                        <i class="bi bi-plus-lg"></i>Ajouter
+                    </button>
+                </form>
             </div>
         </div>
 
     </div>
+
+    <!-- BACK LINK -->
+    <div class="anim d3" style="margin-top:24px;">
+        <a th:href="@{/professeurs}" class="btn btn-outline">
+            <i class="bi bi-arrow-left icon-sm"></i>Retour à la liste des professeurs
+        </a>
+    </div>
+
 </div>
 
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
+<!-- FOOTER -->
+<footer>
+    ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SCRIPTS -->
 <script>
     // Validation côté client : heure fin > heure début
-    const formContrainte = document.querySelector('form[method="post"]');
-    const heureDebut = document.querySelector('input[name="heureDebut"]');
-    const heureFin = document.querySelector('input[name="heureFin"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[method="post"]');
+        const heureDebut = document.querySelector('input[name="heureDebut"]');
+        const heureFin = document.querySelector('input[name="heureFin"]');
 
-    formContrainte && formContrainte.addEventListener('submit', function(e) {
-        if (heureDebut.value && heureFin.value && heureFin.value <= heureDebut.value) {
-            e.preventDefault();
-            alert("L'heure de fin doit être après l'heure de début.");
-            heureFin.focus();
+        if (form && heureDebut && heureFin) {
+            form.addEventListener('submit', function(e) {
+                if (heureDebut.value && heureFin.value && heureFin.value <= heureDebut.value) {
+                    e.preventDefault();
+                    alert("L'heure de fin doit être après l'heure de début.");
+                    heureFin.focus();
+                }
+            });
         }
     });
 </script>

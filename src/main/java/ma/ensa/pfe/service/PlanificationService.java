@@ -23,6 +23,9 @@ public class PlanificationService {
     @Autowired private ContrainteRepository      contrainteRepository;
     @Autowired private VersionPlanningRepository versionPlanningRepository;
 
+    // ✅ Injection de AffectationService pour traiter les étudiants sans encadrant
+    @Autowired private AffectationService affectationService;
+
     private static final int DUREE_SOUTENANCE = 45;
     private static final int PAUSE_SALLE      = 15;
     private static final int DELAI_PROF       = 60;
@@ -51,6 +54,24 @@ public class PlanificationService {
         if (joursDisponibles.size() > 3)
             joursDisponibles = joursDisponibles.subList(0, 3);
 
+        // ✅ CORRECTION : affecter automatiquement les étudiants sans encadrant
+        // (cas des étudiants ajoutés manuellement via le formulaire)
+        long sansEncadrant = etudiantRepository.findAll().stream()
+            .filter(e -> e.getEncadrant() == null).count();
+        if (sansEncadrant > 0) {
+            System.out.printf(
+                "⚠️  %d étudiant(s) sans encadrant détecté(s) — affectation automatique...%n",
+                sansEncadrant);
+            AffectationService.AffectationResult affResult =
+                affectationService.affecterEncadrants();
+            System.out.printf("   ✅ %d encadrant(s) affecté(s) automatiquement%n",
+                affResult.getNbAffectes());
+            if (affResult.hasErreurs()) {
+                affResult.getErreurs().forEach(e ->
+                    System.out.println("   ⚠️  " + e));
+            }
+        }
+
         VersionPlanning version = new VersionPlanning();
         version.setDateGeneration(LocalDateTime.now());
         version.setDescription("Génération – " + LocalDateTime.now());
@@ -61,6 +82,7 @@ public class PlanificationService {
         cacheContraintes        = contrainteRepository.findAll().stream()
             .collect(Collectors.groupingBy(c -> c.getProfesseur().getId()));
 
+        // Recharger les étudiants APRÈS l'affectation automatique
         List<Etudiant>   etudiants   = etudiantRepository.findAll();
         List<Professeur> professeurs = professeurRepository.findAll();
         List<Salle>      salles      = salleRepository.findAll();
@@ -115,9 +137,8 @@ public class PlanificationService {
                 soutenance.getDate(), soutenance.getHeure(),
                 etudiant.getFiliere(), exigeAnglais);
 
-        if (nouveauJury == null) {
+        if (nouveauJury == null)
             return "Impossible de trouver un jury valide pour la nouvelle langue.";
-        }
 
         soutenance.setJury1(nouveauJury.j1());
         soutenance.setJury2(nouveauJury.j2());
@@ -128,6 +149,8 @@ public class PlanificationService {
                 + etudiant.getPrenom() + " (langue : " + etudiant.getLangue() + ").";
     }
 
+    // ══════════════════════════════════════════════════════════════════════
+    //  EXÉCUTION DE LA PLANIFICATION
     // ══════════════════════════════════════════════════════════════════════
     private String executer(List<Etudiant> etudiants, List<Professeur> professeurs,
                              List<Salle> salles, List<LocalDate> jours,
@@ -171,7 +194,8 @@ public class PlanificationService {
             });
         }
 
-        String msg = String.format("✅ %d soutenances planifiées sur %d étudiants.", succes, etudiants.size());
+        String msg = String.format(
+            "✅ %d soutenances planifiées sur %d étudiants.", succes, etudiants.size());
         if (echecs > 0) {
             String premiereCause = rapportEchecs.keySet().iterator().next();
             int nb = rapportEchecs.get(premiereCause).size();
@@ -244,7 +268,7 @@ public class PlanificationService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  VÉRIFICATION ENCADRANT
+    //  VÉRIFICATION ENCADRANT — créneau exact uniquement
     // ══════════════════════════════════════════════════════════════════════
     private boolean encadrantOccupeMemeCreneauExact(Professeur encadrant,
                                                      LocalDate jour,
@@ -257,7 +281,7 @@ public class PlanificationService {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  SÉLECTION DU JURY — avec mélange aléatoire à charge égale
+    //  SÉLECTION DU JURY
     // ══════════════════════════════════════════════════════════════════════
     private ListeJury choisirJury(Professeur encadrant, List<Professeur> tousProfs,
                                    LocalDate jour, LocalTime heure,
@@ -269,12 +293,10 @@ public class PlanificationService {
             .filter(p -> estProfDisponible(p, jour, heure))
             .collect(Collectors.toList());
 
-        // ✅ CORRECTION : mélanger aléatoirement d'abord, puis trier par charge
-        // → à charge égale (début de génération), l'ordre varie à chaque import
         Collections.shuffle(candidats);
         candidats.sort(Comparator.comparingLong(p -> chargeProf(p.getId())));
 
-        // Mode normal : au moins 2 profs GI
+        // Mode normal : 2 profs GI minimum
         for (int i = 0; i < candidats.size(); i++) {
             for (int j = i + 1; j < candidats.size(); j++) {
                 Professeur c1 = candidats.get(i);
@@ -385,17 +407,23 @@ public class PlanificationService {
         for (int i = 0; i < max; i++)
             for (List<Etudiant> g : groupes)
                 if (i < g.size()) res.add(g.get(i));
+
+        System.out.println("📊 Distribution filières :");
+        map.forEach((f, l) -> System.out.printf("   %-6s : %d%n", f, l.size()));
         return res;
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  DIAGNOSTIC
+    //  DIAGNOSTIC PRÉ-GÉNÉRATION
     // ══════════════════════════════════════════════════════════════════════
     private void afficherDiagnosticComplet(List<Etudiant> etudiants,
                                             List<LocalTime> creneaux,
                                             List<LocalDate> jours) {
         int capaciteMax = creneaux.size() * jours.size();
         System.out.println("══════════ DIAGNOSTIC PRÉ-GÉNÉRATION ══════════");
+        System.out.printf("  Capacité max par encadrant : %d créneaux × %d jours = %d%n",
+            creneaux.size(), jours.size(), capaciteMax);
+
         etudiants.stream()
             .filter(e -> e.getEncadrant() != null)
             .collect(Collectors.groupingBy(Etudiant::getEncadrant, Collectors.counting()))
@@ -406,15 +434,17 @@ public class PlanificationService {
                 System.out.printf("    %s %-25s : %d étudiant(s)%n",
                     etat, e.getKey().getNom(), e.getValue());
             });
+
         long sansEncadrant = etudiants.stream()
             .filter(e -> e.getEncadrant() == null).count();
         if (sansEncadrant > 0)
             System.out.printf("  🔴 %d étudiant(s) SANS encadrant%n", sansEncadrant);
+
         System.out.println("═══════════════════════════════════════════════");
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  VALIDATION
+    //  VALIDATION DES PRÉREQUIS
     // ══════════════════════════════════════════════════════════════════════
     private void validerPrerequis(List<Etudiant> etudiants,
                                    List<Professeur> professeurs,
@@ -493,8 +523,12 @@ public class PlanificationService {
     private record ListeJury(Professeur j1, Professeur j2, Professeur j3) {}
 
     private record ResultatPlacement(boolean planifie, Soutenance soutenance, String raison) {
-        static ResultatPlacement succes(Soutenance s) { return new ResultatPlacement(true, s, ""); }
-        static ResultatPlacement echec(String r)      { return new ResultatPlacement(false, null, r); }
+        static ResultatPlacement succes(Soutenance s) {
+            return new ResultatPlacement(true, s, "");
+        }
+        static ResultatPlacement echec(String r) {
+            return new ResultatPlacement(false, null, r);
+        }
     }
 
     public static class PlanificationException extends RuntimeException {

@@ -4,174 +4,401 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>PFE Planning — Salles</title>
+    
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --bg:#0d1117; --bg2:#161b22; --bg3:#21262d;
-            --border:rgba(255,255,255,0.08);
-            --accent:#6366f1; --accent2:#818cf8; --accent3:#a5b4fc;
-            --green:#22c55e; --red:#ef4444;
-            --t0:#f0f6fc; --t1:#8b949e; --t2:#484f58;
-            --card:rgba(255,255,255,0.03); --hover:rgba(99,102,241,0.06);
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #21262d;
+            --border: rgba(255,255,255,0.08);
+            --border-strong: rgba(255,255,255,0.15);
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent3: #a5b4fc;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --t0: #f0f6fc;
+            --t1: #8b949e;
+            --t2: #484f58;
+            --card: rgba(255,255,255,0.03);
+            --hover: rgba(99,102,241,0.08);
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        body { background:var(--bg); color:var(--t0); font-family:'Inter',sans-serif; min-height:100vh; }
+
+        body {
+            background: var(--bg);
+            color: var(--t0);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* Background subtil */
         body::before {
-            content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-            background: radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 15% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 100%, rgba(129,140,248,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
         }
-        .wrap { position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:48px 24px; }
 
-        nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:48px; }
-        .logo { display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:var(--t0); text-decoration:none; }
-        .logo-icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:16px; }
-        .nav-links { display:flex; gap:8px; }
-        .nav-link { padding:8px 14px; border-radius:8px; font-size:13px; color:var(--t1); text-decoration:none; transition:all .18s; border:1px solid transparent; }
-        .nav-link:hover { color:var(--t0); background:var(--hover); border-color:var(--border); }
-        .nav-link.active { color:var(--accent2); background:rgba(99,102,241,0.12); border-color:rgba(99,102,241,0.25); }
+        .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
 
-        .page-header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
-        .page-title h1 { font-size:28px; font-weight:700; margin-bottom:4px; }
-        .page-title p { font-size:14px; color:var(--t1); }
+        /* ===== ICONES MONOCHROMES ===== */
+        .icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--t1); transition: color 0.15s ease; flex-shrink: 0;
+        }
+        .icon-lg { font-size: 2.5rem; }
+        .icon-md { font-size: 1.25rem; }
+        .icon-sm { font-size: 1rem; }
+        .card:hover .icon, .nav-link:hover .icon, .btn:hover .icon { color: var(--accent2); }
 
-        .alert { display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:12px; margin-bottom:24px; font-size:14px; }
-        .alert-success { background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); color:#4ade80; }
-        .alert-error   { background:rgba(239,68,68,0.08);  border:1px solid rgba(239,68,68,0.2);  color:#f87171; }
+        /* NAVIGATION */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 56px; padding-bottom: 24px;
+            border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; font-size: 18px; color: var(--t0);
+            text-decoration: none; letter-spacing: -0.02em;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon .bi { color: #fff; font-size: 1rem; }
+        
+        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+        .nav-link {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            color: var(--t1); text-decoration: none; transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .nav-link .bi { font-size: 0.9rem; }
+        .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
+        .nav-link.active { 
+            color: var(--accent2); 
+            background: rgba(99,102,241,0.10); 
+            border-color: rgba(99,102,241,0.30);
+            font-weight: 600;
+        }
 
-        .grid2 { display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
+        /* PAGE HEADER */
+        .page-header { margin-bottom: 48px; padding-top: 8px; }
+        h1 { 
+            font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; 
+            margin-bottom: 16px; letter-spacing: -0.03em;
+            display: flex; align-items: center; gap: 14px;
+        }
+        h1 .bi { color: var(--accent2); }
+        h1 span { 
+            background: linear-gradient(135deg, var(--accent2), var(--accent3)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle { font-size: 16px; color: var(--t1); line-height: 1.6; max-width: 600px; }
 
-        /* TABLE */
-        .table-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
-        .table-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-        .table-title { font-size:15px; font-weight:600; }
-        .count-badge { padding:3px 10px; border-radius:100px; background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.2); font-size:11px; color:var(--accent3); font-weight:600; }
-        table { width:100%; border-collapse:collapse; }
-        th { padding:10px 20px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--t2); border-bottom:1px solid var(--border); }
-        td { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:14px; transition:background .15s; }
-        tr:last-child td { border-bottom:none; }
-        tr:hover td { background:var(--hover); }
-        .salle-name { font-weight:600; display:flex; align-items:center; gap:8px; }
-        .salle-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
-        .cap-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; background:var(--bg3); border:1px solid var(--border); font-size:12px; color:var(--t1); }
-        .actions { display:flex; gap:8px; }
-        .btn-sm { padding:6px 12px; border-radius:7px; font-size:12px; font-weight:500; text-decoration:none; cursor:pointer; border:none; transition:all .15s; }
-        .btn-edit { background:rgba(99,102,241,0.12); color:var(--accent2); border:1px solid rgba(99,102,241,0.2); }
-        .btn-edit:hover { background:rgba(99,102,241,0.2); }
-        .btn-del { background:rgba(239,68,68,0.08); color:#f87171; border:1px solid rgba(239,68,68,0.2); }
-        .btn-del:hover { background:rgba(239,68,68,0.15); }
-        .empty-state { padding:48px 24px; text-align:center; color:var(--t2); }
-        .empty-icon { font-size:36px; margin-bottom:12px; }
+        /* ALERTS */
+        .alert {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 16px 20px; border-radius: 12px; margin-bottom: 32px;
+            font-size: 14px; line-height: 1.5; border-left: 4px solid transparent;
+        }
+        .alert .bi { font-size: 1.1rem; margin-top: 2px; }
+        .alert-success { background: rgba(34,197,94,0.08); border-left-color: var(--green); color: #86efac; }
+        .alert-error { background: rgba(239,68,68,0.08); border-left-color: var(--red); color: #fca5a5; }
+
+        /* GRID LAYOUT */
+        .grid2 { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
+
+        /* TABLE CARD */
+        .table-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+        }
+        .table-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .table-title { font-size: 15px; font-weight: 600; color: var(--t0); }
+        .count-badge {
+            padding: 3px 10px; border-radius: 100px;
+            background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2);
+            font-size: 11px; color: var(--accent3); font-weight: 600;
+        }
+        .table { width: 100%; border-collapse: collapse; margin: 0; }
+        .table thead { background: var(--bg2); }
+        .table thead th {
+            padding: 12px 20px; text-align: left; font-size: 11px; font-weight: 600;
+            letter-spacing: 0.08em; text-transform: uppercase; color: var(--t2);
+            border-bottom: 1px solid var(--border);
+        }
+        .table tbody tr { transition: background 0.15s ease; }
+        .table tbody tr:hover { background: var(--hover); }
+        .table tbody td {
+            padding: 14px 20px; border-bottom: 1px solid var(--border);
+            font-size: 14px; color: var(--t0); vertical-align: middle;
+        }
+        .table tbody tr:last-child td { border-bottom: none; }
+
+        /* SALLE BADGES */
+        .salle-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .salle-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+        .cap-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 100px;
+            background: var(--bg3); border: 1px solid var(--border);
+            font-size: 12px; color: var(--t1);
+        }
+
+        /* ACTIONS */
+        .actions { display: flex; gap: 8px; }
+        .btn-sm {
+            padding: 6px 12px; border-radius: 7px; font-size: 12px; font-weight: 500;
+            text-decoration: none; cursor: pointer; border: none; transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-sm .bi { font-size: 0.85rem; }
+        .btn-edit {
+            background: rgba(99,102,241,0.12); color: var(--accent2);
+            border: 1px solid rgba(99,102,241,0.2);
+        }
+        .btn-edit:hover { background: rgba(99,102,241,0.2); color: var(--t0); }
+        .btn-del {
+            background: rgba(239,68,68,0.08); color: #f87171;
+            border: 1px solid rgba(239,68,68,0.2);
+        }
+        .btn-del:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+
+        /* EMPTY STATE */
+        .empty-state { padding: 48px 24px; text-align: center; color: var(--t2); }
+        .empty-state .bi { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; display: block; }
 
         /* FORM CARD */
-        .form-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; position:sticky; top:24px; }
-        .form-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
-        .form-icon { width:34px; height:34px; border-radius:8px; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center; font-size:14px; }
-        .form-title { font-size:14px; font-weight:600; }
-        .form-body { padding:24px; }
-        .field { margin-bottom:18px; }
-        label { display:block; font-size:12px; font-weight:500; color:var(--t1); margin-bottom:6px; letter-spacing:0.04em; }
-        input[type=text], input[type=number] {
-            width:100%; padding:10px 14px; border-radius:9px;
-            background:var(--bg3); border:1px solid var(--border);
-            color:var(--t0); font-size:14px; font-family:'Inter',sans-serif;
-            transition:border-color .18s, box-shadow .18s;
-            outline:none;
+        .form-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            position: sticky; top: 24px;
         }
-        input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(99,102,241,0.12); }
-        input::placeholder { color:var(--t2); }
+        .form-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .form-icon {
+            width: 34px; height: 34px; border-radius: 8px;
+            background: rgba(99,102,241,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: var(--accent2);
+        }
+        .form-title { font-size: 14px; font-weight: 600; color: var(--t0); }
+        .form-body { padding: 24px; }
+
+        /* FORM FIELDS */
+        .field { margin-bottom: 18px; }
+        label {
+            display: block; font-size: 12px; font-weight: 500;
+            color: var(--t1); margin-bottom: 6px;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 10px 14px; border-radius: 9px;
+            background: var(--bg3); border: 1px solid var(--border);
+            color: var(--t0); font-size: 14px; font-family: 'Inter', sans-serif;
+            transition: border-color 0.18s, box-shadow 0.18s; outline: none;
+        }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+        input::placeholder { color: var(--t2); }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 12px 24px; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            border: none; transition: all 0.18s ease; text-decoration: none;
+            letter-spacing: -0.01em;
+        }
+        .btn .bi { font-size: 1rem; }
         .btn-primary {
-            width:100%; padding:12px; border-radius:10px; border:none; cursor:pointer;
-            background:linear-gradient(135deg,var(--accent),#4f46e5);
-            color:#fff; font-size:14px; font-weight:600; font-family:'Inter',sans-serif;
-            box-shadow:0 4px 14px rgba(99,102,241,0.3); transition:all .18s;
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
         }
-        .btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(99,102,241,0.4); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+        .btn:active { transform: translateY(0); }
 
-        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-        .anim { animation:fadeUp .4s ease both; }
-        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s}
+        /* FOOTER */
+        footer {
+            margin-top: 64px; padding: 24px 0;
+            border-top: 1px solid var(--border);
+            text-align: center; font-size: 13px; color: var(--t2);
+        }
 
-        @media(max-width:720px) { .grid2{grid-template-columns:1fr} }
+        /* RESPONSIVE & ANIMATIONS */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .anim { animation: fadeUp 0.35s ease both; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
+
+        @media(max-width:1000px) { 
+            .grid2 { grid-template-columns: 1fr; }
+            .form-card { position: static; }
+        }
+        @media(max-width:850px) { 
+            nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; }
+            .nav-links { width: 100%; justify-content: flex-start; }
+        }
+        @media(max-width:500px) { 
+            .nav-links { gap: 2px; }
+            .nav-link { padding: 7px 10px; font-size: 12px; }
+            .table-responsive { overflow-x: auto; }
+            .table { min-width: 500px; }
+            .actions { flex-direction: column; }
+            .btn-sm { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
 <div class="wrap">
+
+    <!-- NAVIGATION -->
     <nav class="anim">
-        <a href="/pfe-planning/" class="logo">
-            <div class="logo-icon">📋</div>PFE Planning
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            <span>PFE Planning</span>
         </a>
         <div class="nav-links">
-            <a href="/pfe-planning/import" class="nav-link">Import</a>
-            <a href="/pfe-planning/salles" class="nav-link active">Salles</a>
-            <a href="/pfe-planning/professeurs" class="nav-link">Profs</a>
-            <a href="/pfe-planning/etudiants" class="nav-link">Étudiants</a>
+            <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
+            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
+            <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
+            <a th:href="@{/salles}" class="nav-link active"><i class="bi bi-door-open icon-sm"></i>Salles</a>
+            <a th:href="@{/affectation}" class="nav-link"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
+            <a th:href="@{/planning}" class="nav-link"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3 icon-sm"></i>Calendrier</a>
+            <a th:href="@{/export}" class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
         </div>
     </nav>
 
+    <!-- HEADER -->
     <div class="page-header anim d1">
-        <div class="page-title">
-            <h1>🏛️ Salles de soutenance</h1>
-            <p>Gérez les salles disponibles pour les soutenances PFE</p>
-        </div>
+        <h1><i class="bi bi-door-open icon-md"></i>Salles de <span>soutenance</span></h1>
+        <p class="subtitle">Gérez les salles disponibles pour les soutenances PFE.</p>
     </div>
 
-    <div th:if="${succes}" class="alert alert-success anim"><span>✅</span><span th:text="${succes}"></span></div>
-    <div th:if="${erreur}" class="alert alert-error anim"><span>⚠️</span><span th:text="${erreur}"></span></div>
+    <!-- ALERTS -->
+    <div th:if="${succes}" class="alert alert-success anim">
+        <i class="bi bi-check-circle icon"></i>
+        <span th:text="${succes}"></span>
+    </div>
+    <div th:if="${erreur}" class="alert alert-error anim">
+        <i class="bi bi-exclamation-triangle icon"></i>
+        <span th:text="${erreur}"></span>
+    </div>
 
+    <!-- MAIN GRID -->
     <div class="grid2 anim d2">
-        <!-- TABLE -->
+
+        <!-- TABLE CARD -->
         <div class="table-card">
             <div class="table-header">
                 <span class="table-title">Liste des salles</span>
                 <span class="count-badge" th:text="${#lists.size(salles)} + ' salle(s)'"></span>
             </div>
-            <table>
-                <thead><tr><th>Salle</th><th>Capacité</th><th>Actions</th></tr></thead>
-                <tbody>
-                    <tr th:each="s : ${salles}">
-                        <td><div class="salle-name"><div class="salle-dot"></div><span th:text="${s.nom}"></span></div></td>
-                        <td><span class="cap-badge">👥 <span th:text="${s.capacite}"></span> places</span></td>
-                        <td>
-                            <div class="actions">
-                                <a th:href="@{/salles/modifier/{id}(id=${s.id})}" class="btn-sm btn-edit">✏️ Modifier</a>
-                                <a th:href="@{/salles/supprimer/{id}(id=${s.id})}" class="btn-sm btn-del"
-                                   onclick="return confirm('Supprimer cette salle ?')">🗑️ Supprimer</a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(salles)}">
-                        <td colspan="3">
-                            <div class="empty-state">
-                                <div class="empty-icon">🏛️</div>
-                                <div>Aucune salle enregistrée</div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-building icon-sm me-1"></i>Salle</th>
+                            <th><i class="bi bi-people icon-sm me-1"></i>Capacité</th>
+                            <th><i class="bi bi-gear icon-sm me-1"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${salles}">
+                            <td>
+                                <div class="salle-name">
+                                    <div class="salle-dot"></div>
+                                    <span th:text="${s.nom}"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="cap-badge">
+                                    <i class="bi bi-people icon-sm"></i>
+                                    <span th:text="${s.capacite}"></span> places
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a th:href="@{/salles/modifier/{id}(id=${s.id})}" class="btn-sm btn-edit">
+                                        <i class="bi bi-pencil"></i>Modifier
+                                    </a>
+                                    <a th:href="@{/salles/supprimer/{id}(id=${s.id})}" 
+                                       class="btn-sm btn-del"
+                                       onclick="return confirm('Supprimer cette salle ? Cette action est irréversible.')">
+                                        <i class="bi bi-trash"></i>Supprimer
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(salles)}">
+                            <td colspan="3">
+                                <div class="empty-state">
+                                    <i class="bi bi-door-open"></i>
+                                    <p class="mb-3">Aucune salle enregistrée.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- FORM -->
+        <!-- FORM CARD (Sticky sidebar) -->
         <div class="form-card anim d3">
             <div class="form-header">
-                <div class="form-icon">➕</div>
+                <div class="form-icon"><i class="bi bi-plus-lg"></i></div>
                 <div class="form-title">Ajouter une salle</div>
             </div>
             <div class="form-body">
                 <form th:action="@{/salles/enregistrer}" th:object="${salle}" method="post">
                     <div class="field">
-                        <label>Nom de la salle</label>
-                        <input type="text" th:field="*{nom}" placeholder="ex: S4A, AMPHI A" required/>
+                        <label for="nom">Nom de la salle</label>
+                        <input type="text" id="nom" th:field="*{nom}" placeholder="ex: S4A, AMPHI A" required/>
                     </div>
                     <div class="field">
-                        <label>Capacité</label>
-                        <input type="number" th:field="*{capacite}" placeholder="Nombre de places" min="1" required/>
+                        <label for="capacite">Capacité</label>
+                        <input type="number" id="capacite" th:field="*{capacite}" placeholder="Nombre de places" min="1" required/>
                     </div>
-                    <button type="submit" class="btn-primary">Ajouter la salle</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i>Ajouter la salle
+                    </button>
                 </form>
             </div>
         </div>
+
     </div>
+
 </div>
+
+<!-- FOOTER -->
+<footer>
+    ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
+</footer>
+
 </body>
 </html>
