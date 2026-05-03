@@ -2,168 +2,275 @@ package ma.ensa.pfe.service;
 
 import ma.ensa.pfe.dao.*;
 import ma.ensa.pfe.model.*;
+import ma.ensa.pfe.model.Etudiant.Filiere;
+import ma.ensa.pfe.model.Etudiant.Langue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Module 1 : AFFECTATION DES ENCADRANTS
+ *
+ * Règles STRICTES par filière :
+ *
+ *   GI   → encadrant discipline INFORMATIQUE ou GI uniquement
+ *   TDIA → encadrant discipline INFORMATIQUE, GI ou MATHEMATIQUE
+ *   DATA → encadrant discipline MATHEMATIQUE uniquement
+ *
+ *   GESTION et ANGLAIS → ne peuvent jamais encadrer personne
+ *
+ * Répartition équitable (charge min) + aléatoire à charge égale.
+ *
+ * ── BONUS NLP ─────────────────────────────────────────────────────────────
+ * Avant l'affectation, NlpLangueService analyse le titre de chaque étudiant.
+ * Si le titre est détecté EN → la langue de l'étudiant est mise à EN
+ * automatiquement, ce qui garantira que BOUAZZA sera dans le jury au planning.
+ * Cette étape NLP est INDÉPENDANTE de la logique d'affectation existante.
+ * ──────────────────────────────────────────────────────────────────────────
+ */
 @Service
 @Transactional
 public class AffectationService {
 
     @Autowired private ProfesseurRepository professeurRepository;
-    @Autowired private EtudiantRepository etudiantRepository;
-    @Autowired private SoutenanceRepository soutenanceRepository;
-    @Autowired private VersionPlanningRepository versionPlanningRepository;
-    @Autowired private SalleRepository salleRepository; // Ajouté pour récupérer une vraie salle
+    @Autowired private EtudiantRepository   etudiantRepository;
 
-    /**
-     * Génère une nouvelle affectation des jurys pour tous les étudiants non planifiés.
-     * Crée une nouvelle VersionPlanning pour tracer cette génération.
-     */
-    public String genererAffectations() {
-        // 1. Créer une nouvelle version de planning
-        VersionPlanning version = new VersionPlanning();
-        version.setDateGeneration(LocalDateTime.now());
-        version.setDescription("Génération automatique - " + LocalDateTime.now().toString());
-        
-        // On sauvegarde et on récupère l'objet persisté (avec son ID généré)
-        version = versionPlanningRepository.save(version);
-        
-        // ✅ CORRECTION CRUCIALE : On capture l'ID dans une variable finale pour l'utiliser dans les Lambdas
-        final Long finalVersionId = version.getId();
+    // ── AJOUT NLP : injecté séparément, n'affecte pas le reste ───────────
+    @Autowired private NlpLangueService nlpLangueService;
 
-        // 2. Récupérer tous les professeurs disponibles en mémoire pour l'algorithme
-        List<Professeur> tousLesProfs = professeurRepository.findAll();
-        
-        // 3. Récupérer les étudiants
-        List<Etudiant> etudiants = etudiantRepository.findAll();
+    // Disciplines autorisées par filière
+    private static final Set<String> DISCIPLINES_GI   =
+            Set.of("GI", "INFORMATIQUE");
 
-        int nbAffectations = 0;
-        int nbErreurs = 0;
+    private static final Set<String> DISCIPLINES_TDIA =
+            Set.of("GI", "INFORMATIQUE", "MATHEMATIQUE");
 
-        // Récupérer une salle par défaut pour éviter les erreurs NULL (la première disponible)
-        Salle salleDefaut = salleRepository.findById(1L).orElse(null);
-        if (salleDefaut == null && !salleRepository.findAll().isEmpty()) {
-            salleDefaut = salleRepository.findAll().get(0);
-        }
+    private static final Set<String> DISCIPLINES_DATA =
+            Set.of("MATHEMATIQUE");
 
-        for (Etudiant etudiant : etudiants) {
-            try {
-                // Vérifier si l'étudiant a déjà une soutenance dans CETTE version spécifique
-                // On utilise finalVersionId ici pour éviter l'erreur Java Lambda
-                boolean dejaPlanifie = false;
-                if (etudiant.getSoutenances() != null) {
-                    dejaPlanifie = etudiant.getSoutenances().stream()
-                            .anyMatch(s -> s.getVersion() != null && 
-                                           s.getVersion().getId().equals(finalVersionId));
-                }
-                
-                if (dejaPlanifie) continue;
+    // Disciplines jamais autorisées comme encadrant
+    private static final Set<String> DISCIPLINES_EXCLUES =
+            Set.of("GESTION", "ANGLAIS");
 
-                // Appel à l'algorithme de sélection du jury
-                List<Professeur> jury = selectionnerJury(etudiant, tousLesProfs);
+    // ══════════════════════════════════════════════
+    //  RÉSULTAT D'AFFECTATION
+    // ══════════════════════════════════════════════
+    public static class AffectationResult {
+        private int nbAffectes = 0;
+        private int nbEchecs   = 0;
+        // ── AJOUT NLP ──
+        private int nbNlpDetectes = 0;
+        private final List<String> details = new ArrayList<>();
+        private final List<String> erreurs = new ArrayList<>();
 
-                if (jury.size() >= 3) {
-                    Soutenance s = new Soutenance();
-                    s.setEtudiant(etudiant);
-                    s.setVersion(version); // Lien vers la version
-                    
-                    // On assigne l'encadrant comme Jury1 par défaut, ou on le choisit dans la liste
-                    s.setEncadrant(etudiant.getEncadrant());
-                    s.setJury1(jury.get(0));
-                    s.setJury2(jury.get(1));
-                    s.setJury3(jury.get(2));
-                    
-                    // Date et heure seront définies par le PlanningService plus tard
-                    // Ici on met des valeurs par défaut pour que la sauvegarde fonctionne
-                    s.setDate(LocalDateTime.now().toLocalDate());
-                    s.setHeure(java.time.LocalTime.of(8, 30));
-                    s.setDureeMn(45);
-                    
-                    // Assigner la salle par défaut si elle existe
-                    if (salleDefaut != null) {
-                        s.setSalle(salleDefaut);
-                    } else {
-                        // Si aucune salle n'est configurée, on skip cet étudiant pour l'instant
-                        nbErreurs++;
-                        continue;
-                    }
+        public int getNbAffectes()        { return nbAffectes; }
+        public int getNbEchecs()          { return nbEchecs; }
+        // ── AJOUT NLP ──
+        public int getNbNlpDetectes()     { return nbNlpDetectes; }
+        public List<String> getDetails()  { return details; }
+        public List<String> getErreurs()  { return erreurs; }
+        public boolean hasErreurs()       { return !erreurs.isEmpty(); }
 
-                    soutenanceRepository.save(s);
-                    nbAffectations++;
-                } else {
-                    nbErreurs++;
-                }
-
-            } catch (Exception e) {
-                nbErreurs++;
-                e.printStackTrace();
-            }
-        }
-
-        return "Affectation terminée : " + nbAffectations + " réussies, " + nbErreurs + " erreurs.";
+        void incrAffectes()               { nbAffectes++; }
+        void incrEchecs()                 { nbEchecs++; }
+        // ── AJOUT NLP ──
+        void incrNlpDetectes()            { nbNlpDetectes++; }
+        void addDetail(String d)          { details.add(d); }
+        void addErreur(String e)          { erreurs.add(e); }
     }
 
-    /**
-     * Algorithme de sélection du jury selon tes règles :
-     * 1. Au moins 2 profs de la spécialité de l'étudiant.
-     * 2. Si langue EN, au moins 1 prof anglophone.
-     * 3. Équité : Préférer les profs avec moins de soutenances.
-     */
-    private List<Professeur> selectionnerJury(Etudiant etudiant, List<Professeur> tousLesProfs) {
-        List<Professeur> candidats = new ArrayList<>();
+    // ══════════════════════════════════════════════
+    //  POINT D'ENTRÉE
+    // ══════════════════════════════════════════════
+    public AffectationResult affecterEncadrants() {
+        AffectationResult result = new AffectationResult();
 
-        // Filtrer les profs par spécialité correspondante
-        // Note: Si la spécialité du prof est "AUTRE", on peut l'inclure comme joker si besoin
-        List<Professeur> profsSpecialistes = tousLesProfs.stream()
-                .filter(p -> p.getSpecialite().equals(etudiant.getFiliere().toString()) || p.getSpecialite().equals("AUTRE"))
+        List<Professeur> tousProfs = professeurRepository.findAll();
+        if (tousProfs.isEmpty()) {
+            result.addErreur("Aucun professeur en base. Importez d'abord le fichier Excel.");
+            return result;
+        }
+
+        List<Etudiant> tousEtudiants = etudiantRepository.findAll();
+        if (tousEtudiants.isEmpty()) {
+            result.addErreur("Aucun étudiant en base. Importez d'abord le fichier Excel.");
+            return result;
+        }
+
+        // ── Construire les pools par discipline ────────────────────────────
+        List<Professeur> profsInfo = tousProfs.stream()
+                .filter(p -> estDiscipline(p, DISCIPLINES_GI))
                 .collect(Collectors.toList());
 
-        // Trier par charge de travail (nombre de soutenances existantes) pour l'équité
-        candidats.addAll(profsSpecialistes);
-        
-        // Mélanger pour éviter toujours les mêmes combinaisons si charges égales
-        Collections.shuffle(candidats);
+        List<Professeur> profsMath = tousProfs.stream()
+                .filter(p -> estDiscipline(p, DISCIPLINES_DATA))
+                .collect(Collectors.toList());
 
-        // Sélectionner les 3 premiers qui respectent la contrainte linguistique si nécessaire
-        List<Professeur> juryFinal = new ArrayList<>();
-        
-        // 1. On essaie de prendre l'encadrant en premier s'il est disponible
-        if (etudiant.getEncadrant() != null) {
-            juryFinal.add(etudiant.getEncadrant());
+        // Log de diagnostic
+        System.out.println("══════ AFFECTATION — DIAGNOSTIC ══════");
+        System.out.println("Profs Informatique/GI (pour GI & TDIA) : "
+                + profsInfo.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
+        System.out.println("Profs Mathématique (pour DATA & TDIA)  : "
+                + profsMath.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
+        System.out.println("Exclus (Gestion/Anglais) : "
+                + tousProfs.stream()
+                    .filter(p -> estDisciplineExclue(p))
+                    .map(Professeur::getNom)
+                    .collect(Collectors.joining(", ")));
+        System.out.println("══════════════════════════════════════");
+
+        // ── Compteur de charge par prof ────────────────────────────────────
+        Map<Long, Integer> charge = new HashMap<>();
+        tousProfs.forEach(p -> charge.put(p.getId(), 0));
+
+        // ── Réinitialiser toutes les affectations ──────────────────────────
+        for (Etudiant e : tousEtudiants) {
+            e.setEncadrant(null);
         }
 
-        // 2. Compléter jusqu'à 3 membres
-        for (Professeur p : candidats) {
-            if (juryFinal.contains(p)) continue;
-            
-            // Vérification contrainte Anglais
-            if (etudiant.getLangue() == Etudiant.Langue.EN) {
-                // Si on n'a pas encore d'anglophone et que ce prof ne l'est pas, on skip (sauf si c'est le dernier recours)
-                boolean hasAnglophone = juryFinal.stream().anyMatch(j -> j.isParleAnglais());
-                if (!hasAnglophone && !p.isParleAnglais()) {
-                     continue; 
+        // ── Mélanger les étudiants → ordre différent à chaque import ───────
+        List<Etudiant> etudiants = new ArrayList<>(tousEtudiants);
+        Collections.shuffle(etudiants);
+
+        // ════════════════════════════════════════════════════════════════════
+        //  ÉTAPE NLP (BONUS) — exécutée AVANT l'affectation, sans l'affecter
+        //  Si titre EN détecté → langue mise à EN → BOUAZZA inclus dans jury
+        // ════════════════════════════════════════════════════════════════════
+        System.out.println("══════ NLP — DÉTECTION LANGUE TITRE ══════");
+        for (Etudiant etudiant : etudiants) {
+            try {
+                String titre = etudiant.getTitreProjet();
+                if (titre != null && !titre.isBlank()) {
+                    boolean titreEnAnglais = nlpLangueService.estAnglais(titre);
+                    if (titreEnAnglais && etudiant.getLangue() != Langue.EN) {
+                        etudiant.setLangue(Langue.EN);
+                        etudiantRepository.save(etudiant);
+                        result.incrNlpDetectes();
+                        result.addDetail("🔍 NLP : \""
+                                + titre + "\" → langue auto-détectée EN pour "
+                                + etudiant.getNom() + " " + etudiant.getPrenom());
+                        System.out.println("[NLP] EN détecté → "
+                                + etudiant.getNom() + " : " + titre);
+                    }
                 }
+            } catch (Exception ex) {
+                // NLP ne doit JAMAIS bloquer l'affectation
+                System.err.println("[NLP] Erreur ignorée pour "
+                        + etudiant.getNom() + " : " + ex.getMessage());
             }
-            
-            juryFinal.add(p);
-            if (juryFinal.size() >= 3) break;
+        }
+        System.out.println("══════════════════════════════════════════");
+        // ════════════════════════════════════════════════════════════════════
+        //  FIN ÉTAPE NLP
+        // ════════════════════════════════════════════════════════════════════
+
+        // ── Affecter chaque étudiant ────────────────────────────────────────
+        // (code original — RIEN n'a changé ici)
+        for (Etudiant etudiant : etudiants) {
+            Professeur encadrant = choisirEncadrant(
+                    etudiant.getFiliere(), profsInfo, profsMath, charge);
+
+            if (encadrant != null) {
+                etudiant.setEncadrant(encadrant);
+                charge.merge(encadrant.getId(), 1, Integer::sum);
+                etudiantRepository.save(etudiant);
+                result.incrAffectes();
+                result.addDetail(
+                        etudiant.getNom() + " " + etudiant.getPrenom()
+                        + " (" + etudiant.getFiliere() + ")"
+                        + " → " + encadrant.getNom() + " " + encadrant.getPrenom()
+                        + " [" + encadrant.getSpecialite() + "]");
+            } else {
+                result.incrEchecs();
+                result.addErreur("Impossible d'affecter un encadrant à : "
+                        + etudiant.getNom() + " " + etudiant.getPrenom()
+                        + " (" + etudiant.getFiliere() + ")"
+                        + " — aucun prof de la discipline requise disponible.");
+            }
         }
 
-        // Si on n'a pas assez de profs avec la logique stricte, on complète avec n'importe qui (fallback)
-        if (juryFinal.size() < 3) {
-             for (Professeur p : tousLesProfs) {
-                 if (!juryFinal.contains(p)) {
-                     juryFinal.add(p);
-                     if (juryFinal.size() >= 3) break;
-                 }
-             }
-        }
+        return result;
+    }
 
-        return juryFinal;
+    // ══════════════════════════════════════════════
+    //  LOGIQUE DE CHOIX — RÈGLES STRICTES
+    //  (code original — RIEN n'a changé)
+    // ══════════════════════════════════════════════
+    private Professeur choisirEncadrant(Filiere filiere,
+                                         List<Professeur> profsInfo,
+                                         List<Professeur> profsMath,
+                                         Map<Long, Integer> charge) {
+        return switch (filiere) {
+            case GI -> {
+                yield choisirAvecCharge(profsInfo, charge);
+            }
+            case TDIA -> {
+                Professeur choix = choisirAvecCharge(profsInfo, charge);
+                if (choix != null) yield choix;
+                yield choisirAvecCharge(profsMath, charge);
+            }
+            case DATA -> {
+                yield choisirAvecCharge(profsMath, charge);
+            }
+        };
+    }
+
+    private Professeur choisirAvecCharge(List<Professeur> profs,
+                                          Map<Long, Integer> charge) {
+        if (profs == null || profs.isEmpty()) return null;
+
+        List<Professeur> melanges = new ArrayList<>(profs);
+        Collections.shuffle(melanges);
+
+        return melanges.stream()
+                .min(Comparator.comparingInt(p -> charge.getOrDefault(p.getId(), 0)))
+                .orElse(null);
+    }
+
+    // ══════════════════════════════════════════════
+    //  UTILITAIRES DISCIPLINE
+    //  (code original — RIEN n'a changé)
+    // ══════════════════════════════════════════════
+    private boolean estDiscipline(Professeur p, Set<String> disciplines) {
+        if (p.getSpecialite() == null) return false;
+        String sp = normaliser(p.getSpecialite());
+        return disciplines.contains(sp);
+    }
+
+    private boolean estDisciplineExclue(Professeur p) {
+        if (p.getSpecialite() == null) return false;
+        String sp = normaliser(p.getSpecialite());
+        return DISCIPLINES_EXCLUES.contains(sp);
+    }
+
+    private String normaliser(String s) {
+        if (s == null) return "";
+        return s.toUpperCase()
+                .replace("É", "E").replace("È", "E").replace("Ê", "E")
+                .replace("À", "A").replace("Â", "A")
+                .replace("Î", "I").replace("Ô", "O").replace("Û", "U")
+                .trim();
+    }
+
+    // ══════════════════════════════════════════════
+    //  STATS (pour la vue)
+    //  (code original — RIEN n'a changé)
+    // ══════════════════════════════════════════════
+    public Map<String, Long> getChargeEncadrants() {
+        return etudiantRepository.findAll().stream()
+                .filter(e -> e.getEncadrant() != null)
+                .collect(Collectors.groupingBy(
+                        e -> e.getEncadrant().getNom() + " " + e.getEncadrant().getPrenom(),
+                        Collectors.counting()
+                ));
+    }
+
+    public long getNbEtudiantsSansEncadrant() {
+        return etudiantRepository.findAll().stream()
+                .filter(e -> e.getEncadrant() == null)
+                .count();
     }
 }

@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <title>Planning des soutenances — PFE Planning</title>
     
-    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Flatpickr CSS (Calendrier) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
     <style>
@@ -19,15 +16,12 @@
             --bg-body: #f5f7fa;
         }
         body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; }
-        
-        /* Navbar */
         .navbar { background-color: var(--ensa-primary) !important; }
         .navbar-brand { font-weight: 700; color: white !important; }
         .navbar-brand span { color: var(--ensa-accent); }
         .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
         .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
 
-        /* Header & Cards */
         .page-header {
             background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
             color: white; padding: 30px 0; margin-bottom: 30px;
@@ -43,7 +37,6 @@
         .table tbody tr:hover { background-color: #f0f4ff; }
         .table tbody td { padding: 11px 16px; vertical-align: middle; border-color: #f0f0f0; font-size: 0.875rem; }
 
-        /* Badges */
         .badge-gi   { background: #e8f4fd; color: #2e6da4; font-weight: 600; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; }
         .badge-tdia { background: #fef3e8; color: #e67e22; font-weight: 600; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; }
         .badge-data { background: #e8f8e8; color: #27ae60; font-weight: 600; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; }
@@ -51,7 +44,6 @@
         .badge-en   { background: #fff3cd; color: #856404; font-weight: 600; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; border: 1px solid #ffeeba; }
         .badge-salle{ background: #f0e8fd; color: #7c3aed; font-weight: 600; padding: 3px 9px; border-radius: 6px; font-size: 0.78rem; }
 
-        /* Stats & Buttons */
         .stat-strip { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
         .stat-pill {
             background: white; border-radius: 10px; padding: 12px 20px; font-size: 0.875rem;
@@ -66,16 +58,23 @@
             display: inline-flex; align-items: center; gap: 7px;
         }
         .btn-action:hover { background: #d4920a; color: var(--ensa-primary); transform: translateY(-1px); }
-        
+
         .empty-state { text-align: center; padding: 60px 20px; }
         .empty-state i { font-size: 3rem; color: #c8d8e8; margin-bottom: 16px; display: block; }
-        
+
         footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; padding: 20px 0; margin-top: auto; }
 
-        /* Flatpickr Customization */
         .flatpickr-day.selected { background: var(--ensa-primary); border-color: var(--ensa-primary); }
         .flatpickr-day.today { border-color: var(--ensa-accent); }
         .flatpickr-calendar { box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 12px; border: none; }
+
+        /* Alerte pré-requis */
+        .prereq-alert {
+            background: #fff8e1; border: 1px solid #ffe082;
+            border-radius: 12px; padding: 16px 20px;
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +90,7 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/import}"><i class="bi bi-upload me-1"></i>Import</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/affectation}"><i class="bi bi-people me-1"></i>Affectation</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/etudiants}"><i class="bi bi-mortarboard me-1"></i>Étudiants</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/professeurs}"><i class="bi bi-person-badge me-1"></i>Professeurs</a></li>
                 <li class="nav-item"><a class="nav-link active" th:href="@{/planning}"><i class="bi bi-calendar3 me-1"></i>Planning</a></li>
@@ -104,10 +104,13 @@
     <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h2 class="mb-1 fw-bold"><i class="bi bi-calendar3 me-2"></i>Planning des soutenances</h2>
-            <p class="mb-0 opacity-75" th:text="${versionActuelle != null ? 'Version : ' + #temporals.format(versionActuelle.dateGeneration, 'dd/MM/yyyy HH:mm') : 'Aucune version générée'}">Version actuelle</p>
+            <p class="mb-0 opacity-75"
+               th:text="${versionActuelle != null
+                   ? 'Version : ' + #temporals.format(versionActuelle.dateGeneration, 'dd/MM/yyyy HH:mm')
+                   : 'Aucune version générée'}">Version actuelle</p>
         </div>
-        <!-- Bouton pour ouvrir la modale de génération -->
-        <button type="button" class="btn btn-light fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#genererModal">
+        <button type="button" class="btn btn-light fw-bold text-primary"
+                data-bs-toggle="modal" data-bs-target="#genererModal">
             <i class="bi bi-magic me-2"></i>Générer / Régénérer
         </button>
     </div>
@@ -124,9 +127,13 @@
         <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${erreurPlanning}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    <div th:if="${messageInfo}" class="alert alert-info rounded-3 mb-4">
+        <i class="bi bi-info-circle me-2"></i><span th:text="${messageInfo}"></span>
+        <a th:href="@{/affectation}" class="alert-link ms-2">→ Aller à l'affectation des encadrants</a>
+    </div>
 
     <!-- STATS RAPIDES -->
-    <div class="stat-strip" th:if="${!soutenances.isEmpty()}">
+    <div class="stat-strip" th:if="${soutenances != null and !soutenances.isEmpty()}">
         <div class="stat-pill">
             <strong th:text="${soutenances.size()}">0</strong>
             <span class="text-muted">Soutenances planifiées</span>
@@ -160,43 +167,36 @@
                     <td class="text-muted" th:text="${stat.index + 1}">1</td>
                     <td class="fw-semibold" th:text="${#temporals.format(s.date, 'dd/MM/yyyy')}">Date</td>
                     <td th:text="${#temporals.format(s.heure, 'HH:mm')}">Heure</td>
-                    
-                    <!-- Salle -->
                     <td>
                         <span th:if="${s.salle != null}" class="badge-salle" th:text="${s.salle.nom}">Salle</span>
                         <span th:unless="${s.salle != null}" class="text-muted">-</span>
                     </td>
-                    
-                    <!-- Étudiant -->
                     <td class="fw-semibold" th:text="${etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : '-'}">Étudiant</td>
-                    
-                    <!-- Filière -->
                     <td>
-                        <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'GI'}" class="badge-gi">GI</span>
+                        <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'GI'}"   class="badge-gi">GI</span>
                         <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'TDIA'}" class="badge-tdia">TDIA</span>
                         <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'DATA'}" class="badge-data">DATA</span>
                         <span th:unless="${etudiant != null and etudiant.filiere != null}" class="text-muted">-</span>
                     </td>
-                    
-                    <!-- Langue -->
                     <td>
                         <span th:if="${etudiant != null and etudiant.langue != null and etudiant.langue.name() == 'FR'}" class="badge-fr">🇫 FR</span>
                         <span th:if="${etudiant != null and etudiant.langue != null and etudiant.langue.name() == 'EN'}" class="badge-en">🇬 EN</span>
                         <span th:unless="${etudiant != null and etudiant.langue != null}" class="text-muted">-</span>
                     </td>
-                    
-                    <!-- Jury & Encadrant -->
                     <td th:text="${s.encadrant != null ? s.encadrant.nomComplet : '-'}">Encadrant</td>
                     <td th:text="${s.jury1 != null ? s.jury1.nomComplet : '-'}">Jury 1</td>
                     <td th:text="${s.jury2 != null ? s.jury2.nomComplet : '-'}">Jury 2</td>
                     <td th:text="${s.jury3 != null ? s.jury3.nomComplet : '-'}">Jury 3</td>
                 </tr>
 
-                <tr th:if="${soutenances.isEmpty()}">
+                <tr th:if="${soutenances == null or soutenances.isEmpty()}">
                     <td colspan="11">
                         <div class="empty-state">
                             <i class="bi bi-calendar-x"></i>
-                            <p>Aucune soutenance planifiée.<br>Cliquez sur "Générer / Régénérer" pour lancer l'algorithme.</p>
+                            <p class="mb-3">Aucune soutenance planifiée.</p>
+                            <a th:href="@{/affectation}" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-people me-1"></i> Affecter les encadrants d'abord
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -206,41 +206,48 @@
 
 </div>
 
-<!-- MODALE DE GÉNÉRATION AVEC CALENDRIER -->
+<!-- MODALE DE GÉNÉRATION -->
 <div class="modal fade" id="genererModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h5 class="modal-title fw-bold"><i class="bi bi-gear-wide-connected me-2"></i>Générer le Planning</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+
+                <!-- Avertissement pré-requis -->
+                <div class="prereq-alert">
+                    <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+                    <div>
+                        <strong>Pré-requis :</strong> Les encadrants doivent être affectés avant de générer le planning.
+                        <a th:href="@{/affectation}" class="ms-1">Vérifier l'affectation →</a>
+                    </div>
+                </div>
+
                 <p class="text-muted small mb-3">
-                    Cette action va affecter les jurys et placer les soutenances dans les créneaux horaires.
-                    <br><strong>Règles :</strong> Max 3 jours, Lundi-Vendredi uniquement, pas de dates passées.
+                    Sélectionnez jusqu'à <strong>3 jours</strong> de soutenance (Lundi–Vendredi, pas de dates passées).
                 </p>
 
-                <form th:action="@{/planning/generer-temporel}" method="post" id="planningForm">
-                    
+                <!-- ✅ ACTION CORRIGÉE : /planning/generer -->
+                <form th:action="@{/planning/generer}" method="post" id="planningForm">
+
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Sélectionnez jusqu'à 3 jours de soutenance :</label>
-                        
-                        <!-- Champ invisible qui contiendra les dates formatées pour l'envoi au serveur -->
+                        <label class="form-label fw-semibold">Jours de soutenance :</label>
                         <input type="hidden" name="jours" id="selectedDatesInput">
-                        
-                        <!-- Le calendrier visuel -->
-                        <input type="text" id="datePicker" class="form-control form-control-lg" placeholder="Cliquez pour choisir les dates..." readonly style="cursor: pointer;">
-                        
+                        <input type="text" id="datePicker" class="form-control form-control-lg"
+                               placeholder="Cliquez pour choisir les dates..." readonly style="cursor:pointer;">
                         <div class="form-text text-danger mt-2" id="dateError" style="display:none;">
-                            <i class="bi bi-exclamation-circle me-1"></i>Vous ne pouvez sélectionner que 3 jours maximum.
+                            <i class="bi bi-exclamation-circle me-1"></i>Maximum 3 jours.
                         </div>
-                        <div class="form-text text-success mt-2" id="dateSuccess">
+                        <div class="form-text text-success mt-2" id="dateSuccess" style="display:none;">
                             <i class="bi bi-check-circle me-1"></i><span id="countDisplay">0</span>/3 jours sélectionnés.
                         </div>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-action justify-content-center btn-lg" id="btnGenerate" disabled>
+                        <button type="submit" class="btn btn-action justify-content-center btn-lg"
+                                id="btnGenerate" disabled>
                             <i class="bi bi-play-fill me-2"></i>Lancer la génération
                         </button>
                     </div>
@@ -256,47 +263,31 @@
     </div>
 </footer>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script> <!-- Langue Française -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const selectedDates = [];
+    document.addEventListener('DOMContentLoaded', function () {
+        const hiddenInput   = document.getElementById('selectedDatesInput');
+        const countDisplay  = document.getElementById('countDisplay');
+        const dateError     = document.getElementById('dateError');
+        const dateSuccess   = document.getElementById('dateSuccess');
+        const btnGenerate   = document.getElementById('btnGenerate');
         const maxDays = 3;
-        const datePicker = document.getElementById('datePicker');
-        const hiddenInput = document.getElementById('selectedDatesInput');
-        const countDisplay = document.getElementById('countDisplay');
-        const dateError = document.getElementById('dateError');
-        const dateSuccess = document.getElementById('dateSuccess');
-        const btnGenerate = document.getElementById('btnGenerate');
 
-        // Initialisation de Flatpickr
-        flatpickr(datePicker, {
-            mode: "multiple", // Permet la sélection multiple
-            dateFormat: "Y-m-d", // Format YYYY-MM-DD
-            minDate: "today", // Interdit les dates passées
-            disable: [
-                function(date) {
-                    // Désactive Samedi (6) et Dimanche (0)
-                    return (date.getDay() === 0 || date.getDay() === 6);
-                }
-            ],
-            locale: "fr", // Langue française
-            onChange: function(dates, dateStr) {
-                // Gestion de la limite de 3 jours
+        flatpickr(document.getElementById('datePicker'), {
+            mode: "multiple",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: [function (date) { return date.getDay() === 0 || date.getDay() === 6; }],
+            locale: "fr",
+            onChange: function (dates) {
                 if (dates.length > maxDays) {
-                    // Si l'utilisateur a cliqué sur un 4ème jour, on annule la dernière sélection
                     this.clear();
-                    for(let i=0; i<maxDays; i++) {
-                        this.setDate(dates[i], true); // true = ne pas déclencher onChange
-                    }
-                    
+                    for (let i = 0; i < maxDays; i++) this.setDate(dates[i], false);
                     dateError.style.display = 'block';
-                    dateSuccess.style.display = 'none';
                     setTimeout(() => { dateError.style.display = 'none'; }, 3000);
-                    
                     updateState(this.selectedDates);
                 } else {
                     updateState(dates);
@@ -306,8 +297,6 @@
 
         function updateState(dates) {
             countDisplay.innerText = dates.length;
-            
-            // Préparer la valeur pour l'input hidden (séparée par des virgules pour Spring)
             hiddenInput.value = dates.map(d => {
                 let y = d.getFullYear();
                 let m = ('0' + (d.getMonth() + 1)).slice(-2);
@@ -315,15 +304,12 @@
                 return `${y}-${m}-${day}`;
             }).join(',');
 
-            // Activer/Désactiver le bouton
             if (dates.length > 0) {
                 btnGenerate.disabled = false;
-                btnGenerate.classList.remove('opacity-50');
                 dateError.style.display = 'none';
                 dateSuccess.style.display = 'block';
             } else {
                 btnGenerate.disabled = true;
-                btnGenerate.classList.add('opacity-50');
                 dateSuccess.style.display = 'none';
             }
         }
