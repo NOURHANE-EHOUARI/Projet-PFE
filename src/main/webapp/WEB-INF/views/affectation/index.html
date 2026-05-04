@@ -443,7 +443,7 @@
                 <div class="error-list">
                     <div th:each="e : ${erreurs}" class="error-item">
                         <i class="bi bi-x-circle"></i>
-                        <span th:text="${e}"></span>
+                        <span th:utext="${e}"></span>
                     </div>
                 </div>
             </div>
