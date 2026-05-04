@@ -3,99 +3,169 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PFE Planning — Historique</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <title>PFE Planning — Historique des versions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:rgba(255,255,255,0.08);--accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;--green:#22c55e;--t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;--card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);
+        }
         body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
-        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
-        .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px;}
-        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;}
-        .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--t0);text-decoration:none;}
-        .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;}
-        .nav-links{display:flex;gap:8px;}
-        .nav-link{padding:8px 14px;border-radius:8px;font-size:13px;color:var(--t1);text-decoration:none;transition:all .18s;border:1px solid transparent;}
-        .nav-link:hover{color:var(--t0);background:var(--hover);border-color:var(--border);}
-        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.25);}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 24px 80px;}
 
-        .page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px;}
-        .page-title h1{font-size:28px;font-weight:700;margin-bottom:4px;}
-        .page-title p{font-size:14px;color:var(--t1);}
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;
+            padding:0 22px;background:rgba(22,27,34,0.9);border:1px solid var(--border);
+            border-radius:16px;backdrop-filter:blur(16px);height:56px;flex-wrap:wrap;gap:8px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;}
+        .logo-icon .bi{color:#fff;font-size:15px;}
+        .logo span{color:var(--accent2);}
+        .nav-links{display:flex;gap:2px;align-items:center;}
+        .nav-link{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;
+            font-size:12.5px;font-weight:500;color:var(--t1);text-decoration:none;
+            transition:all .15s;white-space:nowrap;border:1px solid transparent;}
+        .nav-link .bi{font-size:13px;opacity:.85;}
+        .nav-link:hover{color:var(--t0);background:rgba(255,255,255,0.05);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);}
+        .nav-link.nav-export{color:var(--green2);background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.18);}
+        .nav-link.nav-export:hover{background:rgba(34,197,94,0.13);}
+        .nav-divider{width:1px;height:20px;background:var(--border);margin:0 4px;}
 
-        .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:all .18s;cursor:pointer;border:none;}
-        .btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+        .page-header{margin-bottom:32px;}
+        .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--t2);font-size:12.5px;
+            text-decoration:none;margin-bottom:14px;transition:color .15s;font-weight:500;}
+        .back-link:hover{color:var(--t1);}
+        .back-link .bi{font-size:13px;}
+        .page-header h1{font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-bottom:5px;}
+        .page-header p{font-size:13px;color:var(--t1);}
+
+        .sec{font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--t2);
+            margin-bottom:14px;display:flex;align-items:center;gap:12px;font-weight:600;}
+        .sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+        .top-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;
+            font-size:13px;font-weight:600;text-decoration:none;transition:all .18s;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+        .btn .bi{font-size:13px;}
+        .btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.28);}
         .btn-primary:hover{transform:translateY(-1px);}
+        .btn-ghost{background:var(--bg3);color:var(--t1);border:1px solid var(--border);}
+        .btn-ghost:hover{color:var(--t0);border-color:rgba(255,255,255,0.15);}
 
         .versions-list{display:flex;flex-direction:column;gap:12px;}
-        .version-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:20px;transition:all .2s;}
+        .version-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+            padding:20px 24px;display:flex;align-items:center;gap:20px;transition:all .2s;}
         .version-card:hover{border-color:rgba(99,102,241,0.2);transform:translateY(-1px);}
-        .version-icon{width:46px;height:46px;border-radius:12px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-        .version-info{flex:1;}
-        .version-name{font-size:15px;font-weight:600;margin-bottom:4px;}
-        .version-meta{font-size:12px;color:var(--t1);display:flex;gap:16px;}
-        .meta-item{display:flex;align-items:center;gap:4px;}
-        .version-actions{display:flex;gap:8px;}
-        .btn-sm{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s;border:1px solid var(--border);color:var(--t1);background:var(--bg3);}
-        .btn-sm:hover{color:var(--t0);border-color:rgba(255,255,255,0.15);}
+        .ver-icon{width:44px;height:44px;border-radius:11px;
+            background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .ver-icon .bi{font-size:18px;color:var(--accent2);}
+        .ver-info{flex:1;}
+        .ver-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+        .ver-meta{font-size:12px;color:var(--t1);display:flex;gap:16px;flex-wrap:wrap;}
+        .meta-item{display:flex;align-items:center;gap:5px;}
+        .meta-item .bi{font-size:11px;color:var(--t2);}
 
-        .empty-state{text-align:center;padding:64px 24px;color:var(--t2);}
-        .empty-icon{font-size:48px;margin-bottom:16px;}
-        .empty-title{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:8px;}
-        .empty-desc{font-size:13px;line-height:1.6;}
+        .empty-state{text-align:center;padding:56px 24px;color:var(--t2);
+            background:var(--card);border:1px solid var(--border);border-radius:16px;}
+        .empty-icon{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,0.03);
+            border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+            margin:0 auto 16px;}
+        .empty-icon .bi{font-size:22px;color:var(--t2);}
+        .empty-state h3{font-size:15px;font-weight:600;color:var(--t1);margin-bottom:8px;}
+        .empty-state p{font-size:13px;line-height:1.6;}
 
-        .path-info{margin-bottom:24px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--t1);display:flex;align-items:center;gap:8px;}
-        code{background:rgba(99,102,241,0.1);color:var(--accent3);padding:2px 8px;border-radius:4px;font-size:11px;font-family:monospace;}
+        .path-info{margin-top:20px;padding:12px 16px;background:var(--card);
+            border:1px solid var(--border);border-radius:10px;
+            font-size:12px;color:var(--t1);display:flex;align-items:center;gap:8px;}
+        .path-info .bi{color:var(--t2);font-size:13px;}
+        code{background:rgba(99,102,241,0.08);color:var(--accent3);padding:2px 7px;border-radius:4px;font-size:11px;font-family:monospace;}
 
         @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        .anim{animation:fadeUp .4s ease both;}
-        .d1{animation-delay:.05s}.d2{animation-delay:.1s}
+        .a0{animation:fadeUp .35s ease both;}
+        .a1{animation:fadeUp .35s .07s ease both;}
+        .a2{animation:fadeUp .35s .14s ease both;}
     </style>
 </head>
 <body>
 <div class="wrap">
-    <nav class="anim">
-        <a href="/pfe-planning/" class="logo"><div class="logo-icon">📋</div>PFE Planning</a>
+
+        <nav class="a0">
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            PFE <span>Planning</span>
+        </a>
         <div class="nav-links">
-            <a href="/pfe-planning/import" class="nav-link">Import</a>
-            <a href="/pfe-planning/salles" class="nav-link">Salles</a>
-            <a href="/pfe-planning/export/versions" class="nav-link active">Historique</a>
+            <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
+            <a th:href="@{/import}"             class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <a th:href="@{/go/affectation}"     class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/go/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
+            <a th:href="@{/export}"             class="nav-link nav-export active"><i class="bi bi-download"></i>Export</a>
         </div>
     </nav>
 
-    <div class="page-header anim d1">
-        <div class="page-title">
-            <h1>📁 Historique des versions</h1>
-            <p>Toutes les générations de planning sauvegardées</p>
-        </div>
-        <a href="/pfe-planning/export/sauvegarder" class="btn btn-primary">💾 Sauvegarder version actuelle</a>
+    <div class="page-header a1">
+        <a th:href="@{/export}" class="back-link">
+            <i class="bi bi-arrow-left"></i> Retour au centre d'export
+        </a>
+        <h1>Historique des versions</h1>
+        <p>Toutes les générations de planning sauvegardées localement.</p>
     </div>
 
-    <div class="path-info anim d1">
-        📂 Dossier de stockage : <code th:text="${dossierBase}"></code>
+    <div class="top-actions a1">
+        <div class="sec" style="margin:0;flex:1;">Versions disponibles</div>
+        <a th:href="@{/export/sauvegarder}" class="btn btn-primary">
+            <i class="bi bi-floppy"></i> Sauvegarder version actuelle
+        </a>
     </div>
 
-    <div class="anim d2">
+    <div class="a2">
         <div class="versions-list" th:if="${!#lists.isEmpty(versions)}">
             <div class="version-card" th:each="v : ${versions}">
-                <div class="version-icon">📦</div>
-                <div class="version-info">
-                    <div class="version-name" th:text="${v.nom}"></div>
-                    <div class="version-meta">
-                        <span class="meta-item">🕐 <span th:text="${v.date}"></span></span>
-                        <span class="meta-item">📄 <span th:text="${v.fichiers}"></span> fichiers</span>
-                        <span class="meta-item">💾 <span th:text="${v.taille}"></span></span>
+                <div class="ver-icon"><i class="bi bi-archive"></i></div>
+                <div class="ver-info">
+                    <div class="ver-name" th:text="${v.nom}"></div>
+                    <div class="ver-meta">
+                        <span class="meta-item">
+                            <i class="bi bi-clock"></i>
+                            <span th:text="${v.date}"></span>
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-files"></i>
+                            <span th:text="${v.fichiers} + ' fichier(s)'"></span>
+                        </span>
+                        <span class="meta-item">
+                            <i class="bi bi-hdd"></i>
+                            <span th:text="${v.taille}"></span>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="empty-state" th:if="${#lists.isEmpty(versions)}">
-            <div class="empty-icon">📭</div>
-            <div class="empty-title">Aucune version sauvegardée</div>
-            <div class="empty-desc">Cliquez sur "Sauvegarder version actuelle" pour créer votre première version.<br/>Les versions contiennent Excel, PDF et le dossier PVs.</div>
+            <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+            <h3>Aucune version sauvegardée</h3>
+            <p>Cliquez sur "Sauvegarder version actuelle" pour créer votre première version.<br/>
+               Chaque version contient Excel, PDF et le dossier PVs.</p>
         </div>
     </div>
+
+    <div class="path-info a2">
+        <i class="bi bi-folder2-open"></i>
+        Dossier de stockage : <code th:text="${dossierBase}"></code>
+    </div>
+
 </div>
 </body>
 </html>

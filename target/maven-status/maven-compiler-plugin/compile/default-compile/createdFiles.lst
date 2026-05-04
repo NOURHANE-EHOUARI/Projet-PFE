@@ -37,4 +37,5 @@ ma/ensa/pfe/controller/AffectationController.class
 ma/ensa/pfe/service/PlanificationService$ResultatPlacement.class
 ma/ensa/pfe/controller/PlanificationController.class
 ma/ensa/pfe/service/ExcelImportService$ImportResult.class
+ma/ensa/pfe/controller/ExportPageController.class
 ma/ensa/pfe/dao/SalleRepository.class
