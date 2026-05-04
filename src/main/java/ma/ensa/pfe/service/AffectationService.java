@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  *   GI   → encadrant discipline INFORMATIQUE ou GI uniquement
  *   TDIA → encadrant discipline INFORMATIQUE, GI ou MATHEMATIQUE
- *   DATA → encadrant discipline MATHEMATIQUE uniquement
+ *   DATA →  encadrant discipline MATHEMATIQUE uniquement
  *
  *   GESTION et ANGLAIS → ne peuvent jamais encadrer personne
  *
@@ -90,7 +90,7 @@ public class AffectationService {
 
         List<Professeur> tousProfs = professeurRepository.findAll();
         if (tousProfs.isEmpty()) {
-            result.addErreur("Aucun professeur en base. Importez d'abord le fichier Excel.");
+        	result.addErreur("Aucun professeur en base. <a href='/pfe-planning/import' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
             return result;
         }
 

@@ -2,279 +2,461 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Affectation des Encadrants — PFE Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #21262d;
+            --border: rgba(255,255,255,0.08);
+            --border-strong: rgba(255,255,255,0.15);
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --accent3: #a5b4fc;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --t0: #f0f6fc;
+            --t1: #8b949e;
+            --t2: #484f58;
+            --card: rgba(255,255,255,0.03);
+            --hover: rgba(99,102,241,0.08);
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .navbar-brand { font-weight: 700; color: white !important; font-size: 1.1rem; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover { color: var(--ensa-accent) !important; }
-        .nav-link.active { color: var(--ensa-accent) !important; border-bottom: 2px solid var(--ensa-accent); }
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 30px 0; margin-bottom: 30px;
+
+        body {
+            background: var(--bg);
+            color: var(--t0);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
         }
-        .card-section {
-            background: white; border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            padding: 30px; margin-bottom: 25px;
+
+        /* Background subtil */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 50% at 15% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 85% 100%, rgba(129,140,248,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
         }
-        .stat-box {
-            text-align: center; padding: 20px; border-radius: 12px;
-            transition: transform 0.2s;
-        }
-        .stat-box:hover { transform: translateY(-4px); }
-        .stat-number { font-size: 2.2rem; font-weight: 700; display: block; }
-        .stat-label  { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-        .btn-affecter {
-            background: var(--ensa-accent); color: var(--ensa-primary);
-            padding: 14px 40px; border-radius: 12px; font-weight: 700;
-            font-size: 1.1rem; border: none; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(240,165,0,0.35);
-            transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px;
-        }
-        .btn-affecter:hover { background: #d4920a; transform: translateY(-2px); }
-        .btn-planning {
-            background: #198754; color: white;
-            padding: 14px 40px; border-radius: 12px; font-weight: 700;
-            font-size: 1.1rem; border: none; text-decoration: none;
-            box-shadow: 0 4px 15px rgba(25,135,84,0.3);
-            transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px;
-        }
-        .btn-planning:hover { background: #157347; color: white; transform: translateY(-2px); }
-        .detail-list {
-            max-height: 350px; overflow-y: auto;
-            background: #f8f9fa; border-radius: 10px; padding: 15px;
-        }
-        .detail-item {
-            font-size: 0.88rem; padding: 6px 0;
-            border-bottom: 1px solid #e9ecef; color: #333;
-        }
-        .detail-item:last-child { border-bottom: none; }
-        .charge-bar-wrap { background: #e9ecef; border-radius: 6px; height: 10px; }
-        .charge-bar { background: var(--ensa-secondary); border-radius: 6px; height: 10px; transition: width 0.5s; }
-        .step-badge {
-            width: 36px; height: 36px; border-radius: 50%;
+
+        .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+        /* ===== ICONES MONOCHROMES ===== */
+        .icon {
             display: inline-flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+            color: var(--t1); transition: color 0.15s ease; flex-shrink: 0;
         }
-        .step-done  { background: #d1e7dd; color: #0f5132; }
-        .step-active{ background: var(--ensa-accent); color: var(--ensa-primary); }
-        .step-todo  { background: #e9ecef; color: #6c757d; }
+        .icon-lg { font-size: 2.5rem; }
+        .icon-md { font-size: 1.25rem; }
+        .icon-sm { font-size: 1rem; }
+        .card:hover .icon, .nav-link:hover .icon { color: var(--accent2); }
+
+        /* NAVIGATION */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 56px; padding-bottom: 24px;
+            border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; font-size: 18px; color: var(--t0);
+            text-decoration: none; letter-spacing: -0.02em;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon .bi { color: #fff; font-size: 1rem; }
+        
+        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+        .nav-link {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            color: var(--t1); text-decoration: none; transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .nav-link .bi { font-size: 0.9rem; }
+        .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
+        .nav-link.active { 
+            color: var(--accent2); 
+            background: rgba(99,102,241,0.10); 
+            border-color: rgba(99,102,241,0.30);
+            font-weight: 600;
+        }
+
+        /* PAGE HEADER */
+        .page-header { margin-bottom: 48px; padding-top: 8px; }
+        h1 { 
+            font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; 
+            margin-bottom: 16px; letter-spacing: -0.03em;
+            display: flex; align-items: center; gap: 14px;
+        }
+        h1 .bi { color: var(--accent2); }
+        h1 span { 
+            background: linear-gradient(135deg, var(--accent2), var(--accent3)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle { font-size: 16px; color: var(--t1); line-height: 1.6; max-width: 600px; }
+
+        /* ALERTS */
+        .alert {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 16px 20px; border-radius: 12px; margin-bottom: 32px;
+            font-size: 14px; line-height: 1.5; border-left: 4px solid transparent;
+        }
+        .alert .bi { font-size: 1.1rem; margin-top: 2px; }
+        .alert-success { background: rgba(34,197,94,0.08); border-left-color: var(--green); color: #86efac; }
+        .alert-error { background: rgba(239,68,68,0.08); border-left-color: var(--red); color: #fca5a5; }
+        .alert-warn { background: rgba(245,158,11,0.08); border-left-color: var(--amber); color: #fcd34d; }
+
+        /* PROGRESS STEPS */
+        .progress-steps {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px 28px; margin-bottom: 32px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .step-item { display: flex; align-items: center; gap: 10px; }
+        .step-badge {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+        }
+        .step-done { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .step-active { background: rgba(99,102,241,0.15); color: var(--accent2); border: 1px solid rgba(99,102,241,0.3); }
+        .step-todo { background: var(--bg3); color: var(--t2); border: 1px solid var(--border); }
+        .step-label { font-size: 13px; font-weight: 500; }
+        .step-label.active { color: var(--accent2); }
+        .step-label.done { color: var(--t0); }
+        .step-separator { color: var(--t2); font-size: 1rem; }
+
+        /* GRID & CARDS */
+        .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+        .card-header {
+            padding: 22px 28px 18px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 14px;
+        }
+        .card-header .icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: var(--bg3); font-size: 1.2rem;
+        }
+        .card-title { font-size: 16px; font-weight: 600; color: var(--t0); letter-spacing: -0.01em; }
+        .card-desc { font-size: 13px; color: var(--t2); margin-top: 3px; font-weight: 400; }
+        .card-body { padding: 28px; }
+
+        /* STATS */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .stat-card {
+            text-align: center; padding: 24px 20px; border-radius: 12px;
+            background: var(--bg2); border: 1px solid var(--border);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+        .stat-card.active { border-top: 3px solid #60a5fa; }
+        .stat-card.warning { border-top: 3px solid #fbbf24; }
+        .stat-number { font-size: 2.25rem; font-weight: 700; display: block; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--t2); letter-spacing: 0.05em; }
+        .stat-card.active .stat-number { color: #93c5fd; }
+        .stat-card.warning .stat-number { color: #fcd34d; }
+
+        /* CHARGE BARS */
+        .charge-list { display: flex; flex-direction: column; gap: 14px; }
+        .charge-item { display: flex; flex-direction: column; gap: 6px; }
+        .charge-header { display: flex; justify-content: space-between; align-items: center; }
+        .charge-name { font-size: 14px; font-weight: 500; color: var(--t0); }
+        .charge-count { font-size: 12px; font-weight: 600; color: var(--accent2); background: rgba(99,102,241,0.15); padding: 3px 10px; border-radius: 6px; }
+        .charge-bar-wrap { background: var(--bg3); border-radius: 6px; height: 8px; overflow: hidden; }
+        .charge-bar { background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 6px; height: 100%; transition: width 0.4s ease; }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 14px 28px; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            border: none; transition: all 0.18s ease; text-decoration: none;
+            letter-spacing: -0.01em;
+        }
+        .btn .bi { font-size: 1rem; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #4f46e5);
+            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff; box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+        }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.5); }
+        .btn-secondary {
+            background: var(--bg3); color: var(--t1);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { color: var(--t0); border-color: var(--border-strong); }
+        .btn:active { transform: translateY(0); }
+
+        /* DETAILS & ERRORS */
+        .detail-list, .error-list {
+            max-height: 280px; overflow-y: auto;
+            border-radius: 10px; padding: 16px;
+        }
+        .detail-list { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.2); }
+        .error-list { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); }
+        .detail-item, .error-item {
+            font-size: 13px; padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .detail-item:last-child, .error-item:last-child { border-bottom: none; }
+        .detail-item { color: #86efac; }
+        .error-item { color: #fca5a5; }
+        .detail-item .bi { color: #4ade80; }
+        .error-item .bi { color: #f87171; }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center; padding: 40px 20px; color: var(--t2);
+        }
+        .empty-state .bi { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; display: block; }
+
+        /* FOOTER */
+        footer {
+            margin-top: 64px; padding: 24px 0;
+            border-top: 1px solid var(--border);
+            text-align: center; font-size: 13px; color: var(--t2);
+        }
+
+        /* RESPONSIVE & ANIMATIONS */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .anim { animation: fadeUp 0.35s ease both; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
+
+        @media(max-width:850px) { 
+            .grid { grid-template-columns: 1fr; }
+            nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; }
+            .nav-links { width: 100%; justify-content: flex-start; }
+            .progress-steps { flex-direction: column; align-items: flex-start; }
+        }
+        @media(max-width:500px) { 
+            .nav-links { gap: 2px; }
+            .nav-link { padding: 7px 10px; font-size: 12px; }
+            .card-body { padding: 22px; }
+            .btn { width: 100%; }
+            .stat-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- NAVBAR -->
-    <nav class="a0">
+    <!-- NAVIGATION -->
+    <nav class="anim">
         <a th:href="@{/}" class="logo">
             <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
-            PFE <span>Planning</span>
+            <span>PFE Planning</span>
         </a>
         <div class="nav-links">
-            <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
-            <a th:href="@{/import}"             class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
-            <a th:href="@{/etudiants}"          class="nav-link"><i class="bi bi-mortarboard"></i>Etudiants</a>
-            <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
-            <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
-            <a th:href="@{/go/affectation}"     class="nav-link active"><i class="bi bi-diagram-3"></i>Affectation</a>
-            <a th:href="@{/go/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
-            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
-            <a th:href="@{/export}"             class="nav-link nav-export "><i class="bi bi-download"></i>Export</a>
+            <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
+            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
+            <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
+            <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
+            <a th:href="@{/affectation}" class="nav-link active"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
+            <a th:href="@{/planning}" class="nav-link"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3 icon-sm"></i>Calendrier</a>
+            <a th:href="@{/export}" class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
         </div>
     </nav>
 
-<!-- HEADER -->
-<div class="page-header">
-    <div class="container">
-        <h2 class="mb-1 fw-bold"><i class="bi bi-people-fill me-2"></i>Affectation des Encadrants</h2>
-        <p class="mb-0 opacity-75">Étape 1 sur 3 — Répartissez équitablement les encadrants par filière</p>
+    <!-- HEADER -->
+    <div class="page-header anim d1">
+        <h1><i class="bi bi-people-fill icon-md"></i>Affectation des <span>Encadrants</span></h1>
+        <p class="subtitle">Étape 2 sur 4 — Répartissez équitablement les encadrants par filière avant de générer le planning.</p>
     </div>
-</div>
 
-<div class="container mb-5">
-
-    <!-- ÉTAPES -->
-    <div class="card-section mb-4">
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-            <div class="d-flex align-items-center gap-2">
-                <span class="step-badge step-done"><i class="bi bi-check"></i></span>
-                <span class="text-muted">Import Excel</span>
-            </div>
-            <i class="bi bi-chevron-right text-muted"></i>
-            <div class="d-flex align-items-center gap-2">
-                <span class="step-badge step-active">2</span>
-                <strong>Affectation des Encadrants</strong>
-            </div>
-            <i class="bi bi-chevron-right text-muted"></i>
-            <div class="d-flex align-items-center gap-2">
-                <span class="step-badge step-todo">3</span>
-                <span class="text-muted">Planning des Soutenances</span>
-            </div>
-            <i class="bi bi-chevron-right text-muted"></i>
-            <div class="d-flex align-items-center gap-2">
-                <span class="step-badge step-todo">4</span>
-                <span class="text-muted">Génération des PVs</span>
-            </div>
+    <!-- PROGRESS STEPS -->
+    <div class="progress-steps anim d2">
+        <div class="step-item">
+            <span class="step-badge step-done"><i class="bi bi-check"></i></span>
+            <span class="step-label done">Import</span>
+        </div>
+        <i class="bi bi-chevron-right step-separator"></i>
+        <div class="step-item">
+            <span class="step-badge step-active">2</span>
+            <span class="step-label active">Affectation</span>
+        </div>
+        <i class="bi bi-chevron-right step-separator"></i>
+        <div class="step-item">
+            <span class="step-badge step-todo">3</span>
+            <span class="step-label">Planning</span>
+        </div>
+        <i class="bi bi-chevron-right step-separator"></i>
+        <div class="step-item">
+            <span class="step-badge step-todo">4</span>
+            <span class="step-label">Export</span>
         </div>
     </div>
 
-    <!-- MESSAGES FLASH -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>
+    <!-- ALERTS -->
+    <div th:if="${success}" class="alert alert-success anim">
+        <i class="bi bi-check-circle icon"></i>
         <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${erreur}" class="alert alert-danger alert-dismissible rounded-3 mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <div th:if="${erreur}" class="alert alert-error anim">
+        <i class="bi bi-exclamation-triangle icon"></i>
         <span th:text="${erreur}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <div class="row g-4">
+    <!-- MAIN GRID -->
+    <div class="grid">
 
-        <!-- COLONNE GAUCHE : état + action -->
-        <div class="col-lg-5">
-
-            <!-- Stats actuelles -->
-            <div class="card-section">
-                <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:0.78rem; letter-spacing:1px;">
-                    <i class="bi bi-bar-chart me-1"></i> État actuel
-                </h6>
-                <div class="row g-3">
-                    <div class="col-6">
-                        <div class="stat-box" style="background:#e3f2fd; color:#1565c0;">
-                            <span class="stat-number"
-                                  th:text="${chargeEncadrants != null ? chargeEncadrants.size() : 0}">0</span>
-                            <span class="stat-label">Encadrants actifs</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stat-box"
-                             th:classappend="${nbSansEncadrant > 0} ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'">
-                            <span class="stat-number" th:text="${nbSansEncadrant}">0</span>
-                            <span class="stat-label">Sans encadrant</span>
-                        </div>
-                    </div>
+        <!-- COLONNE GAUCHE : État + Actions -->
+        <div class="card anim d2">
+            <div class="card-header">
+                <div class="icon"><i class="bi bi-speedometer2"></i></div>
+                <div>
+                    <div class="card-title">État actuel</div>
+                    <div class="card-desc">Statistiques avant affectation</div>
                 </div>
             </div>
+            <div class="card-body">
+                <div class="stat-grid">
+                    <div class="stat-card active">
+                        <span class="stat-number" th:text="${chargeEncadrants != null ? chargeEncadrants.size() : 0}">0</span>
+                        <span class="stat-label"><i class="bi bi-person-badge me-1"></i>Encadrants actifs</span>
+                    </div>
+                    <div class="stat-card" th:classappend="${nbSansEncadrant > 0} ? 'warning' : ''">
+                        <span class="stat-number" th:text="${nbSansEncadrant}">0</span>
+                        <span class="stat-label"><i class="bi bi-person-x me-1"></i>Sans encadrant</span>
+                    </div>
+                </div>
 
-            <!-- Bouton affecter -->
-            <div class="card-section text-center">
-                <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size:0.78rem; letter-spacing:1px;">
-                    <i class="bi bi-magic me-1"></i> Lancer l'affectation
-                </h6>
-                <p class="text-muted small mb-4">
-                    L'algorithme répartit les encadrants équitablement selon les filières
-                    (GI/TDIA → profs GI, DATA → profs AUTRE).
-                </p>
-                <form th:action="@{/affectation/affecter}" method="post">
-                    <button type="submit" class="btn-affecter">
-                        <i class="bi bi-shuffle"></i>
-                        Affecter les Encadrants
-                    </button>
-                </form>
-                <p class="text-muted small mt-3">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Une ré-affectation écrase les affectations précédentes.
-                </p>
+                <!-- Bouton Affecter -->
+                <div class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
+                    <h6 class="card-title mb-2"><i class="bi bi-magic icon-sm me-1"></i>Lancer l'affectation</h6>
+                    <p class="card-desc mb-4">L'algorithme répartit les encadrants équitablement selon les filières (GI/TDIA → profs GI, DATA → profs AUTRE).</p>
+                    <form th:action="@{/affectation/affecter}" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-shuffle"></i>Affecter les Encadrants
+                        </button>
+                    </form>
+                    <p class="text-muted small mt-3" style="color: var(--t2);">
+                        <i class="bi bi-info-circle me-1"></i>Une ré-affectation écrase les affectations précédentes.
+                    </p>
+                </div>
+
+                <!-- Bouton Passer au Planning -->
+                <div th:if="${nbSansEncadrant == 0 and chargeEncadrants != null and !chargeEncadrants.isEmpty()}" 
+                     class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
+                    <p class="text-success fw-bold mb-3">
+                        <i class="bi bi-check-circle-fill me-1"></i>Tous les étudiants ont un encadrant !
+                    </p>
+                    <a th:href="@{/planning}" class="btn btn-success">
+                        <i class="bi bi-calendar-week"></i>Générer le Planning
+                    </a>
+                </div>
             </div>
-
-            <!-- Bouton passer au planning (si tout affecté) -->
-            <div th:if="${nbSansEncadrant == 0 and chargeEncadrants != null and !chargeEncadrants.isEmpty()}"
-                 class="card-section text-center">
-                <p class="text-success fw-bold mb-3">
-                    <i class="bi bi-check-circle-fill me-1"></i>
-                    Tous les étudiants ont un encadrant !
-                </p>
-                <a href="/planning" class="btn-planning">
-                    <i class="bi bi-calendar3"></i>
-                    Générer le Planning
-                </a>
-            </div>
-
         </div>
 
-        <!-- COLONNE DROITE : répartition par encadrant -->
-        <div class="col-lg-7">
-            <div class="card-section h-100">
-                <h6 class="text-uppercase text-muted fw-bold mb-4" style="font-size:0.78rem; letter-spacing:1px;">
-                    <i class="bi bi-person-lines-fill me-1"></i> Répartition par encadrant
-                </h6>
-
-                <div th:if="${chargeEncadrants == null or chargeEncadrants.isEmpty()}"
-                     class="text-center py-5 text-muted">
-                    <i class="bi bi-person-x" style="font-size:3rem; opacity:0.3;"></i>
-                    <p class="mt-3">Aucune affectation effectuée.<br>Cliquez sur "Affecter les Encadrants" pour commencer.</p>
+        <!-- COLONNE DROITE : Répartition par encadrant -->
+        <div class="card anim d3">
+            <div class="card-header">
+                <div class="icon"><i class="bi bi-person-lines-fill"></i></div>
+                <div>
+                    <div class="card-title">Répartition par encadrant</div>
+                    <div class="card-desc">Charge de travail de chaque professeur</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div th:if="${chargeEncadrants == null or chargeEncadrants.isEmpty()}" class="empty-state">
+                    <i class="bi bi-person-x"></i>
+                    <p>Aucune affectation effectuée.<br>Cliquez sur "Affecter les Encadrants" pour commencer.</p>
                 </div>
 
-                <!--
-                    CORRECTION : suppression du th:with avec lambda Java
-                    maxCharge est maintenant calculé dans le controller et passé au modèle
-                    directement via model.addAttribute("maxCharge", maxCharge)
-                -->
-                <div th:unless="${chargeEncadrants == null or chargeEncadrants.isEmpty()}">
-                    <div th:each="entry : ${chargeEncadrants}" class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-semibold" th:text="${entry.key}">Prof Nom</span>
-                            <span class="badge bg-primary rounded-pill"
-                                  th:text="${entry.value} + ' étudiant(s)'">0</span>
+                <div th:unless="${chargeEncadrants == null or chargeEncadrants.isEmpty()}" class="charge-list">
+                    <div th:each="entry : ${chargeEncadrants}" class="charge-item">
+                        <div class="charge-header">
+                            <span class="charge-name" th:text="${entry.key}">Prof Nom</span>
+                            <span class="charge-count" th:text="${entry.value} + ' étudiant(s)'">0</span>
                         </div>
                         <div class="charge-bar-wrap">
-                            <div class="charge-bar"
-                                 th:style="'width:' + (${entry.value} * 100 / ${maxCharge}) + '%'"></div>
+                            <div class="charge-bar" th:style="'width:' + (${entry.value} * 100 / ${maxCharge}) + '%'"></div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
 
-    </div>
-
-    <!-- DÉTAIL DES AFFECTATIONS -->
-    <div th:if="${details != null and !details.isEmpty()}" class="card-section mt-2">
-        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size:0.78rem; letter-spacing:1px;">
-            <i class="bi bi-list-check me-1"></i>
-            Détail des affectations
-            <span class="badge bg-success ms-2" th:text="${nbAffectes} + ' affectés'"></span>
-            <span th:if="${nbEchecs > 0}" class="badge bg-danger ms-1" th:text="${nbEchecs} + ' échecs'"></span>
-        </h6>
-        <div class="detail-list">
-            <div th:each="d : ${details}" class="detail-item">
-                <i class="bi bi-check2 text-success me-2"></i>
-                <span th:text="${d}"></span>
+        <!-- DÉTAIL DES AFFECTATIONS (Full width) -->
+        <div th:if="${details != null and !details.isEmpty()}" class="card anim d3" style="grid-column: 1 / -1">
+            <div class="card-header">
+                <div class="icon"><i class="bi bi-list-check"></i></div>
+                <div>
+                    <div class="card-title">Détail des affectations</div>
+                    <div class="card-desc">
+                        <span class="badge" style="background:rgba(34,197,94,0.15); color:#4ade80; padding:3px 10px; border-radius:6px;" 
+                              th:text="${nbAffectes} + ' affectés'"></span>
+                        <span th:if="${nbEchecs > 0}" class="badge ms-2" 
+                              style="background:rgba(239,68,68,0.15); color:#f87171; padding:3px 10px; border-radius:6px;" 
+                              th:text="${nbEchecs} + ' échecs'"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="detail-list">
+                    <div th:each="d : ${details}" class="detail-item">
+                        <i class="bi bi-check2"></i>
+                        <span th:text="${d}"></span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ERREURS D'AFFECTATION -->
-    <div th:if="${erreurs != null and !erreurs.isEmpty()}" class="card-section mt-2">
-        <h6 class="text-danger fw-bold mb-3">
-            <i class="bi bi-exclamation-triangle me-1"></i> Erreurs d'affectation
-        </h6>
-        <div class="detail-list" style="background:#fff5f5; border:1px solid #fed7d7;">
-            <div th:each="e : ${erreurs}" class="detail-item" style="color:#c53030;">
-                <i class="bi bi-x-circle me-2"></i>
-                <span th:text="${e}"></span>
+        <!-- ERREURS D'AFFECTATION (Full width) -->
+        <div th:if="${erreurs != null and !erreurs.isEmpty()}" class="card anim d3" style="grid-column: 1 / -1">
+            <div class="card-header">
+                <div class="icon"><i class="bi bi-exclamation-triangle"></i></div>
+                <div>
+                    <div class="card-title">Erreurs d'affectation</div>
+                    <div class="card-desc">Étudiants qui n'ont pas pu être affectés</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="error-list">
+                    <div th:each="e : ${erreurs}" class="error-item">
+                        <i class="bi bi-x-circle"></i>
+                        <span th:utext="${e}"></span>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 
 </div>
 
-<footer class="py-3 text-center" style="font-size:0.85rem; background:#1a3a5c;">
-    <span style="color:rgba(255,255,255,0.6);">ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025</span>
+<!-- FOOTER -->
+<footer>
+    ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
