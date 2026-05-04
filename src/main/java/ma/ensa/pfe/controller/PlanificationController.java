@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import ma.ensa.pfe.dao.EtudiantRepository;
 import ma.ensa.pfe.dao.SoutenanceRepository;
 import ma.ensa.pfe.dao.VersionPlanningRepository;
 import ma.ensa.pfe.model.Soutenance;
@@ -35,6 +36,7 @@ public class PlanificationController {
     @Autowired private PlanificationService      planificationService;
     @Autowired private SoutenanceRepository      soutenanceRepository;
     @Autowired private VersionPlanningRepository versionPlanningRepository;
+    @Autowired private EtudiantRepository        etudiantRepository; // ✅ AJOUTÉ pour validation
 
     /**
      * Affiche la liste des soutenances de la dernière version générée.
@@ -78,7 +80,9 @@ public class PlanificationController {
 
     /**
      * Génère le planning complet (jury + dates + heures + salles).
-     * Pré-requis : tous les étudiants doivent avoir un encadrant.
+     * Pré-requis : 
+     * 1. Des étudiants doivent exister en base → sinon redirect /import
+     * 2. Tous les étudiants doivent avoir un encadrant → sinon redirect /affectation
      *
      * @param joursStr dates séparées par virgule ex: "2026-05-20,2026-05-21"
      */
@@ -87,9 +91,23 @@ public class PlanificationController {
             @RequestParam(value = "jours", required = false) String joursStr,
             RedirectAttributes redirectAttrs) {
 
-        // Vérifier que les encadrants sont affectés
-        // (le service lèvera une exception si ce n'est pas le cas)
+        // ✅ VALIDATION 1 : Vérifier si des étudiants existent en base
+        long nbEtudiants = etudiantRepository.count();
+        if (nbEtudiants == 0) {
+            redirectAttrs.addFlashAttribute("erreurPlanning",
+                    "Aucun étudiant en base. <a href='/import' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
+            return "redirect:/import"; // ✅ Redirect vers Import si pas d'étudiants
+        }
 
+        // ✅ VALIDATION 2 : Vérifier si tous les étudiants ont un encadrant
+        long nbSansEncadrant = etudiantRepository.countByEncadrantIsNull();
+        if (nbSansEncadrant > 0) {
+            redirectAttrs.addFlashAttribute("erreurPlanning",
+                    nbSansEncadrant + " étudiant(s) sans encadrant. Veuillez d'abord <a href='/affectation' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>affecter les encadrants</a>.");
+            return "redirect:/affectation"; // ✅ Redirect vers Affectation si encadrants manquants
+        }
+
+        // ✅ VALIDATION 3 : Vérifier que des dates sont sélectionnées
         if (joursStr == null || joursStr.isBlank()) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     "Veuillez sélectionner au moins un jour de soutenance.");
@@ -108,6 +126,7 @@ public class PlanificationController {
                 return "redirect:/planning";
             }
 
+            // ✅ TOUT EST BON → Générer le planning
             String resultat = planificationService.genererPlanningComplet(jours);
             redirectAttrs.addFlashAttribute("successPlanning",
                     "Planning généré avec succès : " + resultat);
