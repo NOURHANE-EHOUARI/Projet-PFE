@@ -38,6 +38,9 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     // Comptages
     long countByFiliere(Filiere filiere);
     long countByEncadrant(Professeur encadrant);
+    
+    // ✅ NOUVELLE MÉTHODE : Compter les étudiants SANS encadrant
+    long countByEncadrantIsNull();
 
     // Recherche par CNE (identifiant unique étudiant)
     Optional<Etudiant> findByCne(String cne);
