@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PFE Planning — Export</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --blue:#3b82f6;--blue2:#60a5fa;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);
+        }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 24px 80px;}
+
+        /* NAV */
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;
+            padding:0 22px;background:rgba(22,27,34,0.9);border:1px solid var(--border);
+            border-radius:16px;backdrop-filter:blur(16px);height:56px;flex-wrap:wrap;gap:8px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .logo span{color:var(--accent2);}
+        .nav-links{display:flex;gap:2px;align-items:center;}
+        .nav-link{padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:500;color:var(--t1);text-decoration:none;transition:all .15s;white-space:nowrap;border:1px solid transparent;}
+        .nav-link:hover{color:var(--t0);background:rgba(255,255,255,0.05);border-color:var(--border);}
+        .nav-link.active{color:var(--green2);background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.18);}
+        .nav-divider{width:1px;height:18px;background:var(--border);margin:0 4px;}
+
+        /* PAGE HEADER */
+        .page-header{margin-bottom:36px;}
+        .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--t2);font-size:12px;text-decoration:none;margin-bottom:16px;transition:color .15s;}
+        .back-link:hover{color:var(--t1);}
+        .page-header h1{font-size:28px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;}
+        .page-header p{font-size:14px;color:var(--t1);line-height:1.6;}
+
+        /* STATUS BAR */
+        .status-bar{display:flex;align-items:center;gap:16px;padding:14px 20px;
+            background:var(--card);border:1px solid var(--border);border-radius:12px;
+            margin-bottom:32px;flex-wrap:wrap;}
+        .status-item{display:flex;align-items:center;gap:8px;font-size:13px;}
+        .status-dot{width:8px;height:8px;border-radius:50%;}
+        .dot-green{background:var(--green);}
+        .dot-amber{background:var(--amber);}
+        .status-val{font-weight:600;color:var(--t0);}
+        .status-lbl{color:var(--t2);}
+        .status-sep{width:1px;height:16px;background:var(--border);}
+
+        /* SECTION */
+        .sec{font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--t2);
+            margin-bottom:16px;display:flex;align-items:center;gap:12px;font-weight:600;}
+        .sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+        /* EXPORT CARDS GRID */
+        .export-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;}
+        .exp-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+            overflow:hidden;transition:all .2s;position:relative;}
+        .exp-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.3);}
+        .exp-card.disabled{opacity:.45;pointer-events:none;}
+        .exp-card-top{padding:24px 24px 16px;border-bottom:1px solid var(--border);}
+        .exp-format-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+            border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.08em;
+            text-transform:uppercase;margin-bottom:14px;}
+        .badge-xlsx{background:rgba(34,197,94,0.12);color:var(--green2);border:1px solid rgba(34,197,94,0.2);}
+        .badge-pdf{background:rgba(239,68,68,0.1);color:var(--red2);border:1px solid rgba(239,68,68,0.18);}
+        .badge-zip{background:rgba(99,102,241,0.1);color:var(--accent2);border:1px solid rgba(99,102,241,0.18);}
+        .badge-docx{background:rgba(59,130,246,0.1);color:var(--blue2);border:1px solid rgba(59,130,246,0.18);}
+        .exp-card-icon{font-size:32px;margin-bottom:10px;}
+        .exp-card-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+        .exp-card-desc{font-size:12px;color:var(--t1);line-height:1.6;}
+        .exp-card-features{padding:14px 24px 20px;}
+        .feature-list{list-style:none;margin-bottom:18px;}
+        .feature-list li{font-size:12px;color:var(--t1);padding:3px 0;display:flex;align-items:center;gap:7px;}
+        .feature-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--t2);flex-shrink:0;}
+        .exp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+            padding:12px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;
+            transition:all .18s;border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+        .btn-green{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;box-shadow:0 3px 12px rgba(34,197,94,0.25);}
+        .btn-green:hover{box-shadow:0 5px 18px rgba(34,197,94,0.35);}
+        .btn-red{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;box-shadow:0 3px 12px rgba(239,68,68,0.25);}
+        .btn-red:hover{box-shadow:0 5px 18px rgba(239,68,68,0.35);}
+        .btn-indigo{background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;box-shadow:0 3px 12px rgba(99,102,241,0.25);}
+        .btn-indigo:hover{box-shadow:0 5px 18px rgba(99,102,241,0.35);}
+        .btn-blue{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;box-shadow:0 3px 12px rgba(59,130,246,0.25);}
+        .btn-blue:hover{box-shadow:0 5px 18px rgba(59,130,246,0.35);}
+        .btn-amber{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;box-shadow:0 3px 12px rgba(245,158,11,0.25);}
+        .btn-amber:hover{box-shadow:0 5px 18px rgba(245,158,11,0.35);}
+
+        /* LOCKED OVERLAY */
+        .locked-overlay{position:absolute;inset:0;display:flex;flex-direction:column;
+            align-items:center;justify-content:center;gap:8px;
+            background:rgba(13,17,23,0.75);backdrop-filter:blur(3px);border-radius:16px;z-index:2;}
+        .locked-icon{font-size:28px;}
+        .locked-text{font-size:12px;color:var(--t1);text-align:center;line-height:1.5;}
+        .locked-text a{color:var(--accent2);text-decoration:none;}
+
+        /* VERSIONS SECTION */
+        .versions-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .versions-header{padding:18px 24px;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;}
+        .versions-title{font-size:14px;font-weight:600;}
+        .ver-badge{padding:3px 10px;border-radius:100px;background:rgba(99,102,241,0.1);
+            border:1px solid rgba(99,102,241,0.2);font-size:11px;color:var(--accent3);font-weight:600;}
+        .versions-body{padding:20px 24px;}
+        .save-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
+            border-radius:9px;font-size:12.5px;font-weight:600;text-decoration:none;
+            background:rgba(245,158,11,0.08);color:var(--amber2);
+            border:1px solid rgba(245,158,11,0.2);transition:all .18s;}
+        .save-btn:hover{background:rgba(245,158,11,0.15);}
+        .path-info{margin-top:12px;font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px;}
+        code{background:rgba(99,102,241,0.08);color:var(--accent3);padding:2px 7px;border-radius:4px;font-size:10.5px;font-family:monospace;}
+
+        /* NO PLANNING BANNER */
+        .no-planning{text-align:center;padding:32px;color:var(--t2);}
+        .no-planning .icon{font-size:36px;margin-bottom:10px;}
+        .no-planning p{font-size:13px;line-height:1.7;}
+        .no-planning a{color:var(--accent2);text-decoration:none;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .a0{animation:fadeUp .35s ease both;}
+        .a1{animation:fadeUp .35s .07s ease both;}
+        .a2{animation:fadeUp .35s .14s ease both;}
+        .a3{animation:fadeUp .35s .21s ease both;}
+
+        @media(max-width:900px){.export-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:600px){.export-grid{grid-template-columns:1fr;}}
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- NAV -->
+        <nav class="a0">
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            PFE <span>Planning</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
+            <a th:href="@{/import}"             class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <a th:href="@{/etudiants}"          class="nav-link"><i class="bi bi-mortarboard"></i>Etudiants</a>
+            <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
+            <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
+            <a th:href="@{/go/affectation}"     class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/go/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
+            <a th:href="@{/export}"             class="nav-link nav-export active"><i class="bi bi-download"></i>Export</a>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header a1">
+        <a href="/pfe-planning/" class="back-link">← Retour au tableau de bord</a>
+        <h1>Centre d'export</h1>
+        <p>Choisissez le format et le contenu à exporter. Tous les exports sont générés à partir du planning actif.</p>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar a1">
+        <div class="status-item">
+            <div class="status-dot" th:class="${planningGenere} ? 'status-dot dot-green' : 'status-dot dot-amber'"></div>
+            <span class="status-val" th:text="${nbSoutenances}">0</span>
+            <span class="status-lbl">soutenances planifiées</span>
+        </div>
+        <div class="status-sep"></div>
+        <div class="status-item">
+            <div class="status-dot dot-green"></div>
+            <span class="status-val" th:text="${nbVersions}">0</span>
+            <span class="status-lbl">version(s) sauvegardée(s)</span>
+        </div>
+        <div class="status-sep"></div>
+        <div class="status-item" th:if="${planningGenere}">
+            <div class="status-dot dot-green"></div>
+            <span class="status-lbl" style="color:var(--green2);font-weight:500;">Planning prêt à exporter</span>
+        </div>
+        <div class="status-item" th:unless="${planningGenere}">
+            <div class="status-dot dot-amber"></div>
+            <span class="status-lbl" style="color:var(--amber2);">
+                Planning non généré —
+                <a href="/pfe-planning/go/planning" style="color:var(--accent2);text-decoration:none;">Générer maintenant</a>
+            </span>
+        </div>
+    </div>
+
+    <!-- SECTION PLANNING -->
+    <div class="sec a2">Planning complet</div>
+
+    <!-- MESSAGE SI PAS DE PLANNING -->
+    <div th:unless="${planningGenere}" style="margin-bottom:32px;">
+        <div class="no-planning" style="background:var(--card);border:1px solid var(--border);border-radius:16px;">
+            <div class="icon">⚠️</div>
+            <p>Aucun planning n'a encore été généré.<br>
+               <a href="/pfe-planning/go/planning">Générez le planning</a> avant de pouvoir exporter.</p>
+        </div>
+    </div>
+
+    <div class="export-grid a2">
+
+        <!-- EXCEL -->
+        <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
+            <div th:unless="${planningGenere}" class="locked-overlay">
+                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+            </div>
+            <div class="exp-card-top">
+                <div class="exp-format-badge badge-xlsx">XLSX</div>
+                <div class="exp-card-title">Planning Excel</div>
+                <div class="exp-card-desc">Export complet du planning en fichier Excel avec 3 feuilles distinctes.</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li>Feuille 1  Planning global (toutes soutenances)</li>
+                    <li>Feuille 2  Répartition par salle</li>
+                    <li>Feuille 3  Répartition par professeur</li>
+                    <li>Tri automatique par date et heure</li>
+                </ul>
+                <a href="/pfe-planning/export" class="exp-btn btn-green">
+                    Télécharger Excel →
+                </a>
+            </div>
+        </div>
+
+        <!-- PDF PLANNING -->
+        <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
+            <div th:unless="${planningGenere}" class="locked-overlay">
+                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+            </div>
+            <div class="exp-card-top">
+                <div class="exp-format-badge badge-pdf">PDF</div>
+                <div class="exp-card-title">Planning PDF</div>
+                <div class="exp-card-desc">Tableau récapitulatif du planning en format PDF, prêt à imprimer.</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li>Format A4 paysage</li>
+                    <li>Entête ENSA Al Hoceima officielle</li>
+                    <li>Tableau avec alternance de couleurs</li>
+                    <li>Indicateur langue FR / EN</li>
+                </ul>
+                <a href="/pfe-planning/export/pdf" class="exp-btn btn-red">
+                    Télécharger PDF →
+                </a>
+            </div>
+        </div>
+
+        <!-- PVs PDF -->
+        <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
+            <div th:unless="${planningGenere}" class="locked-overlay">
+                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+            </div>
+            <div class="exp-card-top">
+                <div class="exp-format-badge badge-zip">ZIP + PDF</div>
+                <div class="exp-card-title">Dossier PVs -> PDF</div>
+                <div class="exp-card-desc">Archive ZIP contenant un PV officiel PDF par étudiant, groupés par encadrant.</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li>Fiche d'évaluation officielle ENSA</li>
+                    <li>Un PV par étudiant</li>
+                    <li>Dossiers organisés par encadrant</li>
+                    <li>Filière cochée automatiquement</li>
+                </ul>
+                <a href="/pfe-planning/export/pvs" class="exp-btn btn-indigo">
+                    Télécharger PVs PDF →
+                </a>
+            </div>
+        </div>
+
+        <!-- PVs DOCX -->
+        <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
+            <div th:unless="${planningGenere}" class="locked-overlay">
+                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+            </div>
+            <div class="exp-card-top">
+                <div class="exp-format-badge badge-docx">ZIP + DOCX</div>
+                <div class="exp-card-title">Dossier PVs —> Word</div>
+                <div class="exp-card-desc">Même contenu que les PVs PDF mais en format Word modifiable (.docx).</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li>Format Word éditable</li>
+                    <li>Même structure que la fiche officielle</li>
+                    <li>Un fichier .docx par étudiant</li>
+                    <li>Organisé par encadrant</li>
+                </ul>
+                <a href="/pfe-planning/export/pvs/docx" class="exp-btn btn-blue">
+                    Télécharger PVs Word →
+                </a>
+            </div>
+        </div>
+
+        <!-- HISTORIQUE -->
+        <div class="exp-card">
+            <div class="exp-card-top">
+                <div class="exp-format-badge badge-zip">HISTORIQUE</div>
+                <div class="exp-card-title">Versions sauvegardées</div>
+                <div class="exp-card-desc">Consultez l'historique de toutes les versions générées et sauvegardées.</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li th:text="${nbVersions} + ' version(s) disponible(s)'">0 version(s)</li>
+                    <li>Excel + PDF + PVs par version</li>
+                    <li>Comparaison entre générations</li>
+                    <li th:text="'Dossier : ~/pfe-uploads'"></li>
+                </ul>
+                <a href="/pfe-planning/export/versions" class="exp-btn btn-amber">
+                    Voir l'historique →
+                </a>
+            </div>
+        </div>
+
+        <!-- SAUVEGARDER VERSION -->
+        <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
+            <div th:unless="${planningGenere}" class="locked-overlay">
+                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+            </div>
+            <div class="exp-card-top">
+                <div class="exp-format-badge" style="background:rgba(99,102,241,0.1);color:var(--accent2);border:1px solid rgba(99,102,241,0.18);">SNAPSHOT</div>
+                <div class="exp-card-title">Sauvegarder version</div>
+                <div class="exp-card-desc">Crée un snapshot complet du planning actuel — Excel + PDF + PVs sauvegardés localement.</div>
+            </div>
+            <div class="exp-card-features">
+                <ul class="feature-list">
+                    <li>Sauvegarde automatique versionnée</li>
+                    <li>Excel + PDF + ZIP PVs inclus</li>
+                    <li>Accès via l'historique</li>
+                    <li>Permet de comparer les versions</li>
+                </ul>
+                <a href="/pfe-planning/export/sauvegarder" class="exp-btn"
+                   style="background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;box-shadow:0 3px 12px rgba(99,102,241,0.25);">
+                    Sauvegarder maintenant →
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- VERSIONS SECTION -->
+    <div class="sec a3">Gestion des versions</div>
+    <div class="versions-card a3">
+        <div class="versions-header">
+            <span class="versions-title">Historique des sauvegardes</span>
+            <span class="ver-badge" th:text="${nbVersions} + ' version(s)'"></span>
+        </div>
+        <div class="versions-body">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <a href="/pfe-planning/export/sauvegarder" class="save-btn"
+                   th:if="${planningGenere}">
+                     Créer une nouvelle version
+                </a>
+                <a href="/pfe-planning/export/versions" class="save-btn"
+                   style="color:var(--accent2);background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.18);">
+                     Voir toutes les versions
+                </a>
+            </div>
+            <div class="path-info">
+                 Dossier de stockage : <code th:text="${dossierBase}"></code>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

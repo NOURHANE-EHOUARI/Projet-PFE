@@ -1,223 +1,297 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Étudiants — PFE Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
-        :root {
-            --primary: #1a3a5c;
-            --secondary: #2e6da4;
-            --accent: #f0a500;
-            --bg: #f4f6f9;
-            --card: #ffffff;
-            --border: #e2e8f0;
-            --text: #1e293b;
-            --text-sub: #475569;
-            --text-muted: #64748b;
-            --row-hover: #f1f5ff;
-            --thead-bg: #1a3a5c;
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --blue:#3b82f6;--blue2:#60a5fa;
+            --violet:#7c3aed;--violet2:#a78bfa;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--row-hover:rgba(99,102,241,0.05);
         }
-        [data-theme="dark"] {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --border: #334155;
-            --text: #f1f5f9;
-            --text-sub: #cbd5e1;
-            --text-muted: #94a3b8;
-            --row-hover: #273549;
-            --thead-bg: #0f172a;
-        }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 80% 50% at 10% -5%,rgba(99,102,241,0.14) 0%,transparent 55%),
+                       radial-gradient(ellipse 60% 40% at 90% 110%,rgba(34,197,94,0.06) 0%,transparent 55%);}
+        .wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 24px 80px;}
 
-        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; color: var(--text); transition: background 0.3s, color 0.3s; }
+        /* NAV */
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;
+            padding:0 24px;background:rgba(22,27,34,0.9);border:1px solid var(--border);
+            border-radius:16px;backdrop-filter:blur(16px);height:58px;flex-wrap:wrap;gap:8px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;
+            color:var(--t0);text-decoration:none;letter-spacing:-0.01em;}
+        .logo-icon{width:32px;height:32px;border-radius:8px;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            display:flex;align-items:center;justify-content:center;}
+        .logo-icon .bi{color:#fff;font-size:15px;}
+        .logo span{color:var(--accent2);}
+        .nav-links{display:flex;gap:2px;align-items:center;}
+        .nav-link{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;
+            font-size:12.5px;font-weight:500;color:var(--t1);text-decoration:none;
+            transition:all .15s;white-space:nowrap;border:1px solid transparent;letter-spacing:0.01em;}
+        .nav-link .bi{font-size:13px;opacity:.85;}
+        .nav-link:hover{color:var(--t0);background:rgba(255,255,255,0.05);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);}
+        .nav-link.nav-export{color:var(--green2);background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.18);}
+        .nav-link.nav-export:hover{background:rgba(34,197,94,0.13);}
+        .nav-divider{width:1px;height:20px;background:var(--border);margin:0 4px;}
 
-        /* NAVBAR */
-        .topnav { background: var(--primary); padding: 0 1.5rem; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-        [data-theme="dark"] .topnav { background: #0a1628; }
-        .topnav-brand { font-size: 15px; font-weight: 700; color: white; text-decoration: none; }
-        .topnav-brand span { color: var(--accent); }
-        .topnav-links { display: flex; align-items: center; gap: 2px; }
-        .topnav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; padding: 6px 13px; border-radius: 6px; transition: background 0.15s, color 0.15s; }
-        .topnav-links a:hover, .topnav-links a.active { background: rgba(255,255,255,0.12); color: white; }
-        .theme-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
-        .theme-btn:hover { background: rgba(255,255,255,0.15); }
+        /* PAGE HEADER */
+        .page-hd{display:flex;align-items:flex-end;justify-content:space-between;
+            margin-bottom:32px;flex-wrap:wrap;gap:16px;}
+        .breadcrumb{display:flex;align-items:center;gap:6px;font-size:11.5px;
+            color:var(--t2);margin-bottom:8px;list-style:none;padding:0;}
+        .breadcrumb a{color:var(--t1);text-decoration:none;transition:color .15s;}
+        .breadcrumb a:hover{color:var(--t0);}
+        .breadcrumb .sep{color:var(--t2);}
+        .breadcrumb .curr{color:var(--accent3);}
+        .page-title{font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+        .page-subtitle{font-size:13px;color:var(--t1);margin-top:4px;}
 
-        /* HEADER */
-        .page-header { background: linear-gradient(135deg, #1a3a5c, #2e6da4); color: white; padding: 1.8rem 1.5rem; margin-bottom: 1.5rem; }
-        .page-header h2 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
-        .page-header p { font-size: 13px; opacity: 0.7; margin: 0; }
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;
+            font-size:13px;font-weight:600;text-decoration:none;transition:all .18s;
+            border:none;cursor:pointer;font-family:'Inter',sans-serif;}
+        .btn .bi{font-size:13px;}
+        .btn-primary{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;
+            box-shadow:0 4px 16px rgba(99,102,241,0.28);}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(99,102,241,0.38);}
 
-        /* STAT CARDS */
-        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 14px; transition: background 0.3s, border 0.3s; }
-        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-        .stat-num { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1.1; }
-        .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        /* STATS */
+        .sec-label{font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--t2);
+            margin-bottom:14px;display:flex;align-items:center;gap:12px;font-weight:600;}
+        .sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+        .stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+        .s-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+            padding:18px 20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;}
+        .s-card:hover{transform:translateY(-2px);border-color:rgba(99,102,241,0.18);}
+        .s-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+        .c-indigo::before{background:linear-gradient(90deg,#6366f1,#818cf8);}
+        .c-blue::before  {background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+        .c-violet::before{background:linear-gradient(90deg,#7c3aed,#a78bfa);}
+        .c-amber::before {background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+        .s-icon{font-size:18px;margin-bottom:10px;}
+        .s-num{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px;}
+        .s-lbl{font-size:11px;color:var(--t1);font-weight:500;}
+        .c-indigo .s-icon,.c-indigo .s-num{color:#818cf8;}
+        .c-blue   .s-icon,.c-blue   .s-num{color:#60a5fa;}
+        .c-violet .s-icon,.c-violet .s-num{color:#a78bfa;}
+        .c-amber  .s-icon,.c-amber  .s-num{color:#fbbf24;}
 
-        /* FILTER BAR */
-        .filter-bar { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; transition: background 0.3s; }
-        .filter-bar .label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 4px; }
-        .filter-pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; text-decoration: none; border: 1.5px solid var(--border); color: var(--text-sub); background: transparent; transition: all 0.15s; cursor: pointer; }
-        .filter-pill:hover { border-color: var(--secondary); color: var(--secondary); }
-        .filter-pill.active-all  { background: var(--primary); border-color: var(--primary); color: white; }
-        .filter-pill.active-gi   { background: #1565c0; border-color: #1565c0; color: white; }
-        .filter-pill.active-tdia { background: #7c3aed; border-color: #7c3aed; color: white; }
-        .filter-pill.active-data { background: #b45309; border-color: #b45309; color: white; }
-        .filter-pill.active-en   { background: #dc2626; border-color: #dc2626; color: white; }
-        .filter-pill.active-fr   { background: #16a34a; border-color: #16a34a; color: white; }
+        /* FILTER PILLS */
+        .filter-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+        .filter-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+            color:var(--t2);margin-right:4px;}
+        .fpill{padding:5px 14px;border-radius:100px;font-size:12px;font-weight:500;
+            text-decoration:none;border:1px solid var(--border);color:var(--t1);
+            background:transparent;transition:all .15s;white-space:nowrap;}
+        .fpill:hover{border-color:var(--accent2);color:var(--accent2);}
+        .fpill.fa {background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.35);color:var(--accent2);}
+        .fpill.fb {background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.35);color:var(--blue2);}
+        .fpill.fv {background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.35);color:var(--violet2);}
+        .fpill.fo {background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.35);color:var(--amber2);}
+        .fpill.fg {background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.35);color:var(--green2);}
+        .fpill.fr2{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.35);color:var(--red2);}
+        .filter-sep{width:1px;height:20px;background:var(--border);}
+
+        /* SEARCH */
+        .search-wrap{position:relative;margin-bottom:16px;}
+        .search-wrap input{width:100%;padding:10px 14px 10px 38px;
+            background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+            font-size:13px;color:var(--t0);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+        .search-wrap input::placeholder{color:var(--t2);}
+        .search-wrap input:focus{border-color:rgba(99,102,241,0.4);}
+        .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:14px;}
 
         /* TABLE */
-        .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: background 0.3s; }
-        table { width: 100%; border-collapse: collapse; }
-        thead tr { background: var(--thead-bg); }
-        thead th { padding: 11px 14px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border: none; }
-        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: var(--row-hover); }
-        tbody td { padding: 11px 14px; font-size: 13px; color: var(--text); vertical-align: middle; }
-        .td-index { color: var(--text-muted); font-size: 12px; width: 40px; }
-        .td-name { font-weight: 600; color: var(--text); }
-        .td-encadrant { color: var(--text-sub); font-size: 13px; }
-        .td-titre { color: var(--text-muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tbl-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .tbl-head-bar{display:flex;align-items:center;justify-content:space-between;
+            padding:14px 20px;border-bottom:1px solid var(--border);}
+        .tbl-head-title{font-size:13px;font-weight:600;}
+        .tbl-count{font-size:11.5px;color:var(--t2);}
+        table{width:100%;border-collapse:collapse;}
+        thead tr{background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);}
+        thead th{padding:11px 16px;font-size:11px;font-weight:700;color:var(--t2);
+            text-transform:uppercase;letter-spacing:0.1em;text-align:left;white-space:nowrap;}
+        tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:var(--row-hover);}
+        tbody td{padding:12px 16px;font-size:13px;vertical-align:middle;}
+        .td-idx{color:var(--t2);font-size:11.5px;width:44px;}
+        .td-name{font-weight:600;}
+        .td-cne{font-family:monospace;font-size:12px;color:var(--t1);letter-spacing:0.04em;}
+        .td-enc{color:var(--t1);font-size:12.5px;}
+        .td-titre{color:var(--t2);font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
         /* BADGES */
-        .badge-gi   { background: #dbeafe; color: #1d4ed8; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-tdia { background: #ede9fe; color: #6d28d9; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-data { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-fr   { background: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .badge-en   { background: #fee2e2; color: #b91c1c; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge{display:inline-flex;align-items:center;padding:3px 10px;
+            border-radius:100px;font-size:11px;font-weight:700;}
+        .b-gi  {background:rgba(59,130,246,0.12);color:var(--blue2); border:1px solid rgba(59,130,246,0.2);}
+        .b-tdia{background:rgba(124,58,237,0.12);color:var(--violet2);border:1px solid rgba(124,58,237,0.2);}
+        .b-data{background:rgba(245,158,11,0.12);color:var(--amber2); border:1px solid rgba(245,158,11,0.2);}
+        .b-fr  {background:rgba(34,197,94,0.12); color:var(--green2); border:1px solid rgba(34,197,94,0.2);}
+        .b-en  {background:rgba(239,68,68,0.12); color:var(--red2);   border:1px solid rgba(239,68,68,0.2);}
 
-        [data-theme="dark"] .badge-gi   { background: rgba(29,78,216,0.2); color: #93c5fd; }
-        [data-theme="dark"] .badge-tdia { background: rgba(109,40,217,0.2); color: #c4b5fd; }
-        [data-theme="dark"] .badge-data { background: rgba(146,64,14,0.2); color: #fcd34d; }
-        [data-theme="dark"] .badge-fr   { background: rgba(21,128,61,0.2); color: #86efac; }
-        [data-theme="dark"] .badge-en   { background: rgba(185,28,28,0.2); color: #fca5a5; }
+        /* ACTION BUTTONS */
+        .act-wrap{display:flex;align-items:center;gap:6px;justify-content:center;}
+        .act-btn{display:inline-flex;align-items:center;justify-content:center;
+            width:30px;height:30px;border-radius:7px;border:1px solid var(--border);
+            background:transparent;color:var(--t1);cursor:pointer;text-decoration:none;transition:all .15s;}
+        .act-btn.edit:hover{border-color:var(--blue2);color:var(--blue2);background:rgba(59,130,246,0.08);}
+        .act-btn.del:hover {border-color:var(--red2); color:var(--red2); background:rgba(239,68,68,0.08);}
 
-        /* ACTIONS */
-        .btn-edit { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer; text-decoration: none; transition: all 0.15s; }
-        .btn-edit:hover { background: #3b82f6; color: white; }
-        .btn-del  { background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
-        .btn-del:hover  { background: #ef4444; color: white; }
+        /* EMPTY STATES */
+        .empty-state{padding:56px 24px;text-align:center;color:var(--t2);}
+        .empty-state .es-icon{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.03);
+            border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+            margin:0 auto 16px;font-size:22px;}
+        .empty-state h3{font-size:15px;font-weight:600;color:var(--t1);margin-bottom:6px;}
+        .empty-state p{font-size:13px;line-height:1.6;margin-bottom:18px;}
+        .empty-state a{color:var(--accent2);text-decoration:none;}
 
-        .btn-add { background: var(--accent); color: var(--primary); border: none; padding: 9px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-add:hover { opacity: 0.88; color: var(--primary); }
+        /* ALERT */
+        .alert-ok{display:flex;align-items:center;gap:10px;padding:12px 16px;
+            background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);
+            border-radius:10px;font-size:13px;color:var(--green2);margin-bottom:20px;}
 
-        .empty-state { padding: 3rem; text-align: center; color: var(--text-muted); }
-        .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+        /* ANIMATIONS */
+        @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+        .a0{animation:fadeUp .4s ease both;}
+        .a1{animation:fadeUp .4s .06s ease both;}
+        .a2{animation:fadeUp .4s .12s ease both;}
+        .a3{animation:fadeUp .4s .18s ease both;}
+        .a4{animation:fadeUp .4s .24s ease both;}
 
-        .alert-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 8px; padding: 10px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        [data-theme="dark"] .alert-ok { background: rgba(22,101,52,0.15); border-color: rgba(134,239,172,0.2); color: #86efac; }
-
-        footer { background: var(--primary); color: rgba(255,255,255,0.5); font-size: 12px; text-align: center; padding: 12px; margin-top: 2rem; }
-        [data-theme="dark"] footer { background: #0a1628; }
+        @media(max-width:960px){.stats4{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:600px){
+            nav{height:auto;padding:12px 16px;}
+            .stats4{grid-template-columns:1fr 1fr;}
+            .page-hd{flex-direction:column;align-items:flex-start;}
+            .td-cne,.td-titre{display:none;}
+        }
     </style>
 </head>
-<body data-theme="light">
+<body>
+<div class="wrap">
 
-<!-- NAVBAR -->
-<nav class="topnav">
-    <a class="topnav-brand" th:href="@{/}">🎓 PFE <span>Planning</span></a>
-    <div class="topnav-links">
-        <a th:href="@{/}">Accueil</a>
-        <a th:href="@{/import}">Import</a>
-        <a th:href="@{/etudiants}" class="active">Étudiants</a>
-        <a th:href="@{/professeurs}">Professeurs</a>
-        <a th:href="@{/salles}">Salles</a>
-        <a th:href="@{/planning}">Planning</a>
-        <button class="theme-btn" id="themeBtn" title="Mode sombre">
-            <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
-    </div>
-</nav>
-
-<!-- HEADER -->
-<div class="page-header">
-    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <div>
-            <h2>Étudiants</h2>
-            <p>Gestion des étudiants — Filières GI, TDIA &amp; DATA</p>
+    <!-- NAV -->
+        <nav class="a0">
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            PFE <span>Planning</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
+            <a th:href="@{/import}"             class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <a th:href="@{/etudiants}"          class="nav-link active"><i class="bi bi-mortarboard"></i>Etudiants</a>
+            <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
+            <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
+            <a th:href="@{/go/affectation}"     class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/go/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
+            <a th:href="@{/export}"             class="nav-link nav-export "><i class="bi bi-download"></i>Export</a>
         </div>
-        <a th:href="@{/etudiants/nouveau}" class="btn-add">+ Nouvel étudiant</a>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-hd a1">
+        <div>
+            <ol class="breadcrumb">
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li class="sep">/</li>
+                <li class="curr">Étudiants</li>
+            </ol>
+            <div class="page-title">Étudiants</div>
+            <div class="page-subtitle">Gestion des étudiants — Filières GI, TDIA &amp; DATA</div>
+        </div>
+        <a th:href="@{/etudiants/nouveau}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>Nouvel étudiant
+        </a>
     </div>
-</div>
 
-<div style="max-width:1200px;margin:0 auto;padding:0 1.5rem 2rem;">
-
-    <!-- ALERT SUCCÈS -->
-    <div th:if="${successMsg}" class="alert-ok">
+    <!-- ALERT SUCCESS -->
+    <div th:if="${successMsg}" class="alert-ok a1">
         <i class="bi bi-check-circle-fill"></i>
         <span th:text="${successMsg}"></span>
     </div>
 
     <!-- STATS -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.2rem;">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e0f2fe;">👥</div>
-            <div>
-                <div class="stat-num" th:text="${etudiants.size()}">0</div>
-                <div class="stat-label">Total étudiants</div>
-            </div>
+    <div class="sec-label a2">Vue d'ensemble</div>
+    <div class="stats4 a2">
+        <div class="s-card c-indigo">
+            <div class="s-icon"><i class="bi bi-people"></i></div>
+            <div class="s-num" th:text="${etudiants.size()}">0</div>
+            <div class="s-lbl">Total étudiants</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#dbeafe;">🎓</div>
-            <div>
-                <div class="stat-num" style="color:#1d4ed8;" th:text="${totalGI}">0</div>
-                <div class="stat-label">Filière GI</div>
-            </div>
+        <div class="s-card c-blue">
+            <div class="s-icon"><i class="bi bi-mortarboard"></i></div>
+            <div class="s-num" th:text="${totalGI}">0</div>
+            <div class="s-lbl">Filière GI</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#ede9fe;">💡</div>
-            <div>
-                <div class="stat-num" style="color:#6d28d9;" th:text="${totalTDIA}">0</div>
-                <div class="stat-label">Filière TDIA</div>
-            </div>
+        <div class="s-card c-violet">
+            <div class="s-icon"><i class="bi bi-lightbulb"></i></div>
+            <div class="s-num" th:text="${totalTDIA}">0</div>
+            <div class="s-lbl">Filière TDIA</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fef3c7;">📊</div>
-            <div>
-                <div class="stat-num" style="color:#92400e;" th:text="${totalDATA}">0</div>
-                <div class="stat-label">Filière DATA</div>
-            </div>
+        <div class="s-card c-amber">
+            <div class="s-icon"><i class="bi bi-bar-chart"></i></div>
+            <div class="s-num" th:text="${totalDATA}">0</div>
+            <div class="s-lbl">Filière DATA</div>
         </div>
     </div>
 
-    <!-- FILTRES -->
-    <div class="filter-bar">
-        <span class="label">Filtrer :</span>
+    <!-- FILTERS + SEARCH + TABLE -->
+    <div class="sec-label a3">Liste des étudiants</div>
+
+    <!-- Filter pills — use @{} so Thymeleaf prepends context path correctly -->
+    <div class="filter-row a3">
+        <span class="filter-label">Filière :</span>
         <a th:href="@{/etudiants}"
-           th:class="${filiereActive == null and langueActive == null} ? 'filter-pill active-all' : 'filter-pill'">
-            Tous
-        </a>
+           th:class="${filiereActive == null and langueActive == null} ? 'fpill fa' : 'fpill'">Tous</a>
         <a th:href="@{/etudiants(filiere='GI')}"
-           th:class="${filiereActive == 'GI'} ? 'filter-pill active-gi' : 'filter-pill'">
-            Filière GI
-        </a>
+           th:class="${filiereActive == 'GI'}   ? 'fpill fb' : 'fpill'">GI</a>
         <a th:href="@{/etudiants(filiere='TDIA')}"
-           th:class="${filiereActive == 'TDIA'} ? 'filter-pill active-tdia' : 'filter-pill'">
-            Filière TDIA
-        </a>
+           th:class="${filiereActive == 'TDIA'} ? 'fpill fv' : 'fpill'">TDIA</a>
         <a th:href="@{/etudiants(filiere='DATA')}"
-           th:class="${filiereActive == 'DATA'} ? 'filter-pill active-data' : 'filter-pill'">
-            Filière DATA
-        </a>
-        <a th:href="@{/etudiants(langue='EN')}"
-           th:class="${langueActive == 'EN'} ? 'filter-pill active-en' : 'filter-pill'">
-            🇬🇧 Présentation EN
-        </a>
+           th:class="${filiereActive == 'DATA'} ? 'fpill fo' : 'fpill'">DATA</a>
+        <div class="filter-sep"></div>
+        <span class="filter-label">Langue :</span>
         <a th:href="@{/etudiants(langue='FR')}"
-           th:class="${langueActive == 'FR'} ? 'filter-pill active-fr' : 'filter-pill'">
-            🇫🇷 Présentation FR
-        </a>
+           th:class="${langueActive == 'FR'} ? 'fpill fg'  : 'fpill'">Français</a>
+        <a th:href="@{/etudiants(langue='EN')}"
+           th:class="${langueActive == 'EN'} ? 'fpill fr2' : 'fpill'">English</a>
     </div>
 
-    <!-- TABLEAU -->
-    <div class="table-wrap">
-        <table>
+    <div class="search-wrap a3">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="searchInput"
+               placeholder="Rechercher par nom, prénom, CNE ou encadrant…"
+               autocomplete="off"/>
+    </div>
+
+    <div class="tbl-card a4">
+        <div class="tbl-head-bar">
+            <span class="tbl-head-title">Résultats</span>
+            <span class="tbl-count" id="rowCount"></span>
+        </div>
+        <table id="etudiantsTable">
             <thead>
                 <tr>
-                    <th class="td-index">#</th>
+                    <th class="td-idx">#</th>
                     <th>Nom &amp; Prénom</th>
+                    <th>CNE</th>
                     <th>Filière</th>
                     <th>Langue</th>
                     <th>Encadrant</th>
@@ -226,73 +300,91 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="etudiant, stat : ${etudiants}">
-                    <td class="td-index" th:text="${stat.index + 1}">1</td>
-                    <td class="td-name" th:text="${etudiant.nom + ' ' + etudiant.prenom}">Nom</td>
+                <tr th:each="etudiant, stat : ${etudiants}" class="data-row">
+                    <td class="td-idx"  th:text="${stat.index + 1}">1</td>
+                    <td class="td-name searchable" th:text="${etudiant.nom + ' ' + etudiant.prenom}">Nom</td>
+                    <td class="td-cne  searchable" th:text="${etudiant.cne ?: '—'}">—</td>
                     <td>
-                        <span th:if="${etudiant.filiere.name() == 'GI'}"   class="badge-gi">GI</span>
-                        <span th:if="${etudiant.filiere.name() == 'TDIA'}" class="badge-tdia">TDIA</span>
-                        <span th:if="${etudiant.filiere.name() == 'DATA'}" class="badge-data">DATA</span>
+                        <span th:if="${etudiant.filiere.name() == 'GI'}"   class="badge b-gi">GI</span>
+                        <span th:if="${etudiant.filiere.name() == 'TDIA'}" class="badge b-tdia">TDIA</span>
+                        <span th:if="${etudiant.filiere.name() == 'DATA'}" class="badge b-data">DATA</span>
                     </td>
                     <td>
-                        <span th:if="${etudiant.langue.name() == 'FR'}" class="badge-fr">🇫🇷 FR</span>
-                        <span th:if="${etudiant.langue.name() == 'EN'}" class="badge-en">🇬🇧 EN</span>
+                        <span th:if="${etudiant.langue.name() == 'FR'}" class="badge b-fr">FR</span>
+                        <span th:if="${etudiant.langue.name() == 'EN'}" class="badge b-en">EN</span>
                     </td>
-                    <td class="td-encadrant" th:text="${etudiant.encadrant != null ? etudiant.encadrant.nomComplet : '—'}">—</td>
-                    <td class="td-titre" th:text="${etudiant.titreProjet ?: '—'}">—</td>
-                    <td style="text-align:center;white-space:nowrap;">
-                        <a th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}" class="btn-edit">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        &nbsp;
-                        <form th:action="@{/etudiants/supprimer/{id}(id=${etudiant.id})}"
-                              method="post" style="display:inline;"
-                              onsubmit="return confirm('Supprimer cet étudiant ?')">
-                            <button type="submit" class="btn-del">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                    <td class="td-enc searchable"
+                        th:text="${etudiant.encadrant != null ? etudiant.encadrant.nomComplet : '—'}">—</td>
+                    <td class="td-titre searchable" th:text="${etudiant.titreProjet ?: '—'}">—</td>
+                    <td>
+                        <div class="act-wrap">
+                            <!-- ✅ Correct path: @{/etudiants/modifier/{id}(id=...)} -->
+                            <a class="act-btn edit"
+                               th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}"
+                               title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <!-- ✅ Correct path: @{/etudiants/supprimer/{id}(id=...)} -->
+                            <form th:action="@{/etudiants/supprimer/{id}(id=${etudiant.id})}"
+                                  method="post" style="display:inline;"
+                                  onsubmit="return confirm('Supprimer cet étudiant ?')">
+                                <button type="submit" class="act-btn del" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
+
                 <tr th:if="${etudiants.isEmpty()}">
-                    <td colspan="7">
+                    <td colspan="8">
                         <div class="empty-state">
-                            <i class="bi bi-inbox"></i>
-                            Aucun étudiant trouvé.
-                            <a th:href="@{/etudiants/nouveau}" style="color:var(--secondary);">Ajouter le premier</a>
+                            <div class="es-icon"><i class="bi bi-inbox"></i></div>
+                            <h3>Aucun étudiant trouvé</h3>
+                            <p>La liste est vide. Importez un fichier Excel ou ajoutez un étudiant manuellement.</p>
+                            <a th:href="@{/etudiants/nouveau}">Ajouter le premier étudiant</a>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
+
+        <div id="emptySearch" style="display:none;">
+            <div class="empty-state">
+                <div class="es-icon"><i class="bi bi-search"></i></div>
+                <h3>Aucun résultat</h3>
+                <p>Aucun étudiant ne correspond à votre recherche.</p>
+            </div>
+        </div>
     </div>
 
 </div>
 
-<footer>ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const btn = document.getElementById('themeBtn');
-    const sun = document.getElementById('iconSun');
-    const moon = document.getElementById('iconMoon');
-    const body = document.body;
+    const searchInput = document.getElementById('searchInput');
+    const rows        = document.querySelectorAll('#etudiantsTable tbody .data-row');
+    const emptySearch = document.getElementById('emptySearch');
+    const rowCountEl  = document.getElementById('rowCount');
 
-    const saved = localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    applyTheme(saved);
-
-    btn.addEventListener('click', () => {
-        const next = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem('theme', next);
-    });
-
-    function applyTheme(t) {
-        body.setAttribute('data-theme', t);
-        sun.style.display  = t === 'dark'  ? 'none'  : 'block';
-        moon.style.display = t === 'light' ? 'none'  : 'block';
+    function updateCount(n) {
+        rowCountEl.textContent = n + ' étudiant' + (n !== 1 ? 's' : '');
     }
+    updateCount(rows.length);
+
+    searchInput.addEventListener('input', function () {
+        const q = this.value.toLowerCase().trim();
+        let visible = 0;
+        rows.forEach(row => {
+            const text = Array.from(row.querySelectorAll('.searchable'))
+                .map(el => el.textContent).join(' ').toLowerCase();
+            const show = !q || text.includes(q);
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        emptySearch.style.display = (visible === 0 && q) ? 'block' : 'none';
+        updateCount(visible);
+    });
 </script>
 </body>
 </html>
+
