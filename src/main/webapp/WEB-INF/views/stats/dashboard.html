@@ -1,293 +1,278 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Statistiques — PFE Planning</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
-        :root {
-            --ensa-primary: #1a3a5c;
-            --ensa-secondary: #2e6da4;
-            --ensa-accent: #f0a500;
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --blue:#3b82f6;--blue2:#60a5fa;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.06);
         }
-        body { background-color: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background-color: var(--ensa-primary) !important; }
-        .navbar-brand { font-weight: 700; color: white !important; }
-        .navbar-brand span { color: var(--ensa-accent); }
-        .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
-        .nav-link:hover, .nav-link.active { color: var(--ensa-accent) !important; }
-        footer { background-color: var(--ensa-primary); color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:28px 24px 80px;}
 
-        .page-header {
-            background: linear-gradient(135deg, var(--ensa-primary), var(--ensa-secondary));
-            color: white; padding: 28px 0; margin-bottom: 32px;
-        }
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;
+            padding:0 22px;background:rgba(22,27,34,0.9);border:1px solid var(--border);
+            border-radius:16px;backdrop-filter:blur(16px);height:56px;flex-wrap:wrap;gap:8px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;color:var(--t0);text-decoration:none;}
+        .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;}
+        .logo-icon .bi{color:#fff;font-size:15px;}
+        .logo span{color:var(--accent2);}
+        .nav-links{display:flex;gap:2px;align-items:center;}
+        .nav-link{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;
+            font-size:12px;font-weight:500;color:var(--t1);text-decoration:none;
+            transition:all .15s;white-space:nowrap;border:1px solid transparent;}
+        .nav-link .bi{font-size:12px;opacity:.85;}
+        .nav-link:hover{color:var(--t0);background:rgba(255,255,255,0.05);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);}
+        .nav-link.nav-export{color:var(--green2);background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.18);}
+        .nav-link.nav-export:hover{background:rgba(34,197,94,0.13);}
+        .nav-divider{width:1px;height:18px;background:var(--border);margin:0 3px;}
 
-        /* KPI cards */
-        .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
-        .kpi-card {
-            background: white; border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            padding: 22px 20px; text-align: center;
-        }
-        .kpi-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
-        .kpi-num { font-size: 2.4rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-        .kpi-label { font-size: 0.8rem; color: #6c757d; font-weight: 500; }
+        .page-header{margin-bottom:32px;}
+        .page-header h1{font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-bottom:5px;}
+        .page-header p{font-size:13px;color:var(--t1);}
 
-        /* Chart cards */
-        .chart-card {
-            background: white; border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            padding: 24px; margin-bottom: 24px;
-        }
-        .chart-title {
-            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--ensa-secondary);
-            margin-bottom: 20px; padding-bottom: 10px;
-            border-bottom: 2px solid #e8f0fb;
-        }
-        .seuil-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: #fdeaea; color: #c0392b; border-radius: 6px;
-            padding: 4px 10px; font-size: 0.78rem; font-weight: 600;
-            float: right; margin-top: -4px;
+        .sec{font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--t2);
+            margin-bottom:14px;display:flex;align-items:center;gap:12px;font-weight:600;}
+        .sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+        .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+        .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+            padding:20px;position:relative;overflow:hidden;}
+        .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+        .k-blue::before  {background:linear-gradient(90deg,var(--accent),var(--accent2));}
+        .k-amber::before {background:linear-gradient(90deg,var(--amber),var(--amber2));}
+        .k-green::before {background:linear-gradient(90deg,var(--green),var(--green2));}
+        .k-violet::before{background:linear-gradient(90deg,#7c3aed,#a78bfa);}
+        .kpi-icon{font-size:18px;margin-bottom:10px;opacity:.85;}
+        .kpi-num{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px;}
+        .kpi-lbl{font-size:11px;color:var(--t1);}
+        .k-blue   .kpi-num{color:var(--accent2);}
+        .k-amber  .kpi-num{color:var(--amber2);}
+        .k-green  .kpi-num{color:var(--green2);}
+        .k-violet .kpi-num{color:#a78bfa;}
+
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
+        .chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .chart-full{grid-column:1/-1;}
+        .c-head{padding:16px 22px;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;}
+        .c-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+        .c-title .bi{color:var(--accent2);font-size:14px;}
+        .c-sub{font-size:11px;color:var(--t2);}
+        .c-body{padding:20px 22px;}
+        .seuil-badge{display:inline-flex;align-items:center;gap:5px;
+            background:rgba(239,68,68,0.1);color:var(--red2);
+            border:1px solid rgba(239,68,68,0.2);border-radius:6px;
+            padding:3px 9px;font-size:11px;font-weight:600;}
+        .seuil-badge .bi{font-size:11px;}
+
+        footer{margin-top:40px;padding:20px 0;border-top:1px solid var(--border);
+            text-align:center;font-size:12px;color:var(--t2);}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .a0{animation:fadeUp .4s ease both;}
+        .a1{animation:fadeUp .4s .07s ease both;}
+        .a2{animation:fadeUp .4s .14s ease both;}
+        .a3{animation:fadeUp .4s .21s ease both;}
+
+        @media(max-width:900px){
+            .kpi-grid{grid-template-columns:1fr 1fr;}
+            .charts-grid{grid-template-columns:1fr;}
+            .chart-full{grid-column:auto;}
         }
     </style>
 </head>
 <body>
+<div class="wrap">
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/">🎓 PFE <span>Planning</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door me-1"></i>Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning"><i class="bi bi-table me-1"></i>Planning</a></li>
-                <li class="nav-item"><a class="nav-link" href="/planning/calendrier"><i class="bi bi-calendar3 me-1"></i>Calendrier</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/stats"><i class="bi bi-bar-chart me-1"></i>Stats</a></li>
-            </ul>
+    <nav class="a0">
+        <a th:href="@{/}" class="logo">
+            <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
+            PFE <span>Planning</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}"                    class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
+            <a th:href="@{/import}"              class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/etudiants}"           class="nav-link"><i class="bi bi-mortarboard"></i>Etudiants</a>
+            <a th:href="@{/professeurs}"         class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
+            <a th:href="@{/salles}"              class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/go/affectation}"      class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/go/planning}"         class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/export}"              class="nav-link nav-export"><i class="bi bi-download"></i>Export</a>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="page-header">
-    <div class="container">
-        <h2 class="mb-1 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Tableau de bord statistiques</h2>
-        <p class="mb-0 opacity-75">Charge des professeurs, répartition par filière et par langue</p>
-    </div>
-</div>
-
-<div class="container mb-5">
-
-    <!-- KPI -->
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <span class="kpi-icon">🎓</span>
-            <div class="kpi-num" style="color:var(--ensa-secondary);" th:text="${totalSoutenances}">0</div>
-            <div class="kpi-label">Soutenances planifiées</div>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-icon">👨‍🏫</span>
-            <div class="kpi-num" style="color:#e67e22;" th:text="${totalProfesseurs}">0</div>
-            <div class="kpi-label">Professeurs</div>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-icon">📚</span>
-            <div class="kpi-num" style="color:#27ae60;" th:text="${totalEtudiants}">0</div>
-            <div class="kpi-label">Étudiants</div>
-        </div>
-        <div class="kpi-card">
-            <span class="kpi-icon">📅</span>
-            <div class="kpi-num" style="color:#8e44ad;" th:text="${nbJours}">0</div>
-            <div class="kpi-label">Jours de soutenance</div>
-        </div>
+    <div class="page-header a1">
+        <h1>Tableau de bord statistiques</h1>
+        <p>Charge des professeurs, répartition par filière et par langue de soutenance.</p>
     </div>
 
-    <div class="row g-4">
+    <div class="sec a2">Vue d'ensemble</div>
+    <div class="kpi-grid a2">
+        <div class="kpi-card k-blue">
+            <div class="kpi-icon"><i class="bi bi-calendar-check"></i></div>
+            <div class="kpi-num" th:text="${totalSoutenances}">0</div>
+            <div class="kpi-lbl">Soutenances planifiées</div>
+        </div>
+        <div class="kpi-card k-amber">
+            <div class="kpi-icon"><i class="bi bi-person-badge"></i></div>
+            <div class="kpi-num" th:text="${totalProfesseurs}">0</div>
+            <div class="kpi-lbl">Professeurs</div>
+        </div>
+        <div class="kpi-card k-green">
+            <div class="kpi-icon"><i class="bi bi-mortarboard"></i></div>
+            <div class="kpi-num" th:text="${totalEtudiants}">0</div>
+            <div class="kpi-lbl">Etudiants</div>
+        </div>
+        <div class="kpi-card k-violet">
+            <div class="kpi-icon"><i class="bi bi-calendar-week"></i></div>
+            <div class="kpi-num" th:text="${nbJours}">0</div>
+            <div class="kpi-lbl">Jours de soutenance</div>
+        </div>
+    </div>
 
-        <!-- GRAPHIQUE 1 : Charge par professeur (horizontal bar) -->
-        <div class="col-12">
-            <div class="chart-card">
-                <div class="chart-title">
-                    <i class="bi bi-person-badge me-2"></i>Charge par professeur
-                    <span class="seuil-badge">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        Seuil critique : 8 soutenances
-                    </span>
+    <div class="sec a3">Graphiques</div>
+    <div class="charts-grid a3">
+
+        <!-- Charge par professeur -->
+        <div class="chart-card chart-full">
+            <div class="c-head">
+                <span class="c-title"><i class="bi bi-bar-chart-horizontal"></i>Charge par professeur</span>
+                <span class="seuil-badge"><i class="bi bi-exclamation-triangle"></i>Seuil critique : 8</span>
+            </div>
+            <div class="c-body">
+                <canvas id="chartCharge" style="max-height:400px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Soutenances par jour -->
+        <div class="chart-card">
+            <div class="c-head">
+                <span class="c-title"><i class="bi bi-calendar-week"></i>Soutenances par jour</span>
+            </div>
+            <div class="c-body">
+                <canvas id="chartJours" style="max-height:260px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Filières -->
+        <div class="chart-card">
+            <div class="c-head">
+                <span class="c-title"><i class="bi bi-pie-chart"></i>Répartition filières / langues</span>
+            </div>
+            <div class="c-body" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Filières</div>
+                    <canvas id="chartFiliere" style="max-height:180px;"></canvas>
                 </div>
-                <canvas id="chartCharge" style="max-height:420px;"></canvas>
-            </div>
-        </div>
-
-        <!-- GRAPHIQUE 2 : Soutenances par jour -->
-        <div class="col-md-6">
-            <div class="chart-card">
-                <div class="chart-title"><i class="bi bi-calendar-week me-2"></i>Soutenances par jour</div>
-                <canvas id="chartJours" style="max-height:280px;"></canvas>
-            </div>
-        </div>
-
-        <!-- GRAPHIQUE 3 : Filière + Langue (doughnut) -->
-        <div class="col-md-3">
-            <div class="chart-card">
-                <div class="chart-title"><i class="bi bi-pie-chart me-2"></i>Filières</div>
-                <canvas id="chartFiliere" style="max-height:220px;"></canvas>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="chart-card">
-                <div class="chart-title"><i class="bi bi-translate me-2"></i>Langues</div>
-                <canvas id="chartLangue" style="max-height:220px;"></canvas>
+                <div>
+                    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Langues</div>
+                    <canvas id="chartLangue" style="max-height:180px;"></canvas>
+                </div>
             </div>
         </div>
 
     </div>
+
+    <footer>ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025</footer>
 </div>
 
-<footer class="py-3">
-    <div class="container text-center">
-        ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-    </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-<!-- Données injectées par Thymeleaf -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const chargeParProf      = /*[[${chargeParProf}]]*/ {};
     const soutenancesParJour = /*[[${soutenancesParJour}]]*/ {};
     const repartitionFiliere = /*[[${repartitionFiliere}]]*/ {};
     const repartitionLangue  = /*[[${repartitionLangue}]]*/ {};
-    const SEUIL_CRITIQUE     = 8;
+    const SEUIL = 8;
     /*]]>*/
 </script>
-
 <script>
-// ── Graphique 1 : Charge par professeur (bar horizontal) ─────────────────
-(function() {
-    const labels = Object.keys(chargeParProf);
-    const data   = Object.values(chargeParProf);
-    const colors = data.map(v => v > SEUIL_CRITIQUE ? '#e74c3c' : v >= 6 ? '#e67e22' : '#2e6da4');
+    const gridColor = 'rgba(255,255,255,0.05)';
+    const tickColor = '#484f58';
 
-    new Chart(document.getElementById('chartCharge'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Nb soutenances',
-                data: data,
-                backgroundColor: colors,
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => ` ${ctx.parsed.x} soutenance(s)`
-                    }
-                },
-                annotation: {}
-            },
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 },
-                    grid: { color: '#f0f4f8' }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { font: { size: 12 } }
+    // Charge par prof
+    (function(){
+        const labels = Object.keys(chargeParProf);
+        const data   = Object.values(chargeParProf);
+        const colors = data.map(v => v > SEUIL ? '#f87171' : v >= 6 ? '#fbbf24' : '#818cf8');
+        new Chart(document.getElementById('chartCharge'), {
+            type:'bar',
+            data:{labels,datasets:[{label:'Soutenances',data,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+            options:{
+                indexAxis:'y',responsive:true,
+                plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.parsed.x} soutenance(s)`}}},
+                scales:{
+                    x:{beginAtZero:true,ticks:{stepSize:1,color:tickColor},grid:{color:gridColor}},
+                    y:{grid:{display:false},ticks:{color:tickColor,font:{size:11}}}
                 }
             }
-        }
-    });
-})();
+        });
+    })();
 
-// ── Graphique 2 : Soutenances par jour (bar vertical) ────────────────────
-(function() {
-    const labels = Object.keys(soutenancesParJour).map(d => {
-        const dt = new Date(d);
-        return dt.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
-    });
-    const data = Object.values(soutenancesParJour);
-
-    new Chart(document.getElementById('chartJours'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Soutenances',
-                data: data,
-                backgroundColor: '#2e6da4',
-                borderRadius: 6,
-                borderSkipped: false
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f4f8' } },
-                x: { grid: { display: false } }
+    // Par jour
+    (function(){
+        const labels = Object.keys(soutenancesParJour).map(d=>{
+            const dt=new Date(d);
+            return dt.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+        });
+        const data = Object.values(soutenancesParJour);
+        new Chart(document.getElementById('chartJours'),{
+            type:'bar',
+            data:{labels,datasets:[{label:'Soutenances',data,backgroundColor:'#6366f1',borderRadius:5,borderSkipped:false}]},
+            options:{
+                responsive:true,
+                plugins:{legend:{display:false}},
+                scales:{
+                    y:{beginAtZero:true,ticks:{stepSize:1,color:tickColor},grid:{color:gridColor}},
+                    x:{grid:{display:false},ticks:{color:tickColor}}
+                }
             }
-        }
-    });
-})();
+        });
+    })();
 
-// ── Graphique 3 : Répartition filières ───────────────────────────────────
-(function() {
-    new Chart(document.getElementById('chartFiliere'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(repartitionFiliere),
-            datasets: [{
-                data: Object.values(repartitionFiliere),
-                backgroundColor: ['#2e6da4', '#e67e22'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '65%',
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } }
-            }
-        }
-    });
-})();
+    // Filières
+    (function(){
+        new Chart(document.getElementById('chartFiliere'),{
+            type:'doughnut',
+            data:{
+                labels:Object.keys(repartitionFiliere),
+                datasets:[{data:Object.values(repartitionFiliere),backgroundColor:['#818cf8','#fbbf24','#4ade80'],borderWidth:0}]
+            },
+            options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:tickColor,font:{size:11},padding:10}}}}
+        });
+    })();
 
-// ── Graphique 4 : Répartition langues ────────────────────────────────────
-(function() {
-    new Chart(document.getElementById('chartLangue'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(repartitionLangue),
-            datasets: [{
-                data: Object.values(repartitionLangue),
-                backgroundColor: ['#27ae60', '#e74c3c'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            cutout: '65%',
-            plugins: {
-                legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 14 } }
-            }
-        }
-    });
-})();
+    // Langues
+    (function(){
+        new Chart(document.getElementById('chartLangue'),{
+            type:'doughnut',
+            data:{
+                labels:Object.keys(repartitionLangue),
+                datasets:[{data:Object.values(repartitionLangue),backgroundColor:['#fbbf24','#4ade80'],borderWidth:0}]
+            },
+            options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:tickColor,font:{size:11},padding:10}}}}
+        });
+    })();
 </script>
 </body>
 </html>

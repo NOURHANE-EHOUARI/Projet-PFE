@@ -52,7 +52,7 @@ public class StatistiquesController {
     @GetMapping("/planning/json")
     @ResponseBody
     public List<Map<String, Object>> getPlanningJson() {
-        List<Soutenance> soutenances = soutenanceRepository.findAll();
+        List<Soutenance> soutenances = soutenanceRepository.findAllWithDetails();
         List<Map<String, Object>> events = new ArrayList<>();
 
         // Palette de couleurs par salle (index tournant)
