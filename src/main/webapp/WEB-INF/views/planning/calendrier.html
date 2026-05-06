@@ -4,484 +4,413 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Calendrier — PFE Planning</title>
-    
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
-    
-    <!-- FullCalendar -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet"/>
-    
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{
+            --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+            --border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);
+            --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+            --green:#22c55e;--green2:#4ade80;
+            --amber:#f59e0b;--amber2:#fbbf24;
+            --red:#ef4444;--red2:#f87171;
+            --blue:#3b82f6;--blue2:#60a5fa;
+            --t0:#f0f6fc;--t1:#8b949e;--t2:#484f58;
+            --card:rgba(255,255,255,0.03);--hover:rgba(99,102,241,0.08);
+        }
+        body{background:var(--bg);color:var(--t0);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+            background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,102,241,0.12) 0%,transparent 60%),
+                       radial-gradient(ellipse 50% 40% at 85% 100%,rgba(129,140,248,0.08) 0%,transparent 60%);}
+        .wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 24px 80px;}
 
-        :root {
-            --bg: #0d1117;
-            --bg2: #161b22;
-            --bg3: #21262d;
-            --border: rgba(255,255,255,0.08);
-            --border-strong: rgba(255,255,255,0.15);
-            --accent: #6366f1;
-            --accent2: #818cf8;
-            --accent3: #a5b4fc;
-            --green: #22c55e;
-            --red: #ef4444;
-            --amber: #f59e0b;
-            --t0: #f0f6fc;
-            --t1: #8b949e;
-            --t2: #484f58;
-            --card: rgba(255,255,255,0.03);
-            --hover: rgba(99,102,241,0.08);
-            --shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--t0);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.5;
-        }
-
-        /* Background subtil */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background:
-                radial-gradient(ellipse 70% 50% at 15% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 40% at 85% 100%, rgba(129,140,248,0.08) 0%, transparent 60%);
-            pointer-events: none; z-index: 0;
-        }
-
-        .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
-
-        /* ===== ICONES MONOCHROMES ===== */
-        .icon {
-            display: inline-flex; align-items: center; justify-content: center;
-            color: var(--t1); transition: color 0.15s ease; flex-shrink: 0;
-        }
-        .icon-lg { font-size: 2.5rem; }
-        .icon-md { font-size: 1.25rem; }
-        .icon-sm { font-size: 1rem; }
-        .card:hover .icon, .nav-link:hover .icon, .btn:hover .icon { color: var(--accent2); }
-
-        /* NAVIGATION */
-        nav {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 56px; padding-bottom: 24px;
-            border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px;
-        }
-        .logo {
-            display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 18px; color: var(--t0);
-            text-decoration: none; letter-spacing: -0.02em;
-        }
-        .logo-icon {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            display: flex; align-items: center; justify-content: center;
-        }
-        .logo-icon .bi { color: #fff; font-size: 1rem; }
-        
-        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
-        .nav-link {
-            display: flex; align-items: center; gap: 6px;
-            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
-            color: var(--t1); text-decoration: none; transition: all 0.15s ease;
-            border: 1px solid transparent;
-        }
-        .nav-link .bi { font-size: 0.9rem; }
-        .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
-        .nav-link.active { 
-            color: var(--accent2); 
-            background: rgba(99,102,241,0.10); 
-            border-color: rgba(99,102,241,0.30);
-            font-weight: 600;
-        }
+        /* NAV */
+        nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;
+            padding:0 24px;background:rgba(22,27,34,0.9);border:1px solid var(--border);
+            border-radius:16px;backdrop-filter:blur(16px);height:58px;flex-wrap:wrap;gap:8px;}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;
+            color:var(--t0);text-decoration:none;letter-spacing:-0.01em;}
+        .logo-icon{width:32px;height:32px;border-radius:8px;
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            display:flex;align-items:center;justify-content:center;}
+        .logo-icon .bi{color:#fff;font-size:15px;}
+        .logo span{color:var(--accent2);}
+        .nav-links{display:flex;gap:2px;align-items:center;}
+        .nav-link{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;
+            font-size:12.5px;font-weight:500;color:var(--t1);text-decoration:none;
+            transition:all .15s;white-space:nowrap;border:1px solid transparent;}
+        .nav-link .bi{font-size:13px;opacity:.85;}
+        .nav-link:hover{color:var(--t0);background:rgba(255,255,255,0.05);border-color:var(--border);}
+        .nav-link.active{color:var(--accent2);background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);}
+        .nav-link.nav-export{color:var(--green2);background:rgba(34,197,94,0.07);border-color:rgba(34,197,94,0.18);}
+        .nav-link.nav-export:hover{background:rgba(34,197,94,0.13);}
+        .nav-divider{width:1px;height:20px;background:var(--border);margin:0 4px;}
 
         /* PAGE HEADER */
-        .page-header { margin-bottom: 48px; padding-top: 8px; }
-        h1 { 
-            font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; 
-            margin-bottom: 16px; letter-spacing: -0.03em;
-            display: flex; align-items: center; gap: 14px;
-        }
-        h1 .bi { color: var(--accent2); }
-        h1 span { 
-            background: linear-gradient(135deg, var(--accent2), var(--accent3)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .subtitle { font-size: 16px; color: var(--t1); line-height: 1.6; max-width: 600px; }
+        .page-hd{display:flex;align-items:flex-end;justify-content:space-between;
+            margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+        .breadcrumb{display:flex;align-items:center;gap:6px;font-size:11.5px;
+            color:var(--t2);margin-bottom:8px;list-style:none;padding:0;}
+        .breadcrumb a{color:var(--t1);text-decoration:none;transition:color .15s;}
+        .breadcrumb a:hover{color:var(--t0);}
+        .breadcrumb .sep{color:var(--t2);}
+        .breadcrumb .curr{color:var(--accent3);}
+        .page-title{font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;}
+        .page-subtitle{font-size:13px;color:var(--t1);margin-top:4px;}
 
         /* VIEW TABS */
-        .view-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-        .view-tab {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 9px 16px; border-radius: 8px;
-            font-size: 13px; font-weight: 500; color: var(--t1);
-            text-decoration: none; border: 1px solid var(--border);
-            background: var(--card); transition: all 0.15s ease;
-        }
-        .view-tab:hover { color: var(--t0); border-color: var(--border-strong); background: var(--hover); }
-        .view-tab.active { 
-            color: var(--accent2); 
-            background: rgba(99,102,241,0.10); 
-            border-color: rgba(99,102,241,0.30);
-            font-weight: 600;
-        }
-        .view-tab .bi { font-size: 0.9rem; }
+        .view-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+        .view-tab{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;
+            font-size:12.5px;font-weight:500;color:var(--t1);text-decoration:none;
+            border:1px solid var(--border);background:var(--card);transition:all .15s;}
+        .view-tab:hover{color:var(--t0);border-color:var(--border-strong);background:var(--hover);}
+        .view-tab.active{color:var(--accent2);background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);font-weight:600;}
+        .view-tab .bi{font-size:13px;}
+
+        /* ERROR BANNER */
+        .error-banner{display:none;align-items:center;gap:12px;padding:14px 20px;
+            background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);
+            border-radius:12px;font-size:13px;color:var(--red2);margin-bottom:20px;}
+        .error-banner .bi{font-size:16px;flex-shrink:0;}
+        .error-banner code{background:rgba(239,68,68,0.12);padding:2px 8px;border-radius:5px;
+            font-family:monospace;font-size:12px;color:var(--red2);}
 
         /* CALENDAR CARD */
-        .cal-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; overflow: hidden;
-            padding: 24px; margin-bottom: 32px;
-        }
+        .cal-card{background:var(--card);border:1px solid var(--border);
+            border-radius:16px;overflow:hidden;padding:24px;}
 
-        /* LEGENDE SALLES */
-        .legende { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-        .legende-item {
-            display: flex; align-items: center; gap: 7px;
-            font-size: 12px; font-weight: 500; color: var(--t1);
-        }
-        .legende-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+        /* LEGEND */
+        .legend-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+            margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);min-height:32px;}
+        .legend-label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;
+            letter-spacing:0.08em;margin-right:4px;}
+        .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t1);}
+        .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+        .legend-empty{font-size:12px;color:var(--t2);font-style:italic;}
 
-        /* FULLCALENDAR CUSTOM - THÈME SOMBRE */
-        .fc {
-            --fc-border-color: var(--border);
-            --fc-page-bg-color: var(--bg);
-            --fc-neutral-bg-color: var(--bg2);
-            --fc-list-event-hover-bg-color: var(--hover);
-            --fc-today-bg-color: rgba(99,102,241,0.10);
-            --fc-now-indicator-color: var(--amber);
-            --fc-event-border-color: transparent;
+        /* FULLCALENDAR DARK THEME */
+        .fc{
+            --fc-border-color:var(--border);
+            --fc-page-bg-color:transparent;
+            --fc-neutral-bg-color:var(--bg2);
+            --fc-list-event-hover-bg-color:var(--hover);
+            --fc-today-bg-color:rgba(99,102,241,0.08);
+            --fc-now-indicator-color:var(--amber);
         }
-        .fc .fc-toolbar { margin-bottom: 16px; }
-        .fc .fc-toolbar-title { 
-            font-size: 1.25rem !important; 
-            font-weight: 700 !important; 
-            color: var(--t0) !important;
-            letter-spacing: -0.02em;
-        }
-        .fc .fc-button {
-            background: var(--bg3) !important;
-            border: 1px solid var(--border) !important;
-            color: var(--t1) !important;
-            font-size: 0.85rem !important;
-            font-weight: 500 !important;
-            padding: 6px 14px !important;
-            border-radius: 8px !important;
-            transition: all 0.15s ease !important;
-        }
-        .fc .fc-button:hover {
-            background: var(--hover) !important;
-            border-color: var(--border-strong) !important;
-            color: var(--t0) !important;
-        }
-        .fc .fc-button-primary:not(:disabled).fc-button-active {
-            background: var(--accent) !important;
-            border-color: var(--accent) !important;
-            color: #fff !important;
-        }
-        .fc .fc-col-header { background: var(--bg2); }
-        .fc .fc-col-header-cell { border-color: var(--border); }
-        .fc .fc-col-header-cell-cushion { 
-            color: var(--t2) !important; 
-            font-weight: 600 !important; 
-            font-size: 0.8rem !important;
-            text-decoration: none !important;
-        }
-        .fc .fc-daygrid-day { border-color: var(--border); }
-        .fc .fc-daygrid-day-number { 
-            color: var(--t1) !important; 
-            font-weight: 500 !important; 
-            padding: 4px 8px !important;
-            text-decoration: none !important;
-        }
-        .fc .fc-day-today { background: rgba(99,102,241,0.08) !important; }
-        .fc .fc-day-today .fc-daygrid-day-number { color: var(--accent2) !important; }
-        .fc .fc-timegrid-slot { border-color: var(--border); }
-        .fc .fc-timegrid-slot-label { color: var(--t2); font-size: 0.75rem; }
-        .fc .fc-timegrid-axis { color: var(--t2); font-size: 0.75rem; border-color: var(--border); }
-        .fc .fc-event {
-            border: none !important;
-            border-radius: 6px !important;
-            font-size: 0.75rem !important;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-        .fc .fc-event:hover { transform: scale(1.02); z-index: 10; }
-        .fc-event-title { font-weight: 600 !important; }
-        .fc-daygrid-event { padding: 3px 6px !important; }
-        .fc-timegrid-event .fc-event-main { padding: 4px 8px !important; }
-        .fc .fc-list-event { border-color: var(--border); }
-        .fc .fc-list-event-title { color: var(--t0); font-weight: 500; }
-        .fc .fc-list-event-time { color: var(--t2); }
+        .fc .fc-toolbar{margin-bottom:16px;}
+        .fc .fc-toolbar-title{font-size:1.2rem!important;font-weight:700!important;
+            color:var(--t0)!important;letter-spacing:-0.02em;}
+        .fc .fc-button{background:var(--bg3)!important;border:1px solid var(--border)!important;
+            color:var(--t1)!important;font-size:0.82rem!important;font-weight:500!important;
+            padding:6px 14px!important;border-radius:8px!important;transition:all .15s!important;
+            font-family:'Inter',sans-serif!important;}
+        .fc .fc-button:hover{background:var(--hover)!important;border-color:var(--border-strong)!important;color:var(--t0)!important;}
+        .fc .fc-button-primary:not(:disabled).fc-button-active,
+        .fc .fc-button-primary:not(:disabled):active{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
+        .fc .fc-col-header{background:var(--bg2);}
+        .fc .fc-col-header-cell{border-color:var(--border);}
+        .fc .fc-col-header-cell-cushion{color:var(--t2)!important;font-weight:600!important;
+            font-size:0.78rem!important;text-decoration:none!important;text-transform:uppercase;letter-spacing:0.06em;}
+        .fc .fc-daygrid-day{border-color:var(--border);}
+        .fc .fc-daygrid-day-number{color:var(--t1)!important;font-weight:500!important;
+            padding:4px 8px!important;text-decoration:none!important;}
+        .fc .fc-day-today .fc-daygrid-day-number{color:var(--accent2)!important;}
+        .fc .fc-timegrid-slot{border-color:var(--border);}
+        .fc .fc-timegrid-slot-label,.fc .fc-timegrid-axis{color:var(--t2);font-size:0.73rem;border-color:var(--border);}
+        .fc .fc-event{border:none!important;border-radius:6px!important;font-size:0.73rem!important;cursor:pointer;transition:transform .1s;}
+        .fc .fc-event:hover{transform:scale(1.02);z-index:10;}
+        .fc-event-title{font-weight:600!important;}
+        .fc-daygrid-event{padding:3px 6px!important;}
+        .fc-timegrid-event .fc-event-main{padding:4px 8px!important;}
+        .fc .fc-list-event td{border-color:var(--border);}
+        .fc .fc-list-event-title a{color:var(--t0)!important;text-decoration:none;}
+        .fc .fc-list-event-time{color:var(--t2)!important;}
+        .fc .fc-list-day-cushion{background:var(--bg2)!important;}
+        .fc .fc-list-day-text,.fc .fc-list-day-side-text{color:var(--t1)!important;text-decoration:none!important;}
+        .fc .fc-scrollgrid{border-color:var(--border)!important;}
+        .fc .fc-scrollgrid td,.fc .fc-scrollgrid th{border-color:var(--border)!important;}
 
-        /* MODAL - THÈME SOMBRE */
-        .modal-content {
-            background: var(--bg2); border: 1px solid var(--border);
-            border-radius: 16px; color: var(--t0);
-        }
-        .modal-header {
-            border-bottom: 1px solid var(--border); padding: 20px 24px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .modal-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .modal-title .bi { color: var(--accent2); }
-        .modal-body { padding: 24px; }
-        .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-        /* DETAIL ROWS */
-        .detail-row {
-            display: flex; align-items: flex-start; gap: 12px;
-            padding: 12px 0; border-bottom: 1px solid var(--border);
-        }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-icon { 
-            width: 32px; height: 32px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; background: var(--bg3);
-        }
-        .detail-label { 
-            font-size: 11px; color: var(--t2); font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
-        }
-        .detail-value { font-size: 14px; font-weight: 500; color: var(--t0); }
-        .detail-value .badge { margin-left: 8px; }
+        /* MODAL */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
+            z-index:1000;align-items:center;justify-content:center;padding:24px;}
+        .modal-overlay.open{display:flex;}
+        .modal-box{background:var(--bg2);border:1px solid var(--border-strong);border-radius:16px;
+            width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+            animation:fadeUp .2s ease;}
+        .modal-hd{padding:20px 24px;border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;}
+        .modal-hd-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+        .modal-hd-title .bi{color:var(--accent2);}
+        .modal-close{background:transparent;border:1px solid var(--border);color:var(--t1);
+            width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:14px;
+            display:flex;align-items:center;justify-content:center;transition:all .15s;}
+        .modal-close:hover{border-color:var(--red2);color:var(--red2);}
+        .modal-body{padding:20px 24px;}
+        .drow{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+        .drow:last-child{border-bottom:none;}
+        .d-icon{width:32px;height:32px;border-radius:8px;background:var(--bg3);
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+        .d-lbl{font-size:10.5px;color:var(--t2);font-weight:700;text-transform:uppercase;
+            letter-spacing:0.07em;margin-bottom:4px;}
+        .d-val{font-size:13.5px;font-weight:500;color:var(--t0);}
+        .d-val2{font-size:12.5px;color:var(--t1);margin-top:3px;}
 
         /* BADGES */
-        .badge-gi { background: rgba(96,165,250,0.15); color: #93c5fd; font-weight: 600; padding: 3px 8px; border-radius: 5px; font-size: 11px; border: 1px solid rgba(96,165,250,0.3); }
-        .badge-tdia { background: rgba(251,191,36,0.15); color: #fcd34d; font-weight: 600; padding: 3px 8px; border-radius: 5px; font-size: 11px; border: 1px solid rgba(251,191,36,0.3); }
-        .badge-data { background: rgba(134,239,172,0.15); color: #86efac; font-weight: 600; padding: 3px 8px; border-radius: 5px; font-size: 11px; border: 1px solid rgba(134,239,172,0.3); }
-        .badge-fr { background: var(--bg3); color: var(--t1); font-weight: 600; padding: 3px 8px; border-radius: 5px; font-size: 11px; border: 1px solid var(--border); }
-        .badge-en { background: rgba(245,158,11,0.15); color: #fbbf24; font-weight: 600; padding: 3px 8px; border-radius: 5px; font-size: 11px; border: 1px solid rgba(245,158,11,0.3); }
+        .bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;
+            font-size:10.5px;font-weight:700;margin-left:6px;}
+        .bdg-gi  {background:rgba(59,130,246,0.12);color:var(--blue2);border:1px solid rgba(59,130,246,0.2);}
+        .bdg-tdia{background:rgba(124,58,237,0.12);color:#a78bfa;border:1px solid rgba(124,58,237,0.2);}
+        .bdg-data{background:rgba(245,158,11,0.12);color:var(--amber2);border:1px solid rgba(245,158,11,0.2);}
+        .bdg-fr  {background:rgba(34,197,94,0.12);color:var(--green2);border:1px solid rgba(34,197,94,0.2);}
+        .bdg-en  {background:rgba(239,68,68,0.12);color:var(--red2);border:1px solid rgba(239,68,68,0.2);}
 
-        /* FOOTER */
-        footer {
-            margin-top: 64px; padding: 24px 0;
-            border-top: 1px solid var(--border);
-            text-align: center; font-size: 13px; color: var(--t2);
-        }
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .a0{animation:fadeUp .4s ease both;}
+        .a1{animation:fadeUp .4s .06s ease both;}
+        .a2{animation:fadeUp .4s .12s ease both;}
+        .a3{animation:fadeUp .4s .18s ease both;}
 
-        /* RESPONSIVE & ANIMATIONS */
-        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-        .anim { animation: fadeUp 0.35s ease both; }
-        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
-
-        @media(max-width:850px) { 
-            nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; }
-            .nav-links { width: 100%; justify-content: flex-start; }
-            .view-tabs { flex-direction: column; }
-            .view-tab { width: 100%; justify-content: center; }
-        }
-        @media(max-width:500px) { 
-            .nav-links { gap: 2px; }
-            .nav-link { padding: 7px 10px; font-size: 12px; }
-            .cal-card { padding: 16px; }
-            .fc .fc-toolbar { flex-direction: column; gap: 12px; }
-            .fc .fc-toolbar-title { font-size: 1.1rem !important; }
+        @media(max-width:850px){nav{height:auto;padding:12px 16px;}}
+        @media(max-width:500px){
+            .cal-card{padding:14px;}
+            .fc .fc-toolbar{flex-direction:column;gap:10px;}
         }
     </style>
 </head>
 <body>
 <div class="wrap">
 
-    <!-- NAVIGATION -->
-    <nav class="anim">
+    <!-- NAV -->
+    <nav class="a0">
         <a th:href="@{/}" class="logo">
             <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
-            <span>PFE Planning</span>
+            PFE <span>Planning</span>
         </a>
         <div class="nav-links">
-            <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
-            <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
-            <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
-            <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
-            <a th:href="@{/affectation}" class="nav-link"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
-            <a th:href="@{/planning}" class="nav-link"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
-            <a th:href="@{/planning/calendrier}" class="nav-link active"><i class="bi bi-calendar3 icon-sm"></i>Calendrier</a>
-            <a th:href="@{/export}" class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
+            <a th:href="@{/}"                    class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
+            <a th:href="@{/import}"              class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/etudiants}"           class="nav-link"><i class="bi bi-mortarboard"></i>Étudiants</a>
+            <a th:href="@{/professeurs}"         class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
+            <a th:href="@{/salles}"              class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/go/affectation}"      class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/go/planning}"         class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/planning/calendrier}" class="nav-link active"><i class="bi bi-calendar3"></i>Calendrier</a>
+            <div class="nav-divider"></div>
+            <a th:href="@{/export/excel}"        class="nav-link nav-export"><i class="bi bi-download"></i>Export</a>
         </div>
     </nav>
 
-    <!-- HEADER -->
-    <div class="page-header anim d1">
-        <h1><i class="bi bi-calendar3 icon-md"></i>Calendrier des <span>soutenances</span></h1>
-        <p class="subtitle">Vue interactive — cliquez sur une soutenance pour afficher les détails.</p>
+    <!-- PAGE HEADER -->
+    <div class="page-hd a1">
+        <div>
+            <ol class="breadcrumb">
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li class="sep">/</li>
+                <li><a th:href="@{/go/planning}">Planning</a></li>
+                <li class="sep">/</li>
+                <li class="curr">Calendrier</li>
+            </ol>
+            <div class="page-title">Calendrier des soutenances</div>
+            <div class="page-subtitle">Vue interactive — cliquez sur une soutenance pour afficher les détails.</div>
+        </div>
     </div>
 
     <!-- VIEW TABS -->
-    <div class="view-tabs anim d2">
-        <a th:href="@{/planning}" class="view-tab"><i class="bi bi-table icon-sm"></i>Vue tableau</a>
-        <a th:href="@{/planning/calendrier}" class="view-tab active"><i class="bi bi-calendar3 icon-sm"></i>Vue calendrier</a>
-        <a th:href="@{/stats}" class="view-tab"><i class="bi bi-bar-chart icon-sm"></i>Statistiques</a>
+    <div class="view-tabs a2">
+        <a th:href="@{/go/planning}"         class="view-tab"><i class="bi bi-table"></i>Vue tableau</a>
+        <a th:href="@{/planning/calendrier}" class="view-tab active"><i class="bi bi-calendar3"></i>Vue calendrier</a>
+        <a th:href="@{/stats}"               class="view-tab"><i class="bi bi-bar-chart"></i>Statistiques</a>
+    </div>
+
+    <!-- ERROR BANNER (shown if fetch fails) -->
+    <div class="error-banner" id="errorBanner">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            Impossible de charger les soutenances. Vérifiez que le planning a été généré
+            (<code>/go/planning</code>) et que Jackson est dans le classpath.
+            <br><span id="errorDetail" style="font-size:11px;opacity:.7;margin-top:4px;display:block;"></span>
+        </div>
     </div>
 
     <!-- CALENDAR CARD -->
-    <div class="cal-card anim d3">
-        <!-- Légende des salles (remplie dynamiquement par JS) -->
-        <div class="legende" id="legende"></div>
-        <!-- Calendrier FullCalendar -->
+    <div class="cal-card a3">
+        <div class="legend-bar" id="legendBar">
+            <span class="legend-label">Salles :</span>
+            <span class="legend-empty">Chargement…</span>
+        </div>
         <div id="calendar"></div>
     </div>
 
 </div>
 
-<!-- MODAL DÉTAIL SOUTENANCE -->
-<div class="modal fade" id="modalDetail" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-mortarboard icon-sm"></i>Détail de la soutenance</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Rempli dynamiquement par JavaScript -->
-            </div>
+<!-- MODAL DÉTAIL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-box">
+        <div class="modal-hd">
+            <div class="modal-hd-title"><i class="bi bi-mortarboard"></i>Détail de la soutenance</div>
+            <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
+        <div class="modal-body" id="modalBody"></div>
     </div>
 </div>
 
-<!-- FOOTER -->
-<footer>
-    ENSA Al Hoceima — Département Mathématiques &amp; Informatique — 2024/2025
-</footer>
-
-<!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Palette de couleurs pour les salles (monochrome avec accent)
+    const palette = ['#60a5fa','#fbbf24','#86efac','#c4b5fd','#f87171','#67e8f9','#fb923c','#a3e635'];
     const couleursSalles = {};
-    const palette = ['#60a5fa', '#fbbf24', '#86efac', '#c4b5fd', '#f87171', '#67e8f9'];
     let paletteIdx = 0;
 
-    function getCouleurSalle(nomSalle) {
-        if (!couleursSalles[nomSalle]) {
-            couleursSalles[nomSalle] = palette[paletteIdx % palette.length];
+    function getCouleur(salle) {
+        if (!couleursSalles[salle]) {
+            couleursSalles[salle] = palette[paletteIdx % palette.length];
             paletteIdx++;
         }
-        return couleursSalles[nomSalle];
+        return couleursSalles[salle];
+    }
+
+    function updateLegend() {
+        const bar = document.getElementById('legendBar');
+        const entries = Object.entries(couleursSalles);
+        if (entries.length === 0) {
+            bar.innerHTML = '<span class="legend-label">Salles :</span><span class="legend-empty">Aucune soutenance planifiée.</span>';
+            return;
+        }
+        bar.innerHTML = '<span class="legend-label">Salles :</span>' +
+            entries.map(([s, c]) =>
+                `<div class="legend-item"><div class="legend-dot" style="background:${c}"></div>${s}</div>`
+            ).join('');
     }
 
     const calendarEl = document.getElementById('calendar');
-    const modal = new bootstrap.Modal(document.getElementById('modalDetail'));
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'fr',
-        initialView: 'timeGridWeek',
-        headerToolbar: {
-            left:   'prev,next today',
-            center: 'title',
-            right:  'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        slotMinTime: '08:00:00',
-        slotMaxTime: '18:00:00',
-        slotDuration: '00:30:00',
-        height: 'auto',
-        allDaySlot: false,
-        nowIndicator: true,
-        eventSources: [{
-            url: '/planning/json',
-            failure: function() {
-                console.error('Impossible de charger les événements.');
+    // ── Fetch events manually to avoid 406 from eventSources URL ──────────
+    // The 406 happens when the browser's Accept header conflicts with the
+    // server's content negotiation. Using fetch() with explicit headers fixes it.
+    fetch(/*[[@{/planning/json}]]*/ '/pfe-planning/planning/json', {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+        return r.json();
+    })
+    .then(events => {
+        // Pre-assign colours so legend is ready before render
+        events.forEach(ev => {
+            const salle = (ev.extendedProps || {}).salle || 'Inconnu';
+            const couleur = getCouleur(salle);
+            ev.backgroundColor = couleur + 'cc';
+            ev.borderColor     = couleur;
+        });
+        updateLegend();
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'fr',
+            initialView: 'timeGridWeek',
+            headerToolbar: {
+                left:   'prev,next today',
+                center: 'title',
+                right:  'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            slotMinTime: '08:00:00',
+            slotMaxTime: '18:00:00',
+            slotDuration: '00:30:00',
+            height: 'auto',
+            allDaySlot: false,
+            nowIndicator: true,
+            events: events,   // pass pre-loaded array directly — no URL fetch needed
+            eventClick: function(info) {
+                showDetail(info.event);
             }
-        }],
-        eventDidMount: function(info) {
-            // Attribuer couleur par salle
-            const salle = info.event.extendedProps.salle;
-            const couleur = getCouleurSalle(salle);
-            info.el.style.backgroundColor = couleur + 'cc'; // +cc pour transparence
-            info.el.style.borderColor = couleur;
-            // Mettre à jour la légende
-            mettreAJourLegende();
-        },
-        eventClick: function(info) {
-            afficherDetail(info.event);
-        }
+        });
+        calendar.render();
+    })
+    .catch(err => {
+        console.error('Calendrier:', err);
+        const banner = document.getElementById('errorBanner');
+        document.getElementById('errorDetail').textContent = err.message;
+        banner.style.display = 'flex';
+        updateLegend();
+
+        // Render empty calendar so the UI isn't broken
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            locale: 'fr',
+            initialView: 'timeGridWeek',
+            headerToolbar: { left:'prev,next today', center:'title', right:'dayGridMonth,timeGridWeek,timeGridDay' },
+            slotMinTime: '08:00:00', slotMaxTime: '18:00:00',
+            height: 'auto', allDaySlot: false
+        });
+        calendar.render();
     });
 
-    calendar.render();
+    // ── Modal ──────────────────────────────────────────────────────────────
+    function showDetail(event) {
+        const p = event.extendedProps || {};
 
-    // ── Afficher le modal détail ──────────────────
-    function afficherDetail(event) {
-        const p = event.extendedProps;
-        
-        // Déterminer les classes de badges
-        const filiereClass = p.filiere === 'GI' ? 'badge-gi' : (p.filiere === 'TDIA' ? 'badge-tdia' : 'badge-data');
-        const langueClass  = p.langue  === 'FR' ? 'badge-fr' : 'badge-en';
-        const langueFlag   = p.langue  === 'FR' ? 'FR' : 'EN';
+        const fMap = { GI:'bdg-gi', TDIA:'bdg-tdia', DATA:'bdg-data' };
+        const lMap = { FR:'bdg-fr', EN:'bdg-en' };
+        const fCls = fMap[p.filiere] || 'bdg-gi';
+        const lCls = lMap[p.langue]  || 'bdg-fr';
+
+        const jury = [p.jury1, p.jury2].filter(j => j && j !== '—').join(' / ') || '—';
 
         document.getElementById('modalBody').innerHTML = `
-            <div class="detail-row">
-                <div class="detail-icon"><i class="bi bi-mortarboard" style="color:#93c5fd;"></i></div>
+            <div class="drow">
+                <div class="d-icon"><i class="bi bi-mortarboard" style="color:#93c5fd;"></i></div>
                 <div>
-                    <div class="detail-label">Étudiant</div>
-                    <div class="detail-value">
-                        ${p.etudiant}
-                        <span class="${filiereClass}">${p.filiere}</span>
-                        <span class="${langueClass} ms-1">${langueFlag}</span>
-                    </div>
-                    ${p.titre ? `<div style="font-size:0.8rem;color:var(--t2);margin-top:4px;"><i class="bi bi-file-text me-1"></i>${p.titre}</div>` : ''}
+                    <div class="d-lbl">Étudiant</div>
+                    <div class="d-val">${p.etudiant || '—'}<span class="bdg ${fCls}">${p.filiere || ''}</span><span class="bdg ${lCls}" style="margin-left:4px;">${p.langue || ''}</span></div>
+                    ${p.titre ? `<div class="d-val2"><i class="bi bi-file-text" style="margin-right:4px;"></i>${p.titre}</div>` : ''}
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-icon"><i class="bi bi-clock" style="color:#fbbf24;"></i></div>
+            <div class="drow">
+                <div class="d-icon"><i class="bi bi-clock" style="color:#fbbf24;"></i></div>
                 <div>
-                    <div class="detail-label">Créneau</div>
-                    <div class="detail-value">${formatDate(event.start)} · ${p.heure} → ${p.heureFin}</div>
+                    <div class="d-lbl">Créneau</div>
+                    <div class="d-val">${formatDate(event.start)}</div>
+                    <div class="d-val2">${p.heure || ''} → ${p.heureFin || ''}</div>
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-icon"><i class="bi bi-door-open" style="color:#c4b5fd;"></i></div>
+            <div class="drow">
+                <div class="d-icon"><i class="bi bi-door-open" style="color:#c4b5fd;"></i></div>
                 <div>
-                    <div class="detail-label">Salle</div>
-                    <div class="detail-value">${p.salle}</div>
+                    <div class="d-lbl">Salle</div>
+                    <div class="d-val">${p.salle || '—'}</div>
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-icon"><i class="bi bi-person-badge" style="color:#86efac;"></i></div>
+            <div class="drow">
+                <div class="d-icon"><i class="bi bi-person-badge" style="color:#86efac;"></i></div>
                 <div>
-                    <div class="detail-label">Encadrant</div>
-                    <div class="detail-value">${p.encadrant}</div>
+                    <div class="d-lbl">Encadrant</div>
+                    <div class="d-val">${p.encadrant || '—'}</div>
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-icon"><i class="bi bi-people" style="color:#f87171;"></i></div>
+            <div class="drow">
+                <div class="d-icon"><i class="bi bi-people" style="color:#f87171;"></i></div>
                 <div>
-                    <div class="detail-label">Jury</div>
-                    <div class="detail-value">${p.jury1 || '-'}</div>
-                    <div class="detail-value" style="margin-top:4px;">${p.jury2 || '-'}</div>
-                    <div class="detail-value" style="margin-top:4px;">${p.jury3 || '-'}</div>
+                    <div class="d-lbl">Jury</div>
+                    <div class="d-val">${jury}</div>
                 </div>
             </div>`;
 
-        modal.show();
+        document.getElementById('modalOverlay').classList.add('open');
     }
 
-    // ── Légende des salles ────────────────────────
-    function mettreAJourLegende() {
-        const legende = document.getElementById('legende');
-        legende.innerHTML = '';
-        Object.entries(couleursSalles).forEach(([salle, couleur]) => {
-            legende.innerHTML += `
-                <div class="legende-item">
-                    <div class="legende-dot" style="background:${couleur};"></div>
-                    ${salle}
-                </div>`;
-        });
-    }
+    window.closeModal = function(e) {
+        if (e.target === document.getElementById('modalOverlay'))
+            document.getElementById('modalOverlay').classList.remove('open');
+    };
 
     function formatDate(date) {
         if (!date) return '';
-        return date.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+        return date.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
     }
 });
 </script>
