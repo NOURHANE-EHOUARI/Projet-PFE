@@ -2,6 +2,8 @@ package ma.ensa.pfe.service;
 
 import ma.ensa.pfe.dao.*;
 import ma.ensa.pfe.model.*;
+import ma.ensa.pfe.service.validation.ValidationService; // ✅ AJOUTÉ : Import du service de validation
+import ma.ensa.pfe.service.validation.ValidationSummary;  // ✅ AJOUTÉ : Import du résumé de validation
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,14 +27,17 @@ public class PlanificationService {
 
     // ✅ Injection de AffectationService pour traiter les étudiants sans encadrant
     @Autowired private AffectationService affectationService;
+    
+    // ✅ AJOUTÉ : Injection du service de validation
+    @Autowired private ValidationService validationService;
 
     private static final int DUREE_SOUTENANCE = 45;
     private static final int PAUSE_SALLE      = 15;
     private static final int DELAI_PROF       = 60;
     private static final int INTERVALLE       = DUREE_SOUTENANCE + PAUSE_SALLE;
 
-    private static final LocalTime DEBUT_MATIN = LocalTime.of(8,  30);
-    private static final LocalTime FIN_MATIN   = LocalTime.of(12, 30);
+    private static final LocalTime DEBUT_MATIN = LocalTime.of(9,  0);
+    private static final LocalTime FIN_MATIN   = LocalTime.of(12, 0);
     private static final LocalTime DEBUT_APRES = LocalTime.of(14,  0);
     private static final LocalTime FIN_APRES   = LocalTime.of(18,  0);
 
@@ -202,6 +207,29 @@ public class PlanificationService {
             msg += String.format(" ⚠️ %d non planifiés. Cause : %s (%d cas).",
                 echecs, premiereCause, nb);
         }
+        
+        // ══════════════════════════════════════════════════════════════════════
+        //  VALIDATION POST-GÉNÉRATION (NOUVELLE FONCTIONNALITÉ)
+        // ══════════════════════════════════════════════════════════════════════
+        try {
+            List<Soutenance> soutenancesGenerees = soutenanceRepository.findByVersion(version);
+            ValidationSummary validation = validationService.validatePlanning(soutenancesGenerees);
+            
+            if (!validation.isValid()) {
+                System.out.println("\n⚠️  " + validation.getFormattedReport());
+                // Optionnel : tu peux choisir de rejeter le planning si erreurs bloquantes
+                // if (!validation.getErrors().isEmpty()) {
+                //     throw new IllegalStateException("Validation échouée : " + validation.getFormattedReport());
+                // }
+            } else {
+                System.out.println("\n✅ Planning validé sans anomalie détectée.");
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️  Erreur lors de la validation : " + e.getMessage());
+            // La validation ne doit pas bloquer la génération → on log et on continue
+        }
+        // ══════════════════════════════════════════════════════════════════════
+        
         return msg;
     }
 

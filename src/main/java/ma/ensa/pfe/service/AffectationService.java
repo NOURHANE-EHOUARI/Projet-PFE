@@ -218,16 +218,33 @@ public class AffectationService {
         };
     }
 
+    // ══════════════════════════════════════════════
+    //  CHOIX AVEC CHARGE — RÉPARTITION PARFAITEMENT ÉQUITABLE ✅ CORRIGÉ
+    // ══════════════════════════════════════════════
     private Professeur choisirAvecCharge(List<Professeur> profs,
                                           Map<Long, Integer> charge) {
         if (profs == null || profs.isEmpty()) return null;
 
-        List<Professeur> melanges = new ArrayList<>(profs);
-        Collections.shuffle(melanges);
+        // ✅ NOUVELLE LOGIQUE : Répartition parfaitement équitable
+        // Principe : Aucun prof ne reçoit un étudiant supplémentaire
+        // tant que TOUS les autres n'ont pas eu le leur.
 
-        return melanges.stream()
-                .min(Comparator.comparingInt(p -> charge.getOrDefault(p.getId(), 0)))
-                .orElse(null);
+        // 1. Trouver la charge MINIMALE actuelle parmi les profs éligibles
+        int chargeMin = profs.stream()
+            .mapToInt(p -> charge.getOrDefault(p.getId(), 0))
+            .min()
+            .orElse(0);
+        
+        // 2. Filtrer UNIQUEMENT les profs ayant cette charge minimale
+        List<Professeur> profsChargeMin = profs.stream()
+            .filter(p -> charge.getOrDefault(p.getId(), 0) == chargeMin)
+            .collect(Collectors.toList());
+        
+        // 3. Mélanger CE sous-ensemble (pas tous les profs)
+        Collections.shuffle(profsChargeMin);
+        
+        // 4. Choisir le premier (aléatoire parmi les moins chargés)
+        return profsChargeMin.get(0);
     }
 
     // ══════════════════════════════════════════════
