@@ -52,7 +52,7 @@ public class StatistiquesController {
     @GetMapping("/planning/json")
     @ResponseBody
     public List<Map<String, Object>> getPlanningJson() {
-        List<Soutenance> soutenances = soutenanceRepository.findAll();
+        List<Soutenance> soutenances = soutenanceRepository.findAllWithDetails();
         List<Map<String, Object>> events = new ArrayList<>();
 
         // Palette de couleurs par salle (index tournant)
@@ -87,7 +87,8 @@ public class StatistiquesController {
             extendedProps.put("langue",     s.getEtudiant().getLangue().name());
             extendedProps.put("encadrant",  s.getEncadrant().getNomComplet());
             extendedProps.put("jury1",      s.getJury1() != null ? s.getJury1().getNomComplet() : "—");
-            extendedProps.put("jury2",      s.getJury2() != null ? s.getJury2().getNomComplet() : "—");
+            extendedProps.put("jury2", s.getJury2() != null ? s.getJury2().getNomComplet() : "—");
+            extendedProps.put("jury3", s.getJury3() != null ? s.getJury3().getNomComplet() : "—");
             extendedProps.put("salle",      nomSalle);
             extendedProps.put("heure",      s.getHeure().toString());
             extendedProps.put("heureFin",   s.getHeureFin().toString());

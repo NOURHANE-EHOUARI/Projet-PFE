@@ -1,6 +1,9 @@
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/ProfessorRestRule.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/RoomConflictRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Salle.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/VersionPlanning.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ProfesseurController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationSummary.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/PlanificationService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/ExportService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/config/HibernateConfig.java
@@ -9,10 +12,15 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/StatistiquesController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/VersionPlanningRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/PlanificationController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/Severity.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Contrainte.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Soutenance.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/AffectationController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/ProfessorDoubleBookingRule.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationResult.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Etudiant.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/AssignmentEquityRule.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/AffectationService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ExportController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/EtudiantService.java
@@ -21,6 +29,7 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/EtudiantRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/ProfesseurService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/HomeController.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/ExcelImportService.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/ContrainteRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Professeur.java

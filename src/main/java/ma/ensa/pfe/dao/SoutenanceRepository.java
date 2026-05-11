@@ -74,6 +74,7 @@ public interface SoutenanceRepository extends JpaRepository<Soutenance, Long> {
            "LEFT JOIN FETCH s.encadrant " +
            "LEFT JOIN FETCH s.jury1 " +
            "LEFT JOIN FETCH s.jury2 " +
+           "LEFT JOIN FETCH s.jury3 " +
            "LEFT JOIN FETCH s.salle")
     List<Soutenance> findAllWithDetails();
 }
