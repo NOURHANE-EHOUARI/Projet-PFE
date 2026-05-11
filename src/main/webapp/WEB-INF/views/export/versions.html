@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PFE Planning — Historique des versions</title>
+    <title>PFE Planning - Historique des versions</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
@@ -131,26 +131,43 @@
 
     <div class="a2">
         <div class="versions-list" th:if="${!#lists.isEmpty(versions)}">
-            <div class="version-card" th:each="v : ${versions}">
-                <div class="ver-icon"><i class="bi bi-archive"></i></div>
-                <div class="ver-info">
-                    <div class="ver-name" th:text="${v.nom}"></div>
-                    <div class="ver-meta">
-                        <span class="meta-item">
-                            <i class="bi bi-clock"></i>
-                            <span th:text="${v.date}"></span>
-                        </span>
-                        <span class="meta-item">
-                            <i class="bi bi-files"></i>
-                            <span th:text="${v.fichiers} + ' fichier(s)'"></span>
-                        </span>
-                        <span class="meta-item">
-                            <i class="bi bi-hdd"></i>
-                            <span th:text="${v.taille}"></span>
-                        </span>
-                    </div>
-                </div>
+             <div class="version-card" th:each="v : ${versions}">
+               <div class="ver-icon"><i class="bi bi-archive"></i></div>
+                 <div class="ver-info">
+                   <div class="ver-name" th:text="${v.nom}"></div>
+                   <div class="ver-meta">
+                    <span class="meta-item">
+                     <i class="bi bi-clock"></i>
+                    <span th:text="${v.date}"></span>
+                    </span>
+                    <span class="meta-item">
+                     <i class="bi bi-files"></i>
+                    <span th:text="${v.fichiers} + ' fichier(s)'"></span>
+                    </span>
+                    <span class="meta-item">
+                     <i class="bi bi-hdd"></i>
+                    <span th:text="${v.taille}"></span>
+                   </span>
+              </div>
             </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a th:href="@{/export/versions/pdf(nom=${v.nom})}"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+                  border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;
+                  background:rgba(239,68,68,0.08);color:#f87171;
+                  border:1px solid rgba(239,68,68,0.2);transition:all .15s;">
+            <i class="bi bi-eye"></i> Voir PDF
+        </a>
+        <a th:href="@{/export/versions/zip(nom=${v.nom})}"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+                  border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;
+                  background:rgba(99,102,241,0.08);color:#818cf8;
+                  border:1px solid rgba(99,102,241,0.2);transition:all .15s;">
+            <i class="bi bi-download"></i> Telecharger
+        </a>
+    </div>
+</div>
+
         </div>
 
         <div class="empty-state" th:if="${#lists.isEmpty(versions)}">
@@ -159,11 +176,6 @@
             <p>Cliquez sur "Sauvegarder version actuelle" pour créer votre première version.<br/>
                Chaque version contient Excel, PDF et le dossier PVs.</p>
         </div>
-    </div>
-
-    <div class="path-info a2">
-        <i class="bi bi-folder2-open"></i>
-        Dossier de stockage : <code th:text="${dossierBase}"></code>
     </div>
 
 </div>

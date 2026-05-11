@@ -35,6 +35,5 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Professeur.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/SalleController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/NlpLangueService.java
-/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ExportPageController.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/dao/SoutenanceRepository.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/controller/ImportController.java

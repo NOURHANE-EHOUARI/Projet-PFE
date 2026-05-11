@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>PFE Planning — Export</title>
+    <title>PFE Planning - Export</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <style>
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -223,7 +223,7 @@
                     <li>Feuille 3  Répartition par professeur</li>
                     <li>Tri automatique par date et heure</li>
                 </ul>
-                <a href="/pfe-planning/export" class="exp-btn btn-green">
+                <a href="/pfe-planning/export/excel" class="exp-btn btn-green">
                     Télécharger Excel →
                 </a>
             </div>
@@ -310,7 +310,6 @@
                     <li th:text="${nbVersions} + ' version(s) disponible(s)'">0 version(s)</li>
                     <li>Excel + PDF + PVs par version</li>
                     <li>Comparaison entre générations</li>
-                    <li th:text="'Dossier : ~/pfe-uploads'"></li>
                 </ul>
                 <a href="/pfe-planning/export/versions" class="exp-btn btn-amber">
                     Voir l'historique →
@@ -361,9 +360,6 @@
                    style="color:var(--accent2);background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.18);">
                      Voir toutes les versions
                 </a>
-            </div>
-            <div class="path-info">
-                 Dossier de stockage : <code th:text="${dossierBase}"></code>
             </div>
         </div>
     </div>

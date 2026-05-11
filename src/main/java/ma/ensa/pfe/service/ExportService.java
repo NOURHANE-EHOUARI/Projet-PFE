@@ -106,8 +106,8 @@ public class ExportService {
                 creerCellule(row, 5, s.getEtudiant().getFiliere().toString(), dataStyle);
                 creerCellule(row, 6, s.getEtudiant().getLangue().toString(), dataStyle);
                 creerCellule(row, 7, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), dataStyle);
-                creerCellule(row, 8, s.getJury1() != null ? s.getJury1().getNom() + " " + s.getJury1().getPrenom() : "", dataStyle);
-                creerCellule(row, 9, s.getJury2() != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "", dataStyle);
+                creerCellule(row, 8, s.getJury2() != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "", dataStyle);
+                creerCellule(row, 9, s.getJury3() != null ? s.getJury3().getNom() + " " + s.getJury3().getPrenom() : "", dataStyle);
             }
             for (int i = 0; i < headers.length; i++) sheet1.autoSizeColumn(i);
 
@@ -313,7 +313,7 @@ public class ExportService {
     }
 
     private void genererUnPv(Soutenance s, OutputStream out) {
-      Document doc = new Document(PageSize.A4, 50, 50, 60, 50);
+      Document doc = new Document(PageSize.A4, 45, 45, 40, 35);
       try {
         PdfWriter.getInstance(doc, out).setCloseStream(false);
         doc.open();
@@ -337,13 +337,13 @@ public class ExportService {
         Paragraph dept = new Paragraph(
             "Département de Mathématiques et Informatique", fontNormal);
         dept.setAlignment(Element.ALIGN_CENTER);
-        dept.setSpacingAfter(14);
+        dept.setSpacingAfter(8);
         doc.add(dept);
 
         // Ligne séparatrice
         PdfPTable ligne = new PdfPTable(1);
         ligne.setWidthPercentage(100);
-        ligne.setSpacingAfter(10);
+        ligne.setSpacingAfter(6);
         PdfPCell ligneCell = new PdfPCell();
         ligneCell.setBorderWidthBottom(1.5f);
         ligneCell.setBorderWidthTop(0);
@@ -357,13 +357,13 @@ public class ExportService {
         Paragraph titre = new Paragraph(
             "Fiche d'évaluation du Projet de Fin d'Étude", fontTitre);
         titre.setAlignment(Element.ALIGN_CENTER);
-        titre.setSpacingAfter(4);
+        titre.setSpacingAfter(2);
         doc.add(titre);
 
         Paragraph annee = new Paragraph(
             "Année Universitaire : 2024-2025", fontNormal);
         annee.setAlignment(Element.ALIGN_CENTER);
-        annee.setSpacingAfter(16);
+        annee.setSpacingAfter(8);
         doc.add(annee);
 
         // ── NOM ÉTUDIANT ──
@@ -374,7 +374,7 @@ public class ExportService {
         Paragraph nomVal = new Paragraph(
             "        " + s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom(),
             fontNormal);
-        nomVal.setSpacingAfter(10);
+        nomVal.setSpacingAfter(6);
         doc.add(nomVal);
 
         // ── FILIÈRE ──
@@ -382,16 +382,49 @@ public class ExportService {
         filiereLabel.add(new Chunk("Filière :          ", fontBold));
         String filiere = s.getEtudiant().getFiliere().toString();
 
-        String cbID   = (filiere.equals("ID")   || filiere.equals("DATA")) ? "☑" : "☐";
-        String cbGI   = filiere.equals("GI")                               ? "☑" : "☐";
-        String cbTDIA = (filiere.equals("TDIA") || filiere.equals("TD"))   ? "☑" : "☐";
-
-        filiereLabel.add(new Chunk(cbID   + " Ingénierie des Données     ", fontNormal));
-        filiereLabel.add(new Chunk(cbGI   + " Génie Informatique     ", fontNormal));
-        filiereLabel.add(new Chunk(cbTDIA + " Transformation Digitale et Intelligence Artificielle", fontNormal));
-        filiereLabel.setSpacingAfter(10);
+        // Cases à cocher avec tableau
+        filiereLabel.setSpacingAfter(6);
         doc.add(filiereLabel);
 
+        PdfPTable filiereTable = new PdfPTable(6);
+        filiereTable.setWidthPercentage(100);
+        filiereTable.setWidths(new float[]{0.5f, 2.5f, 0.5f, 2f, 0.5f, 4f});
+        filiereTable.setSpacingAfter(8);
+
+        // Case ID/DATA
+        PdfPCell cbID = new PdfPCell(new Phrase(
+          (filiere.equals("ID") || filiere.equals("DATA")) ? "☑" : "☐", fontNormal));
+        cbID.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        cbID.setPaddingTop(2);
+        filiereTable.addCell(cbID);
+
+        PdfPCell lblID = new PdfPCell(new Phrase("Ingénierie des Données", fontNormal));
+        lblID.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        filiereTable.addCell(lblID);
+
+        // Case GI
+        PdfPCell cbGI = new PdfPCell(new Phrase(filiere.equals("GI") ? "☑" : "☐", fontNormal));
+        cbGI.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        cbGI.setPaddingTop(2);
+        filiereTable.addCell(cbGI);
+
+        PdfPCell lblGI = new PdfPCell(new Phrase("Génie Informatique", fontNormal));
+        lblGI.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        filiereTable.addCell(lblGI);
+
+        // Case TDIA
+        PdfPCell cbTDIA = new PdfPCell(new Phrase(
+           (filiere.equals("TDIA") || filiere.equals("TD")) ? "☑" : "☐", fontNormal));
+        cbTDIA.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        cbTDIA.setPaddingTop(2);
+        filiereTable.addCell(cbTDIA);
+ 
+        PdfPCell lblTDIA = new PdfPCell(new Phrase(
+          "Transformation Digitale et Intelligence Artificielle", fontNormal));
+        lblTDIA.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
+        filiereTable.addCell(lblTDIA);
+
+        doc.add(filiereTable);
         // ── INTITULÉ RAPPORT ──
         Paragraph rapportLabel = new Paragraph();
         rapportLabel.add(new Chunk("Intitulé du rapport :", fontBold));
@@ -400,7 +433,7 @@ public class ExportService {
             "        " + (s.getEtudiant().getTitreProjet() != null ?
                 s.getEtudiant().getTitreProjet() : "…………………………………………………………………………."),
             fontNormal);
-        rapportVal.setSpacingAfter(10);
+        rapportVal.setSpacingAfter(6);
         doc.add(rapportVal);
 
         // ── ENCADRANT INTERNE ──
@@ -410,18 +443,18 @@ public class ExportService {
         Paragraph encVal = new Paragraph(
             "        Pr.  " + s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(),
             fontNormal);
-        encVal.setSpacingAfter(10);
+        encVal.setSpacingAfter(6);
         doc.add(encVal);
 
         // ── MEMBRES DU JURY ──
         Paragraph juryLabel = new Paragraph("Membres du jury :", fontBold);
-        juryLabel.setSpacingAfter(6);
+        juryLabel.setSpacingAfter(4);
         doc.add(juryLabel);
 
         // Tableau jury (encadrant = Président, jury2 et jury3 = Rapporteurs)
         PdfPTable juryTable = new PdfPTable(1);
         juryTable.setWidthPercentage(100);
-        juryTable.setSpacingAfter(14);
+        juryTable.setSpacingAfter(8);
 
         // Ligne 1 : Encadrant = Président
         String presidentNom = s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom();
@@ -454,25 +487,25 @@ public class ExportService {
         doc.add(noteContenu);
 
         Paragraph noteC = new Paragraph("C  =  ____", fontNormal);
-        noteC.setSpacingAfter(8);
+        noteC.setSpacingAfter(4);
         doc.add(noteC);
 
         Paragraph noteMemoireLabel = new Paragraph("Note du Mémoire", fontBold);
         doc.add(noteMemoireLabel);
         Paragraph noteM = new Paragraph("M  =  ____", fontNormal);
-        noteM.setSpacingAfter(8);
+        noteM.setSpacingAfter(4);
         doc.add(noteM);
 
         Paragraph noteSoutLabel = new Paragraph("Note de la Soutenance", fontBold);
         doc.add(noteSoutLabel);
         Paragraph noteS = new Paragraph("S  =  ____", fontNormal);
-        noteS.setSpacingAfter(10);
+        noteS.setSpacingAfter(4);
         doc.add(noteS);
 
         // ── TABLEAU MOYENNE ──
         PdfPTable moyTable = new PdfPTable(1);
         moyTable.setWidthPercentage(100);
-        moyTable.setSpacingAfter(20);
+        moyTable.setSpacingAfter(10);
 
         PdfPCell moyCell = new PdfPCell();
         moyCell.addElement(new Phrase("MOYENNE", fontBold));
@@ -485,12 +518,12 @@ public class ExportService {
         // ── DATE ET SIGNATURES ──
         Paragraph dateLine = new Paragraph(
             "Le :      " + s.getDate().format(DATE_FMT), fontNormal);
-        dateLine.setSpacingAfter(30);
+        dateLine.setSpacingAfter(16);
         doc.add(dateLine);
 
         Paragraph sigLabel = new Paragraph(
             "Signature des membres du jury :", fontNormal);
-        sigLabel.setSpacingAfter(20);
+        sigLabel.setSpacingAfter(10);
         doc.add(sigLabel);
 
         // Tableau signatures 3 colonnes
