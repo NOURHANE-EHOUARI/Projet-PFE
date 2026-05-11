@@ -247,7 +247,6 @@ k<!DOCTYPE html>
                       method="post" id="etudiantForm" novalidate>
 
                     <input type="hidden" th:field="*{id}"/>
-                    <input type="hidden" th:field="*{cne}"/>
                     <input type="hidden" name="ancienneLangue"
                            th:value="${modeEdition} ? ${etudiantForm.langue} : ''"/>
 

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,10 +25,6 @@ public class EtudiantService {
     //  LECTURE
     // ══════════════════════════════════════════════
 
-    /**
-     * Retourne TOUS les étudiants, avec ou sans encadrant.
-     * ✅ Utilise LEFT JOIN FETCH pour ne pas exclure les étudiants sans encadrant.
-     */
     @Transactional(readOnly = true)
     public List<Etudiant> findAll() {
         return etudiantRepository.findAllWithEncadrant();
@@ -40,19 +37,11 @@ public class EtudiantService {
                         "Étudiant introuvable : id=" + id));
     }
 
-    /**
-     * Filtre par filière — inclut les étudiants sans encadrant.
-     * ✅ Utilise LEFT JOIN FETCH pour cohérence avec findAll().
-     */
     @Transactional(readOnly = true)
     public List<Etudiant> findByFiliere(Filiere filiere) {
         return etudiantRepository.findByFiliereWithEncadrant(filiere);
     }
 
-    /**
-     * Filtre par langue — inclut les étudiants sans encadrant.
-     * ✅ Utilise LEFT JOIN FETCH pour cohérence avec findAll().
-     */
     @Transactional(readOnly = true)
     public List<Etudiant> findByLangue(Langue langue) {
         return etudiantRepository.findByLangueWithEncadrant(langue);
@@ -71,10 +60,10 @@ public class EtudiantService {
 
         if (etudiant.getId() != null) {
             // ── MODE ÉDITION ──
-            // Récupérer l'enregistrement existant pour conserver le CNE
             Etudiant existant = etudiantRepository.findById(etudiant.getId())
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Étudiant introuvable : id=" + etudiant.getId()));
+            // Conserver le CNE original (non modifiable)
             etudiant.setCne(existant.getCne());
 
             // En mode édition l'encadrant est obligatoire
@@ -87,7 +76,16 @@ public class EtudiantService {
 
         } else {
             // ── MODE AJOUT ──
-            // L'encadrant est optionnel : si non sélectionné on le laisse null
+
+            // ✅ CNE : générer automatiquement si vide ou null
+            // Évite la violation de contrainte unique quand le champ est laissé vide
+            if (etudiant.getCne() == null || etudiant.getCne().isBlank()) {
+                String cneAuto = "AUTO-"
+                        + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+                etudiant.setCne(cneAuto);
+            }
+
+            // Encadrant optionnel : si non sélectionné, laisser null
             // Il sera affecté automatiquement lors de la génération du planning
             if (etudiant.getEncadrant() != null
                     && (etudiant.getEncadrant().getId() == null
