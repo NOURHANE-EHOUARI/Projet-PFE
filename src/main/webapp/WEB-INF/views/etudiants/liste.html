@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Étudiants — PFE Planning</title>
+    <title>Étudiants - PFE Planning</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <style>
@@ -214,7 +214,7 @@
                 <li class="curr">Étudiants</li>
             </ol>
             <div class="page-title">Étudiants</div>
-            <div class="page-subtitle">Gestion des étudiants — Filières GI, TDIA &amp; DATA</div>
+            <div class="page-subtitle">Gestion des étudiants :  Filières GI, TDIA &amp; DATA</div>
         </div>
         <a th:href="@{/etudiants/nouveau}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i>Nouvel étudiant
@@ -318,13 +318,11 @@
                     <td class="td-titre searchable" th:text="${etudiant.titreProjet ?: '—'}">—</td>
                     <td>
                         <div class="act-wrap">
-                            <!-- ✅ Correct path: @{/etudiants/modifier/{id}(id=...)} -->
                             <a class="act-btn edit"
                                th:href="@{/etudiants/modifier/{id}(id=${etudiant.id})}"
                                title="Modifier">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <!-- ✅ Correct path: @{/etudiants/supprimer/{id}(id=...)} -->
                             <form th:action="@{/etudiants/supprimer/{id}(id=${etudiant.id})}"
                                   method="post" style="display:inline;"
                                   onsubmit="return confirm('Supprimer cet étudiant ?')">
