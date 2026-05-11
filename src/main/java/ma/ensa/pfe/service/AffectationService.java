@@ -11,49 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Module 1 : AFFECTATION DES ENCADRANTS
- *
- * Règles STRICTES par filière :
- *
- *   GI   → encadrant discipline INFORMATIQUE ou GI uniquement
- *   TDIA → encadrant discipline INFORMATIQUE, GI ou MATHEMATIQUE
- *   DATA →  encadrant discipline MATHEMATIQUE uniquement
- *
- *   GESTION et ANGLAIS → ne peuvent jamais encadrer personne
- *
- * Répartition équitable (charge min) + aléatoire à charge égale.
- *
- * ── BONUS NLP ─────────────────────────────────────────────────────────────
- * Avant l'affectation, NlpLangueService analyse le titre de chaque étudiant.
- * Si le titre est détecté EN → la langue de l'étudiant est mise à EN
- * automatiquement, ce qui garantira que BOUAZZA sera dans le jury au planning.
- * Cette étape NLP est INDÉPENDANTE de la logique d'affectation existante.
- * ──────────────────────────────────────────────────────────────────────────
- */
 @Service
 @Transactional
 public class AffectationService {
 
     @Autowired private ProfesseurRepository professeurRepository;
     @Autowired private EtudiantRepository   etudiantRepository;
+    @Autowired private NlpLangueService     nlpLangueService;
 
-    // ── AJOUT NLP : injecté séparément, n'affecte pas le reste ───────────
-    @Autowired private NlpLangueService nlpLangueService;
-
-    // Disciplines autorisées par filière
-    private static final Set<String> DISCIPLINES_GI   =
-            Set.of("GI", "INFORMATIQUE");
-
-    private static final Set<String> DISCIPLINES_TDIA =
-            Set.of("GI", "INFORMATIQUE", "MATHEMATIQUE");
-
-    private static final Set<String> DISCIPLINES_DATA =
-            Set.of("MATHEMATIQUE");
-
-    // Disciplines jamais autorisées comme encadrant
-    private static final Set<String> DISCIPLINES_EXCLUES =
-            Set.of("GESTION", "ANGLAIS");
+    private static final Set<String> DISCIPLINES_GI   = Set.of("GI", "INFORMATIQUE");
+    private static final Set<String> DISCIPLINES_TDIA = Set.of("GI", "INFORMATIQUE", "MATHEMATIQUE");
+    private static final Set<String> DISCIPLINES_DATA = Set.of("MATHEMATIQUE");
+    private static final Set<String> DISCIPLINES_EXCLUES = Set.of("GESTION", "ANGLAIS");
 
     // ══════════════════════════════════════════════
     //  RÉSULTAT D'AFFECTATION
@@ -61,25 +30,22 @@ public class AffectationService {
     public static class AffectationResult {
         private int nbAffectes = 0;
         private int nbEchecs   = 0;
-        // ── AJOUT NLP ──
         private int nbNlpDetectes = 0;
         private final List<String> details = new ArrayList<>();
         private final List<String> erreurs = new ArrayList<>();
 
-        public int getNbAffectes()        { return nbAffectes; }
-        public int getNbEchecs()          { return nbEchecs; }
-        // ── AJOUT NLP ──
-        public int getNbNlpDetectes()     { return nbNlpDetectes; }
-        public List<String> getDetails()  { return details; }
-        public List<String> getErreurs()  { return erreurs; }
-        public boolean hasErreurs()       { return !erreurs.isEmpty(); }
+        public int getNbAffectes()       { return nbAffectes; }
+        public int getNbEchecs()         { return nbEchecs; }
+        public int getNbNlpDetectes()    { return nbNlpDetectes; }
+        public List<String> getDetails() { return details; }
+        public List<String> getErreurs() { return erreurs; }
+        public boolean hasErreurs()      { return !erreurs.isEmpty(); }
 
-        void incrAffectes()               { nbAffectes++; }
-        void incrEchecs()                 { nbEchecs++; }
-        // ── AJOUT NLP ──
-        void incrNlpDetectes()            { nbNlpDetectes++; }
-        void addDetail(String d)          { details.add(d); }
-        void addErreur(String e)          { erreurs.add(e); }
+        void incrAffectes()              { nbAffectes++; }
+        void incrEchecs()                { nbEchecs++; }
+        void incrNlpDetectes()           { nbNlpDetectes++; }
+        void addDetail(String d)         { details.add(d); }
+        void addErreur(String e)         { erreurs.add(e); }
     }
 
     // ══════════════════════════════════════════════
@@ -90,7 +56,9 @@ public class AffectationService {
 
         List<Professeur> tousProfs = professeurRepository.findAll();
         if (tousProfs.isEmpty()) {
-        	result.addErreur("Aucun professeur en base. <a href='/pfe-planning/import' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
+            result.addErreur("Aucun professeur en base. <a href='/pfe-planning/import' "
+                    + "style='color:#fbbf24;text-decoration:underline;font-weight:600;'>"
+                    + "Importez</a> d'abord le fichier Excel.");
             return result;
         }
 
@@ -100,7 +68,7 @@ public class AffectationService {
             return result;
         }
 
-        // ── Construire les pools par discipline ────────────────────────────
+        // Pools par discipline (excluent ANGLAIS et GESTION)
         List<Professeur> profsInfo = tousProfs.stream()
                 .filter(p -> estDiscipline(p, DISCIPLINES_GI))
                 .collect(Collectors.toList());
@@ -109,36 +77,44 @@ public class AffectationService {
                 .filter(p -> estDiscipline(p, DISCIPLINES_DATA))
                 .collect(Collectors.toList());
 
-        // Log de diagnostic
         System.out.println("══════ AFFECTATION — DIAGNOSTIC ══════");
-        System.out.println("Profs Informatique/GI (pour GI & TDIA) : "
+        System.out.println("Profs Info/GI : "
                 + profsInfo.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
-        System.out.println("Profs Mathématique (pour DATA & TDIA)  : "
+        System.out.println("Profs Math    : "
                 + profsMath.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
-        System.out.println("Exclus (Gestion/Anglais) : "
-                + tousProfs.stream()
-                    .filter(p -> estDisciplineExclue(p))
-                    .map(Professeur::getNom)
+
+        // ✅ Profs anglophones — pour affichage diagnostic
+        List<Professeur> profsAnglais = tousProfs.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getParleAnglais()))
+                .collect(Collectors.toList());
+        System.out.println("Profs anglophones : "
+                + profsAnglais.stream()
+                    .map(p -> p.getNom() + " [" + p.getSpecialite() + "]")
                     .collect(Collectors.joining(", ")));
         System.out.println("══════════════════════════════════════");
 
-        // ── Compteur de charge par prof ────────────────────────────────────
         Map<Long, Integer> charge = new HashMap<>();
         tousProfs.forEach(p -> charge.put(p.getId(), 0));
 
-        // ── Réinitialiser toutes les affectations ──────────────────────────
-        for (Etudiant e : tousEtudiants) {
-            e.setEncadrant(null);
+        // ✅ Ne PAS écraser les encadrants choisis manuellement
+        // Seuls les étudiants sans encadrant sont affectés automatiquement
+        List<Etudiant> etudiants = tousEtudiants.stream()
+                .filter(e -> e.getEncadrant() == null)
+                .collect(Collectors.toList());
+
+        System.out.printf("  → %d étudiant(s) sans encadrant à affecter automatiquement%n",
+                etudiants.size());
+        System.out.printf("  → %d étudiant(s) avec encadrant manuel conservé%n",
+                tousEtudiants.size() - etudiants.size());
+
+        if (etudiants.isEmpty()) {
+            result.addDetail("✅ Tous les étudiants ont déjà un encadrant assigné.");
+            return result;
         }
 
-        // ── Mélanger les étudiants → ordre différent à chaque import ───────
-        List<Etudiant> etudiants = new ArrayList<>(tousEtudiants);
         Collections.shuffle(etudiants);
 
-        // ════════════════════════════════════════════════════════════════════
-        //  ÉTAPE NLP (BONUS) — exécutée AVANT l'affectation, sans l'affecter
-        //  Si titre EN détecté → langue mise à EN → BOUAZZA inclus dans jury
-        // ════════════════════════════════════════════════════════════════════
+        // ── ÉTAPE NLP ────────────────────────────────────────────────────────
         System.out.println("══════ NLP — DÉTECTION LANGUE TITRE ══════");
         for (Etudiant etudiant : etudiants) {
             try {
@@ -149,26 +125,21 @@ public class AffectationService {
                         etudiant.setLangue(Langue.EN);
                         etudiantRepository.save(etudiant);
                         result.incrNlpDetectes();
-                        result.addDetail("🔍 NLP : \""
-                                + titre + "\" → langue auto-détectée EN pour "
+                        result.addDetail("🔍 NLP : \"" + titre
+                                + "\" → langue EN pour "
                                 + etudiant.getNom() + " " + etudiant.getPrenom());
                         System.out.println("[NLP] EN détecté → "
                                 + etudiant.getNom() + " : " + titre);
                     }
                 }
             } catch (Exception ex) {
-                // NLP ne doit JAMAIS bloquer l'affectation
                 System.err.println("[NLP] Erreur ignorée pour "
                         + etudiant.getNom() + " : " + ex.getMessage());
             }
         }
         System.out.println("══════════════════════════════════════════");
-        // ════════════════════════════════════════════════════════════════════
-        //  FIN ÉTAPE NLP
-        // ════════════════════════════════════════════════════════════════════
 
-        // ── Affecter chaque étudiant ────────────────────────────────────────
-        // (code original — RIEN n'a changé ici)
+        // ── AFFECTATION ENCADRANTS ────────────────────────────────────────────
         for (Etudiant etudiant : etudiants) {
             Professeur encadrant = choisirEncadrant(
                     etudiant.getFiliere(), profsInfo, profsMath, charge);
@@ -187,102 +158,125 @@ public class AffectationService {
                 result.incrEchecs();
                 result.addErreur("Impossible d'affecter un encadrant à : "
                         + etudiant.getNom() + " " + etudiant.getPrenom()
-                        + " (" + etudiant.getFiliere() + ")"
-                        + " — aucun prof de la discipline requise disponible.");
+                        + " (" + etudiant.getFiliere() + ")");
             }
         }
+
+        // ── AFFECTATION ÉQUITABLE PROFS ANGLOPHONES ───────────────────────────
+        // Les profs anglophones sont affectés équitablement aux étudiants EN
+        // qui n'ont pas encore de prof anglophone comme encadrant.
+        // (L'encadrant reste celui affecté ci-dessus — ici on prépare
+        //  la charge initiale pour que PlanificationService les distribue bien)
+        affecterChargeAnglophones(profsAnglais, etudiants, result);
 
         return result;
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  ✅ NOUVEAU : Répartition équitable des profs anglophones
+    //  Principe : compter les étudiants EN et afficher le diagnostic
+    //  La vraie répartition se fait dans PlanificationService via chargeProf
+    // ══════════════════════════════════════════════════════════════════════════
+    private void affecterChargeAnglophones(List<Professeur> profsAnglais,
+                                            List<Etudiant> etudiants,
+                                            AffectationResult result) {
+        if (profsAnglais.isEmpty()) return;
+
+        long nbEN = etudiants.stream()
+                .filter(e -> e.getLangue() == Langue.EN)
+                .count();
+
+        if (nbEN == 0) return;
+
+        System.out.println("══════ ANGLOPHONES — DIAGNOSTIC ══════");
+        System.out.printf("  %d étudiant(s) EN pour %d prof(s) anglophone(s)%n",
+                nbEN, profsAnglais.size());
+
+        // Répartition théorique équitable
+        long parProf = nbEN / profsAnglais.size();
+        long reste   = nbEN % profsAnglais.size();
+        System.out.printf("  Répartition idéale : %d par prof, %d en surplus%n",
+                parProf, reste);
+
+        for (int i = 0; i < profsAnglais.size(); i++) {
+            long quota = parProf + (i < reste ? 1 : 0);
+            System.out.printf("  %-25s → quota jury EN : %d%n",
+                    profsAnglais.get(i).getNom(), quota);
+        }
+        System.out.println("═══════════════════════════════════════");
+
+        result.addDetail(String.format(
+                "📊 Profs anglophones : %d prof(s) pour %d soutenance(s) EN",
+                profsAnglais.size(), nbEN));
+    }
+
     // ══════════════════════════════════════════════
-    //  LOGIQUE DE CHOIX — RÈGLES STRICTES
-    //  (code original — RIEN n'a changé)
+    //  LOGIQUE DE CHOIX ENCADRANT
     // ══════════════════════════════════════════════
     private Professeur choisirEncadrant(Filiere filiere,
                                          List<Professeur> profsInfo,
                                          List<Professeur> profsMath,
                                          Map<Long, Integer> charge) {
         return switch (filiere) {
-            case GI -> {
-                yield choisirAvecCharge(profsInfo, charge);
-            }
+            case GI   -> choisirAvecCharge(profsInfo, charge);
             case TDIA -> {
                 Professeur choix = choisirAvecCharge(profsInfo, charge);
-                if (choix != null) yield choix;
-                yield choisirAvecCharge(profsMath, charge);
+                yield choix != null ? choix : choisirAvecCharge(profsMath, charge);
             }
-            case DATA -> {
-                yield choisirAvecCharge(profsMath, charge);
-            }
+            case DATA -> choisirAvecCharge(profsMath, charge);
         };
     }
 
     // ══════════════════════════════════════════════
-    //  CHOIX AVEC CHARGE — RÉPARTITION PARFAITEMENT ÉQUITABLE ✅ CORRIGÉ
+    //  CHOIX AVEC CHARGE ÉQUITABLE
     // ══════════════════════════════════════════════
     private Professeur choisirAvecCharge(List<Professeur> profs,
                                           Map<Long, Integer> charge) {
         if (profs == null || profs.isEmpty()) return null;
 
-        // ✅ NOUVELLE LOGIQUE : Répartition parfaitement équitable
-        // Principe : Aucun prof ne reçoit un étudiant supplémentaire
-        // tant que TOUS les autres n'ont pas eu le leur.
-
-        // 1. Trouver la charge MINIMALE actuelle parmi les profs éligibles
         int chargeMin = profs.stream()
-            .mapToInt(p -> charge.getOrDefault(p.getId(), 0))
-            .min()
-            .orElse(0);
-        
-        // 2. Filtrer UNIQUEMENT les profs ayant cette charge minimale
+                .mapToInt(p -> charge.getOrDefault(p.getId(), 0))
+                .min().orElse(0);
+
         List<Professeur> profsChargeMin = profs.stream()
-            .filter(p -> charge.getOrDefault(p.getId(), 0) == chargeMin)
-            .collect(Collectors.toList());
-        
-        // 3. Mélanger CE sous-ensemble (pas tous les profs)
+                .filter(p -> charge.getOrDefault(p.getId(), 0) == chargeMin)
+                .collect(Collectors.toList());
+
         Collections.shuffle(profsChargeMin);
-        
-        // 4. Choisir le premier (aléatoire parmi les moins chargés)
         return profsChargeMin.get(0);
     }
 
     // ══════════════════════════════════════════════
-    //  UTILITAIRES DISCIPLINE
-    //  (code original — RIEN n'a changé)
+    //  UTILITAIRES
     // ══════════════════════════════════════════════
     private boolean estDiscipline(Professeur p, Set<String> disciplines) {
         if (p.getSpecialite() == null) return false;
-        String sp = normaliser(p.getSpecialite());
-        return disciplines.contains(sp);
+        return disciplines.contains(normaliser(p.getSpecialite()));
     }
 
     private boolean estDisciplineExclue(Professeur p) {
         if (p.getSpecialite() == null) return false;
-        String sp = normaliser(p.getSpecialite());
-        return DISCIPLINES_EXCLUES.contains(sp);
+        return DISCIPLINES_EXCLUES.contains(normaliser(p.getSpecialite()));
     }
 
     private String normaliser(String s) {
         if (s == null) return "";
         return s.toUpperCase()
-                .replace("É", "E").replace("È", "E").replace("Ê", "E")
-                .replace("À", "A").replace("Â", "A")
-                .replace("Î", "I").replace("Ô", "O").replace("Û", "U")
+                .replace("É","E").replace("È","E").replace("Ê","E")
+                .replace("À","A").replace("Â","A")
+                .replace("Î","I").replace("Ô","O").replace("Û","U")
                 .trim();
     }
 
     // ══════════════════════════════════════════════
     //  STATS (pour la vue)
-    //  (code original — RIEN n'a changé)
     // ══════════════════════════════════════════════
     public Map<String, Long> getChargeEncadrants() {
         return etudiantRepository.findAll().stream()
                 .filter(e -> e.getEncadrant() != null)
                 .collect(Collectors.groupingBy(
                         e -> e.getEncadrant().getNom() + " " + e.getEncadrant().getPrenom(),
-                        Collectors.counting()
-                ));
+                        Collectors.counting()));
     }
 
     public long getNbEtudiantsSansEncadrant() {
