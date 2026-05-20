@@ -17,6 +17,7 @@ ma/ensa/pfe/service/validation/rules/ProfessorDoubleBookingRule$ProfTimeKey.clas
 ma/ensa/pfe/model/VersionPlanning.class
 ma/ensa/pfe/service/AffectationService$1.class
 ma/ensa/pfe/service/AffectationService.class
+ma/ensa/pfe/service/validation/JuryEquityRule.class
 ma/ensa/pfe/controller/ProfesseurController.class
 ma/ensa/pfe/model/Etudiant$Filiere.class
 ma/ensa/pfe/service/EtudiantService.class

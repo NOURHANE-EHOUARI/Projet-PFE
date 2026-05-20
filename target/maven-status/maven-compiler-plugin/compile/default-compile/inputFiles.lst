@@ -19,6 +19,7 @@
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/ProfessorDoubleBookingRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationResult.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/model/Etudiant.java
+/home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/JuryEquityRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/rules/AssignmentEquityRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/validation/ValidationRule.java
 /home/hiba/eclipse-workspaceassha/pfe-planning/src/main/java/ma/ensa/pfe/service/AffectationService.java

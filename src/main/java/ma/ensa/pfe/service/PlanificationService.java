@@ -40,6 +40,7 @@ public class PlanificationService {
     private Map<Long, List<Soutenance>> cacheSoutenancesParJour;
     private Map<Long, Long>             cacheChargeProf;
     private Map<Long, List<Contrainte>> cacheContraintes;
+    private Map<Long, Long> cacheChargeJury;
 
     // ══════════════════════════════════════════════════════════════════════
     //  POINT D'ENTRÉE — GÉNÉRATION COMPLÈTE
@@ -77,6 +78,7 @@ public class PlanificationService {
         cacheChargeProf         = new HashMap<>();
         cacheContraintes        = contrainteRepository.findAll().stream()
             .collect(Collectors.groupingBy(c -> c.getProfesseur().getId()));
+        cacheChargeJury = new HashMap<>();
 
         List<Etudiant>   etudiants   = etudiantRepository.findAll();
         List<Professeur> professeurs = professeurRepository.findAll();
@@ -315,8 +317,8 @@ public class PlanificationService {
         List<Professeur> candidats = tousProfs.stream()
             .filter(p -> !p.getId().equals(encadrant.getId()))
             .filter(p -> estProfDisponible(p, jour, heure))
-            // ✅ RÈGLE 3 : trier par charge croissante pour répartition équitable
-            .sorted(Comparator.comparingLong(p -> chargeProf(p.getId())))
+            // RÈGLE 3 : trier par charge croissante pour répartition équitable
+            .sorted(Comparator.comparingLong(p -> chargeJury(p.getId())))
             .collect(Collectors.toList());
 
         // Séparer les profs d'anglais et les autres
@@ -328,7 +330,7 @@ public class PlanificationService {
         if (exigeAnglais) {
             // ══ SOUTENANCE EN ══════════════════════════════════════════════
             // Jury = encadrant (non-anglais) + 1 prof non-anglais + 1 prof anglais
-            // ✅ RÈGLE 1 : exactement 1 prof d'anglais, pas 2
+            // RÈGLE 1 : exactement 1 prof d'anglais, pas 2
 
             if (profsAnglais.isEmpty()) {
                 // Pas de prof d'anglais disponible → mode dégradé sans anglais
@@ -594,8 +596,10 @@ public class PlanificationService {
         // Compter la charge : encadrant + jury2 + jury3
         // (jury1 = encadrant, donc on ne compte pas deux fois)
         incrementerCharge(s.getEncadrant().getId());
-        if (s.getJury2() != null) incrementerCharge(s.getJury2().getId());
-        if (s.getJury3() != null) incrementerCharge(s.getJury3().getId());
+        if (s.getJury2() != null)
+            cacheChargeJury.merge(s.getJury2().getId(), 1L, Long::sum);
+        if (s.getJury3() != null)
+            cacheChargeJury.merge(s.getJury3().getId(), 1L, Long::sum);
     }
 
     private long chargeProf(Long id) {
@@ -620,6 +624,9 @@ public class PlanificationService {
         static ResultatPlacement echec(String r) {
             return new ResultatPlacement(false, null, r);
         }
+    }
+    private long chargeJury(Long id) {
+        return cacheChargeJury.getOrDefault(id, 0L);
     }
 
     public static class PlanificationException extends RuntimeException {
