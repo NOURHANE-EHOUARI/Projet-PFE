@@ -371,10 +371,12 @@
                 <div class="d-flex flex-column gap-3">
                     <!-- Bouton étape suivante -->
                     <div th:if="${result.etudiantsImportes > 0 and result.profsImportes > 0}">
-                        <a th:href="@{/affectation}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-people-fill"></i>
-                            Étape suivante : Affecter les Encadrants
-                        </a>
+                        <form th:action="@{/affectation/affecter}" method="post" style="display:inline">
+                          <button type="submit" class="btn btn-primary">
+                           <i class="bi bi-shuffle"></i>
+                           Étape suivante : Affecter les Encadrants
+                          </button>
+                        </form>
                         <p class="text-muted small mt-2" style="color: var(--t2);">
                             Les étudiants ont été importés. L'affectation automatique des encadrants se fait à l'étape suivante.
                         </p>

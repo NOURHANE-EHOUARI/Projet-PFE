@@ -23,11 +23,7 @@ public class ImportController {
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 Mo
 
-    // ===== PAGE D'UPLOAD =====
-    @GetMapping
-    public String pageUpload() {
-        return "import/upload";
-    }
+ 
 
     // ===== TRAITEMENT DU FICHIER =====
     @PostMapping("/traiter")

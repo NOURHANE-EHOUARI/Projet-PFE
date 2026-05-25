@@ -324,6 +324,14 @@
         <i class="bi bi-exclamation-triangle icon"></i>
         <span th:text="${erreur}"></span>
     </div>
+    <div th:if="${successPlanning}" class="alert alert-success anim">
+        <i class="bi bi-check-circle icon"></i>
+        <span th:text="${successPlanning}"></span>
+    </div>
+    <div th:if="${erreurPlanning}" class="alert alert-error anim">
+       <i class="bi bi-exclamation-triangle icon"></i>
+       <span th:utext="${erreurPlanning}"></span> 
+    </div>
 
     <!-- MAIN GRID -->
     <div class="grid">
@@ -369,9 +377,57 @@
                     <p class="text-success fw-bold mb-3">
                         <i class="bi bi-check-circle-fill me-1"></i>Tous les étudiants ont un encadrant !
                     </p>
-                    <a th:href="@{/planning}" class="btn btn-success">
-                        <i class="bi bi-calendar-week"></i>Générer le Planning
-                    </a>
+                    <div th:if="${nbSansEncadrant == 0 and chargeEncadrants != null and !chargeEncadrants.isEmpty()}"
+     class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
+
+    <p style="color:#4ade80;font-weight:600;margin-bottom:16px;">
+        <i class="bi bi-check-circle-fill"></i> Tous les étudiants ont un encadrant !
+    </p>
+
+    <form th:action="@{/planning/generer}" method="post" id="planningForm">
+
+        <!-- Label -->
+        <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:8px;">
+            <i class="bi bi-calendar3" style="color:var(--accent2);margin-right:6px;"></i>
+            Jours de soutenance
+        </div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">
+            Sélectionnez jusqu'à 3 jours (Lun–Ven, pas de dates passées).
+        </div>
+
+        <!-- 3 date pickers -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+            <input type="date" id="jour1" name="jour1"
+                   style="background:var(--bg3);border:1px solid var(--border);color:var(--t0);
+                          border-radius:8px;padding:10px 14px;font-size:13px;width:100%;
+                          font-family:'Inter',sans-serif;"/>
+            <input type="date" id="jour2" name="jour2"
+                   style="background:var(--bg3);border:1px solid var(--border);color:var(--t0);
+                          border-radius:8px;padding:10px 14px;font-size:13px;width:100%;
+                          font-family:'Inter',sans-serif;"/>
+            <input type="date" id="jour3" name="jour3"
+                   style="background:var(--bg3);border:1px solid var(--border);color:var(--t0);
+                          border-radius:8px;padding:10px 14px;font-size:13px;width:100%;
+                          font-family:'Inter',sans-serif;"/>
+        </div>
+
+        <!-- Jours sélectionnés preview -->
+        <div id="joursPreview"
+             style="display:none;font-size:12px;color:var(--accent3);
+                    background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);
+                    border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        </div>
+
+        <!-- Champ caché qui envoie les dates formatées -->
+        <input type="hidden" name="jours" id="joursHidden"/>
+
+        <button type="submit" class="btn btn-success" id="submitBtn"
+                style="width:100%" disabled>
+            <i class="bi bi-calendar-week"></i>Générer le Planning
+        </button>
+
+    </form>
+</div>
                 </div>
             </div>
         </div>
@@ -453,6 +509,91 @@
 
 </div>
 
+<script>
+const jour1 = document.getElementById('jour1');
+const jour2 = document.getElementById('jour2');
+const jour3 = document.getElementById('jour3');
+const joursHidden = document.getElementById('joursHidden');
+const joursPreview = document.getElementById('joursPreview');
+const submitBtn = document.getElementById('submitBtn');
 
+// Date min = aujourd'hui
+const today = new Date().toISOString().split('T')[0];
+[jour1, jour2, jour3].forEach(inp => {
+    if (inp) {
+        inp.min = today;
+        inp.addEventListener('change', mettreAJour);
+    }
+});
+
+function estWeekend(dateStr) {
+    if (!dateStr) return false;
+    const d = new Date(dateStr + 'T00:00:00');
+    const day = d.getDay();
+    return day === 0 || day === 6; // dim ou sam
+}
+
+function mettreAJour() {
+    // Valider les week-ends
+    [jour1, jour2, jour3].forEach(inp => {
+        if (inp.value && estWeekend(inp.value)) {
+            inp.setCustomValidity('Veuillez choisir un jour de semaine (Lun–Ven).');
+            inp.style.borderColor = '#ef4444';
+        } else {
+            inp.setCustomValidity('');
+            inp.style.borderColor = 'var(--border)';
+        }
+    });
+
+    // Collecter les dates valides
+    const dates = [jour1.value, jour2.value, jour3.value]
+        .filter(d => d && !estWeekend(d));
+
+    // Supprimer les doublons
+    const uniques = [...new Set(dates)];
+
+    // Mettre à jour le champ caché
+    joursHidden.value = uniques.join(',');
+
+    // Preview
+    if (uniques.length > 0) {
+        const fmt = new Intl.DateTimeFormat('fr-FR', {
+            weekday: 'long', year: 'numeric',
+            month: 'long', day: 'numeric'
+        });
+        joursPreview.style.display = 'block';
+        joursPreview.innerHTML = '📅 ' + uniques.map(d => {
+            const dt = new Date(d + 'T00:00:00');
+            return fmt.format(dt);
+        }).join('<br>📅 ');
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+    } else {
+        joursPreview.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+    }
+}
+
+// Validation avant soumission
+document.getElementById('planningForm')?.addEventListener('submit', function(e) {
+    const dates = joursHidden.value;
+    if (!dates || dates.trim() === '') {
+        e.preventDefault();
+        alert('Veuillez sélectionner au moins un jour de soutenance.');
+        return;
+    }
+    const liste = dates.split(',').filter(Boolean);
+    if (liste.length > 3) {
+        e.preventDefault();
+        alert('Maximum 3 jours autorisés.');
+    }
+});
+
+// Initialiser le bouton désactivé
+if (submitBtn) {
+    submitBtn.style.opacity = '0.5';
+}
+</script>
 </body>
 </html>
