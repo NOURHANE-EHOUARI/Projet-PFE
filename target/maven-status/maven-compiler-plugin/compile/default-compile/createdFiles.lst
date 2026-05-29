@@ -26,11 +26,9 @@ ma/ensa/pfe/model/Salle.class
 ma/ensa/pfe/service/PlanificationService$PlanificationException.class
 ma/ensa/pfe/controller/AffectationController.class
 ma/ensa/pfe/service/PlanificationService$ResultatPlacement.class
-ma/ensa/pfe/service/NlpLangueService$Langue.class
 ma/ensa/pfe/service/validation/rules/RoomConflictRule$DateSalleKey.class
 ma/ensa/pfe/service/validation/Severity.class
 ma/ensa/pfe/controller/ImportController.class
-ma/ensa/pfe/service/ExportService$1.class
 ma/ensa/pfe/service/validation/ValidationSummary.class
 ma/ensa/pfe/service/validation/ValidationService$PlanningValidationException.class
 ma/ensa/pfe/service/ExcelImportService.class
@@ -46,7 +44,6 @@ ma/ensa/pfe/service/validation/ValidationRule.class
 ma/ensa/pfe/model/Contrainte.class
 ma/ensa/pfe/dao/ContrainteRepository.class
 ma/ensa/pfe/service/validation/rules/ProfessorRestRule$ProfDateKey.class
-ma/ensa/pfe/service/NlpLangueService$DetectionResult.class
 ma/ensa/pfe/model/Etudiant.class
 ma/ensa/pfe/model/Professeur.class
 ma/ensa/pfe/model/Soutenance.class

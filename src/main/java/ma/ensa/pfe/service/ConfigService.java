@@ -43,7 +43,11 @@ public class ConfigService {
         return getTime("HEURE_DEBUT_JOURNEE", DEFAULT_HEURE_DEBUT_JOURNEE);
     }
 
-    public LocalTime getHeureFinJournee() {
+    public LocalTime getHeureFinJournee() { 
+        String valeur = configRepository.findByCle("HEURE_FIN_JOURNEE")
+                .map(c -> c.getValeur().trim())
+                .orElse("NON_TROUVEE");
+        System.out.println("[CONFIG] HEURE_FIN_JOURNEE lue : " + valeur);
         return getTime("HEURE_FIN_JOURNEE", DEFAULT_HEURE_FIN_JOURNEE);
     }
 

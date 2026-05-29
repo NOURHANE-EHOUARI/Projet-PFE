@@ -19,11 +19,8 @@ public class AffectationService {
     @Autowired private EtudiantRepository   etudiantRepository;
     @Autowired private NlpLangueService     nlpLangueService;
 
-    private static final Set<String> DISCIPLINES_GI   = Set.of("GI", "INFORMATIQUE");
-    private static final Set<String> DISCIPLINES_TDIA = Set.of("GI", "INFORMATIQUE", "MATHEMATIQUE");
-    private static final Set<String> DISCIPLINES_DATA = Set.of("MATHEMATIQUE");
-    private static final Set<String> DISCIPLINES_EXCLUES = Set.of("GESTION", "ANGLAIS");
 
+ 
     // ══════════════════════════════════════════════
     //  RÉSULTAT D'AFFECTATION
     // ══════════════════════════════════════════════
@@ -68,22 +65,16 @@ public class AffectationService {
             return result;
         }
 
-        // Pools par discipline (excluent ANGLAIS et GESTION)
-        List<Professeur> profsInfo = tousProfs.stream()
-                .filter(p -> estDiscipline(p, DISCIPLINES_GI))
-                .collect(Collectors.toList());
+        List<Professeur> profsEligibles = new ArrayList<>(tousProfs);
 
-        List<Professeur> profsMath = tousProfs.stream()
-                .filter(p -> estDiscipline(p, DISCIPLINES_DATA))
-                .collect(Collectors.toList());
-
-        System.out.println("══════ AFFECTATION — DIAGNOSTIC ══════");
-        System.out.println("Profs Info/GI : "
-                + profsInfo.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
-        System.out.println("Profs Math    : "
-                + profsMath.stream().map(Professeur::getNom).collect(Collectors.joining(", ")));
-
-        // ✅ Profs anglophones — pour affichage diagnostic
+     
+        System.out.println("══════ AFFECTATION - DIAGNOSTIC ══════");
+        System.out.println("Profs éligibles : "
+            + profsEligibles.stream()
+                .map(p -> p.getNom() + " [" + p.getSpecialite() + "]")
+                .collect(Collectors.joining(", ")));
+        
+        // Profs anglophones — pour affichage diagnostic
         List<Professeur> profsAnglais = tousProfs.stream()
                 .filter(p -> Boolean.TRUE.equals(p.getParleAnglais()))
                 .collect(Collectors.toList());
@@ -115,7 +106,7 @@ public class AffectationService {
         Collections.shuffle(etudiants);
 
         // ── ÉTAPE NLP ────────────────────────────────────────────────────────
-        System.out.println("══════ NLP — DÉTECTION LANGUE TITRE ══════");
+        System.out.println("══════ NLP - DÉTECTION LANGUE TITRE ══════");
         for (Etudiant etudiant : etudiants) {
             try {
                 String titre = etudiant.getTitreProjet();
@@ -142,7 +133,7 @@ public class AffectationService {
         // ── AFFECTATION ENCADRANTS ────────────────────────────────────────────
         for (Etudiant etudiant : etudiants) {
             Professeur encadrant = choisirEncadrant(
-                    etudiant.getFiliere(), profsInfo, profsMath, charge);
+            		etudiant.getFiliere(), profsEligibles, charge);
 
             if (encadrant != null) {
                 etudiant.setEncadrant(encadrant);
@@ -188,7 +179,7 @@ public class AffectationService {
 
         if (nbEN == 0) return;
 
-        System.out.println("══════ ANGLOPHONES — DIAGNOSTIC ══════");
+        System.out.println("══════ ANGLOPHONES - DIAGNOSTIC ══════");
         System.out.printf("  %d étudiant(s) EN pour %d prof(s) anglophone(s)%n",
                 nbEN, profsAnglais.size());
 
@@ -214,17 +205,11 @@ public class AffectationService {
     //  LOGIQUE DE CHOIX ENCADRANT
     // ══════════════════════════════════════════════
     private Professeur choisirEncadrant(Filiere filiere,
-                                         List<Professeur> profsInfo,
-                                         List<Professeur> profsMath,
-                                         Map<Long, Integer> charge) {
-        return switch (filiere) {
-            case GI   -> choisirAvecCharge(profsInfo, charge);
-            case TDIA -> {
-                Professeur choix = choisirAvecCharge(profsInfo, charge);
-                yield choix != null ? choix : choisirAvecCharge(profsMath, charge);
-            }
-            case DATA -> choisirAvecCharge(profsMath, charge);
-        };
+            List<Professeur> profsEligibles,
+            Map<Long, Integer> charge) {
+      //  Tous les profs éligibles peuvent encadrer n'importe quelle filière
+      // L'équité est assurée par la charge minimale
+      return choisirAvecCharge(profsEligibles, charge);
     }
 
     // ══════════════════════════════════════════════
@@ -249,15 +234,9 @@ public class AffectationService {
     // ══════════════════════════════════════════════
     //  UTILITAIRES
     // ══════════════════════════════════════════════
-    private boolean estDiscipline(Professeur p, Set<String> disciplines) {
-        if (p.getSpecialite() == null) return false;
-        return disciplines.contains(normaliser(p.getSpecialite()));
-    }
 
-    private boolean estDisciplineExclue(Professeur p) {
-        if (p.getSpecialite() == null) return false;
-        return DISCIPLINES_EXCLUES.contains(normaliser(p.getSpecialite()));
-    }
+
+ 
 
     private String normaliser(String s) {
         if (s == null) return "";

@@ -23,6 +23,7 @@ public class ExcelImportService {
     @Autowired private ProfesseurRepository      professeurRepository;
     @Autowired private SalleRepository           salleRepository;
     @Autowired private VersionPlanningRepository versionPlanningRepository;
+    @Autowired private PlanningConfigRepository configRepository;
 
     // ══════════════════════════════════════════════
     //  RÉSULTAT D'IMPORT
@@ -53,7 +54,13 @@ public class ExcelImportService {
 
         try (InputStream is = file.getInputStream();
              Workbook wb   = ouvrirWorkbook(file.getOriginalFilename(), is)) {
-
+        	// ✅ 0. CONFIG — EN PREMIER
+            Sheet sheetConfig = trouverFeuille(wb, "config");
+            if (sheetConfig != null) {
+                importerConfig(sheetConfig, result);
+            } else {
+                result.addErreur("Feuille 'CONFIG' introuvable — valeurs par défaut utilisées.");
+            }
             // 1. PROFESSEURS — doivent être importés en premier
             Sheet sheetProfs = trouverFeuille(wb, "profs");
             if (sheetProfs != null) {
@@ -92,6 +99,38 @@ public class ExcelImportService {
         }
 
         return result;
+    }
+    
+    private void importerConfig(Sheet sheet, ImportResult result) {
+        System.out.println("[CONFIG] Lecture feuille CONFIG — "
+                + sheet.getLastRowNum() + " lignes");
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null || estLigneVide(row)) continue;
+            try {
+                String cle    = lireString(row, 0).trim().toUpperCase();
+                String valeur = lireString(row, 1).trim();
+                String desc   = lireString(row, 2).trim();
+
+                if (cle.isBlank() || valeur.isBlank()) continue;
+
+                PlanningConfig config = configRepository
+                        .findByCle(cle)
+                        .orElse(new PlanningConfig());
+                config.setCle(cle);
+                config.setValeur(valeur);
+                if (!desc.isBlank()) config.setDescription(desc);
+
+                configRepository.save(config);
+                configRepository.flush();
+
+                System.out.println("[CONFIG] Sauvegardé : " + cle + " = " + valeur);
+
+            } catch (Exception e) {
+                result.addErreur("Config ligne " + (i + 1) + " : " + e.getMessage());
+            }
+        }
     }
 
     // ══════════════════════════════════════════════

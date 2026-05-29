@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Planning des soutenances - PFE Planning</title>
-    
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
-    
+
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -25,6 +23,7 @@
             --green: #22c55e;
             --red: #ef4444;
             --amber: #f59e0b;
+            --amber2: #fbbf24;
             --t0: #f0f6fc;
             --t1: #8b949e;
             --t2: #484f58;
@@ -42,7 +41,6 @@
             line-height: 1.5;
         }
 
-        /* Background subtil */
         body::before {
             content: '';
             position: fixed; inset: 0;
@@ -54,143 +52,111 @@
 
         .wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
 
-        /* ===== ICONES MONOCHROMES ===== */
-        .icon {
-            display: inline-flex; align-items: center; justify-content: center;
-            color: var(--t1); transition: color 0.15s ease; flex-shrink: 0;
-        }
+        .icon { display: inline-flex; align-items: center; justify-content: center; color: var(--t1); transition: color 0.15s ease; flex-shrink: 0; }
         .icon-lg { font-size: 2.5rem; }
         .icon-md { font-size: 1.25rem; }
         .icon-sm { font-size: 1rem; }
-        .card:hover .icon, .nav-link:hover .icon, .btn:hover .icon { color: var(--accent2); }
 
-        /* NAVIGATION */
+        /* NAV */
         nav {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 56px; padding-bottom: 24px;
             border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px;
         }
-        .logo {
-            display: flex; align-items: center; gap: 12px;
-            font-weight: 700; font-size: 18px; color: var(--t0);
-            text-decoration: none; letter-spacing: -0.02em;
-        }
-        .logo-icon {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            display: flex; align-items: center; justify-content: center;
-        }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; color: var(--t0); text-decoration: none; letter-spacing: -0.02em; }
+        .logo-icon { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; }
         .logo-icon .bi { color: #fff; font-size: 1rem; }
-        
         .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
-        .nav-link {
-            display: flex; align-items: center; gap: 6px;
-            padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
-            color: var(--t1); text-decoration: none; transition: all 0.15s ease;
-            border: 1px solid transparent;
-        }
+        .nav-link { display: flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--t1); text-decoration: none; transition: all 0.15s ease; border: 1px solid transparent; }
         .nav-link .bi { font-size: 0.9rem; }
         .nav-link:hover { color: var(--t0); background: var(--hover); border-color: var(--border); }
-        .nav-link.active { 
-            color: var(--accent2); 
-            background: rgba(99,102,241,0.10); 
-            border-color: rgba(99,102,241,0.30);
-            font-weight: 600;
-        }
+        .nav-link.active { color: var(--accent2); background: rgba(99,102,241,0.10); border-color: rgba(99,102,241,0.30); font-weight: 600; }
 
         /* PAGE HEADER */
         .page-header { margin-bottom: 48px; padding-top: 8px; }
-        .page-header-inner {
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 20px;
-        }
-        h1 { 
-            font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; 
-            margin: 0; letter-spacing: -0.03em;
-            display: flex; align-items: center; gap: 14px;
-        }
+        .page-header-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        h1 { font-size: clamp(32px,5vw,44px); font-weight: 700; line-height: 1.15; margin: 0; letter-spacing: -0.03em; display: flex; align-items: center; gap: 14px; }
         h1 .bi { color: var(--accent2); }
-        h1 span { 
-            background: linear-gradient(135deg, var(--accent2), var(--accent3)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+        h1 span { background: linear-gradient(135deg, var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .subtitle { font-size: 16px; color: var(--t1); line-height: 1.6; margin-top: 8px; }
 
         /* ALERTS */
-        .alert {
-            display: flex; align-items: flex-start; gap: 14px;
-            padding: 16px 20px; border-radius: 12px; margin-bottom: 32px;
-            font-size: 14px; line-height: 1.5; border-left: 4px solid transparent;
-        }
+        .alert { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; line-height: 1.5; border-left: 4px solid transparent; }
         .alert .bi { font-size: 1.1rem; margin-top: 2px; }
         .alert-success { background: rgba(34,197,94,0.08); border-left-color: var(--green); color: #86efac; }
-        .alert-error { background: rgba(239,68,68,0.08); border-left-color: var(--red); color: #fca5a5; }
-        .alert-info { background: rgba(59,130,246,0.08); border-left-color: #3b82f6; color: #93c5fd; }
-        .alert-link { color: var(--accent2); text-decoration: none; font-weight: 500; }
-        .alert-link:hover { text-decoration: underline; }
+        .alert-error   { background: rgba(239,68,68,0.08);  border-left-color: var(--red);   color: #fca5a5; }
+        .alert-warn    { background: rgba(245,158,11,0.08); border-left-color: var(--amber); color: #fcd34d; }
+        .alert-warn a  { color: var(--amber2); font-weight: 600; text-decoration: none; }
+        .alert-warn a:hover { text-decoration: underline; }
 
         /* PROGRESS STEPS */
-        .progress-steps {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px 28px; margin-bottom: 32px;
-            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-        }
+        .progress-steps { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 28px; margin-bottom: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .step-item { display: flex; align-items: center; gap: 10px; }
-        .step-badge {
-            width: 28px; height: 28px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700; flex-shrink: 0;
-        }
-        .step-done { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .step-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .step-done   { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
         .step-active { background: rgba(99,102,241,0.15); color: var(--accent2); border: 1px solid rgba(99,102,241,0.3); }
-        .step-todo { background: var(--bg3); color: var(--t2); border: 1px solid var(--border); }
+        .step-todo   { background: var(--bg3); color: var(--t2); border: 1px solid var(--border); }
         .step-label { font-size: 13px; font-weight: 500; }
         .step-label.active { color: var(--accent2); }
-        .step-label.done { color: var(--t0); }
+        .step-label.done   { color: var(--t0); }
         .step-separator { color: var(--t2); font-size: 1rem; }
 
-        /* STATS STRIP */
-        .stat-strip { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-        .stat-pill {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 20px; font-size: 14px;
-            display: flex; align-items: center; gap: 10px;
-            transition: border-color 0.2s ease;
-        }
+        /* CARD */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.2s ease, box-shadow 0.2s ease; margin-bottom: 24px; }
+        .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+        .card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+        .card-header .icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); font-size: 1.2rem; }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--t0); }
+        .card-desc  { font-size: 13px; color: var(--t2); margin-top: 3px; }
+        .card-body  { padding: 22px 24px; }
+
+        /* REGEN CARD */
+        .regen-info { font-size: 13px; color: var(--t1); margin-bottom: 16px; line-height: 1.6; }
+        .regen-info strong { color: var(--accent3); }
+        .regen-info .bi { color: var(--accent2); margin-right: 6px; }
+        .no-dates-msg { font-size: 13px; color: var(--t2); margin-bottom: 16px; }
+
+        /* STAT STRIP */
+        .stat-strip { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+        .stat-pill { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 14px; display: flex; align-items: center; gap: 10px; transition: border-color 0.2s ease; }
         .stat-pill:hover { border-color: var(--border-strong); }
         .stat-pill strong { font-size: 1.5rem; font-weight: 700; color: var(--accent2); }
-        .stat-pill .text-muted { color: var(--t2); font-weight: 500; }
+        .stat-pill .lbl { color: var(--t2); font-weight: 500; }
 
-        /* TABLE CARD */
-        .table-card {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; overflow: hidden;
-            margin-bottom: 32px;
-        }
-        .table { margin: 0; }
+        /* SEARCH */
+        .search-wrap { display: flex; align-items: center; gap: 12px; padding: 12px 18px; margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.2s; }
+        .search-wrap:focus-within { border-color: rgba(99,102,241,0.5); }
+        .search-wrap input { flex: 1; background: none; border: none; outline: none; color: var(--t0); font-size: 14px; font-family: 'Inter', sans-serif; }
+        .search-wrap input::placeholder { color: var(--t2); }
+        .search-result-count { font-size: 12px; color: var(--t2); white-space: nowrap; }
+
+        /* FILTERS */
+        .filters-wrap { display: flex; align-items: center; gap: 12px; padding: 12px 18px; margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; }
+        .filter-label { font-size: 13px; color: var(--t2); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--bg3); color: var(--t1); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+        .filter-btn:hover { background: var(--hover); border-color: var(--border-strong); color: var(--t0); }
+        .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+
+        /* TABLE */
+        .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 32px; }
+        .table { margin: 0; width: 100%; border-collapse: collapse; }
         .table thead { background: var(--bg2); }
-        .table thead th {
-            padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 600;
-            letter-spacing: 0.08em; text-transform: uppercase; color: var(--t2);
-            border-bottom: 1px solid var(--border); white-space: nowrap;
-        }
+        .table thead th { padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t2); border-bottom: 1px solid var(--border); white-space: nowrap; }
         .table tbody tr { transition: background 0.15s ease; }
         .table tbody tr:hover { background: var(--hover); }
-        .table tbody td {
-            padding: 14px 16px; vertical-align: middle; border-color: var(--border);
-            font-size: 14px; color: var(--t0);
-        }
-        .table tbody td.text-muted { color: var(--t2); }
-        .table tbody td.fw-semibold { font-weight: 600; }
+        .table tbody td { padding: 14px 16px; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; color: var(--t0); }
+        .table tbody tr:last-child td { border-bottom: none; }
+        .text-muted { color: var(--t2) !important; }
+        .fw-semibold { font-weight: 600; }
 
         /* BADGES */
-        .badge-gi { background: rgba(96,165,250,0.15); color: #93c5fd; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(96,165,250,0.3); }
-        .badge-tdia { background: rgba(251,191,36,0.15); color: #fcd34d; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(251,191,36,0.3); }
-        .badge-data { background: rgba(134,239,172,0.15); color: #86efac; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(134,239,172,0.3); }
-        .badge-fr { background: var(--bg3); color: var(--t1); font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border); }
-        .badge-en { background: rgba(245,158,11,0.15); color: #fbbf24; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(245,158,11,0.3); }
-        .badge-salle { background: rgba(168,85,247,0.15); color: #c4b5fd; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(168,85,247,0.3); }
+        .badge-gi    { background: rgba(96,165,250,0.15);  color: #93c5fd; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(96,165,250,0.3); }
+        .badge-tdia  { background: rgba(251,191,36,0.15);  color: #fcd34d; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(251,191,36,0.3); }
+        .badge-data  { background: rgba(134,239,172,0.15); color: #86efac; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(134,239,172,0.3); }
+        .badge-fr    { background: var(--bg3); color: var(--t1); font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border); }
+        .badge-en    { background: rgba(245,158,11,0.15);  color: #fbbf24; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-salle { background: rgba(168,85,247,0.15);  color: #c4b5fd; font-weight: 600; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(168,85,247,0.3); }
 
         /* EMPTY STATE */
         .empty-state { text-align: center; padding: 60px 20px; color: var(--t2); }
@@ -198,136 +164,104 @@
         .empty-state p { margin-bottom: 20px; }
 
         /* BUTTONS */
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            gap: 8px; padding: 12px 24px; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
-            border: none; transition: all 0.18s ease; text-decoration: none;
-            letter-spacing: -0.01em;
-        }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.18s ease; text-decoration: none; letter-spacing: -0.01em; font-family: 'Inter', sans-serif; }
         .btn .bi { font-size: 1rem; }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), #4f46e5);
-            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
-        }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #4f46e5); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35); }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
-        .btn-outline {
-            background: transparent; color: var(--t1);
-            border: 1px solid var(--border);
-        }
+        .btn-outline { background: transparent; color: var(--t1); border: 1px solid var(--border); }
         .btn-outline:hover { color: var(--t0); border-color: var(--border-strong); background: var(--hover); }
+        .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
+        .btn-green:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.45); }
         .btn:active { transform: translateY(0); }
 
         /* MODAL */
-        .modal-content {
-            background: var(--bg2); border: 1px solid var(--border);
-            border-radius: 16px; color: var(--t0);
-        }
-        .modal-header {
-            border-bottom: 1px solid var(--border); padding: 20px 24px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
+        .modal-content { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; color: var(--t0); }
+        .modal-header { border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
         .modal-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         .modal-title .bi { color: var(--accent2); }
         .modal-body { padding: 24px; }
         .modal-footer { border-top: 1px solid var(--border); padding: 16px 24px; }
         .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
 
-        /* PREREQ ALERT */
-        .prereq-alert {
-            background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
-            border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
-            display: flex; align-items: flex-start; gap: 12px;
-        }
-        .prereq-alert .bi { font-size: 1.2rem; color: #fbbf24; margin-top: 2px; }
-        .prereq-alert a { color: var(--accent2); text-decoration: none; font-weight: 500; }
-        .prereq-alert a:hover { text-decoration: underline; }
-
-        /* FLATPICKR CUSTOM */
-        .flatpickr-calendar {
-            background: var(--bg2) !important; border: 1px solid var(--border) !important;
-            border-radius: 12px !important; box-shadow: var(--shadow) !important;
-        }
+        /* FLATPICKR */
+        .flatpickr-calendar { background: var(--bg2) !important; border: 1px solid var(--border) !important; border-radius: 12px !important; box-shadow: var(--shadow) !important; }
         .flatpickr-day { color: var(--t0) !important; }
         .flatpickr-day.selected { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
         .flatpickr-day.today { border-color: var(--amber) !important; }
-        .flatpickr-day.weekend { color: var(--t2) !important; }
-        .flatpickr-day.disabled { color: var(--t2) !important; opacity: 0.5; }
+        .flatpickr-day.weekend, .flatpickr-day.disabled { color: var(--t2) !important; opacity: 0.5; }
         .flatpickr-months .flatpickr-month { background: var(--bg3); color: var(--t0); }
         .flatpickr-months .flatpickr-prev-month, .flatpickr-months .flatpickr-next-month { color: var(--t1); }
         .flatpickr-months .flatpickr-prev-month:hover, .flatpickr-months .flatpickr-next-month:hover { color: var(--accent2); }
-        .flatpickr-weekdays { background: var(--bg3); color: var(--t2); }
+        .flatpickr-weekdays { background: var(--bg3); }
         .flatpickr-weekday { color: var(--t2) !important; }
         .flatpickr-time { background: var(--bg3); border-top: 1px solid var(--border); }
         .flatpickr-time input { background: var(--bg2); color: var(--t0); border: 1px solid var(--border); }
-        .flatpickr-time .numInputWrapper span { border-color: var(--border) !important; }
-        .flatpickr-time .numInputWrapper span:hover { background: var(--hover); }
 
-       
+        /* DATE PICKER STYLE */
+        .date-input-styled {
+            width: 100%; padding: 11px 14px;
+            background: var(--bg3); border: 1px solid var(--border);
+            color: var(--t0); border-radius: 10px; font-size: 13px;
+            font-family: 'Inter', sans-serif; cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .date-input-styled:focus { outline: none; border-color: rgba(99,102,241,0.5); }
+        .date-feedback { font-size: 12px; margin-top: 8px; display: none; }
+        .date-feedback.show { display: block; }
+        .date-feedback.ok   { color: #4ade80; }
+        .date-feedback.err  { color: #f87171; }
 
-        /* RESPONSIVE & ANIMATIONS */
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         .anim { animation: fadeUp 0.35s ease both; }
         .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
 
-        @media(max-width:1000px) { 
-            .table-responsive { overflow-x: auto; }
-            .table { min-width: 900px; }
-        }
-        @media(max-width:850px) { 
-            .page-header-inner { flex-direction: column; align-items: flex-start; }
-            nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; }
-            .nav-links { width: 100%; justify-content: flex-start; }
-            .progress-steps { flex-direction: column; align-items: flex-start; }
-            .stat-strip { flex-direction: column; }
-        }
-        @media(max-width:500px) { 
-            .nav-links { gap: 2px; }
-            .nav-link { padding: 7px 10px; font-size: 12px; }
-            .btn { width: 100%; }
-        }
+        @media(max-width:1000px) { .table-responsive { overflow-x: auto; } .table { min-width: 900px; } }
+        @media(max-width:850px) { .page-header-inner { flex-direction: column; align-items: flex-start; } nav { flex-direction: column; align-items: flex-start; padding-bottom: 20px; } .nav-links { width: 100%; } .progress-steps { flex-direction: column; align-items: flex-start; } .stat-strip { flex-direction: column; } }
+        @media(max-width:500px) { .nav-link { padding: 7px 10px; font-size: 12px; } .btn { width: 100%; } }
     </style>
 </head>
 <body>
 <div class="wrap">
 
-    <!-- NAVIGATION -->
+    <!-- ── NAVIGATION ── -->
     <nav class="anim">
         <a th:href="@{/}" class="logo">
             <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
             <span>PFE Planning</span>
         </a>
         <div class="nav-links">
-            <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
-            <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
-            <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
-            <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
-            <a th:href="@{/affectation}" class="nav-link"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
-            <a th:href="@{/planning}" class="nav-link active"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
+            <a th:href="@{/}"                    class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
+            <a href="#importSection"             class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <a th:href="@{/etudiants}"           class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
+            <a th:href="@{/professeurs}"         class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
+            <a th:href="@{/salles}"              class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
+            <a th:href="@{/affectation}"         class="nav-link"><i class="bi bi-diagram-3 icon-sm"></i>Affectation</a>
+            <a th:href="@{/planning}"            class="nav-link active"><i class="bi bi-calendar-week icon-sm"></i>Planning</a>
             <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3 icon-sm"></i>Calendrier</a>
-            <a th:href="@{/export}" class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
+            <a th:href="@{/export}"              class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
         </div>
     </nav>
 
-    <!-- HEADER -->
+    <!-- ── PAGE HEADER ── -->
     <div class="page-header anim d1">
         <div class="page-header-inner">
             <div>
                 <h1><i class="bi bi-calendar-week icon-md"></i>Planning des <span>soutenances</span></h1>
                 <p class="subtitle"
-                   th:text="${versionActuelle != null 
+                   th:text="${versionActuelle != null
                        ? 'Version : ' + #temporals.format(versionActuelle.dateGeneration, 'dd/MM/yyyy HH:mm')
                        : 'Aucune version générée'}">Version actuelle</p>
             </div>
-            <button type="button" class="btn btn-primary"
+            <!-- Bouton "Nouvelles dates" — ouvre la modale uniquement si affectation faite -->
+            <button th:if="${affectationFaite}" type="button"
+                    class="btn btn-outline"
                     data-bs-toggle="modal" data-bs-target="#genererModal">
-                <i class="bi bi-magic icon-sm"></i>Générer / Régénérer
+                <i class="bi bi-calendar-plus icon-sm"></i>Nouvelles dates
             </button>
         </div>
     </div>
 
-    <!-- PROGRESS STEPS -->
+    <!-- ── PROGRESS STEPS ── -->
     <div class="progress-steps anim d2">
         <div class="step-item">
             <span class="step-badge step-done"><i class="bi bi-check"></i></span>
@@ -350,65 +284,153 @@
         </div>
     </div>
 
-    <!-- ALERTS -->
+    <!-- ── ALERTS ── -->
+
+    <!-- Prérequis : visible UNIQUEMENT si affectation non faite -->
+    <div th:unless="${affectationFaite}" class="alert alert-warn anim">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div>
+            Pré-requis : Les encadrants doivent être affectés avant de générer le planning.
+            <a th:href="@{/affectation}">Vérifier l'affectation →</a>
+        </div>
+    </div>
+
     <div th:if="${successPlanning}" class="alert alert-success anim">
-        <i class="bi bi-check-circle icon"></i>
+        <i class="bi bi-check-circle"></i>
         <span th:text="${successPlanning}"></span>
     </div>
     <div th:if="${erreurPlanning}" class="alert alert-error anim">
-        <i class="bi bi-exclamation-triangle icon"></i>
-        <span th:text="${erreurPlanning}"></span>
-    </div>
-    <div th:if="${messageInfo}" class="alert alert-info anim">
-        <i class="bi bi-info-circle icon"></i>
-        <span th:text="${messageInfo}"></span>
-        <a th:href="@{/affectation}" class="alert-link ms-2">→ Aller à l'affectation des encadrants</a>
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:utext="${erreurPlanning}"></span>
     </div>
 
-    <!-- STATS STRIP -->
-    <div class="stat-strip anim d2" th:if="${soutenances != null and !soutenances.isEmpty()}">
+    <!-- ── CARD RÉGÉNÉRER ──
+         Visible seulement si :
+         1. affectation faite
+         2. planning déjà généré (versionActuelle != null)
+    ── -->
+    <div th:if="${affectationFaite and versionActuelle != null}"
+         class="card anim d2">
+        <div class="card-header">
+            <div class="icon"><i class="bi bi-arrow-repeat"></i></div>
+            <div>
+                <div class="card-title">Régénérer le planning</div>
+                <div class="card-desc"
+                     th:text="${derniersJours != null and derniersJours != ''}
+                         ? 'Dates utilisées : ' + ${joursFormatesAffichage}
+                         : 'Aucune date mémorisée dans cette session'">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <!-- CAS 1 : dates mémorisées → bouton Régénérer direct -->
+            <div th:if="${derniersJours != null and derniersJours != ''}">
+                <p class="regen-info">
+                    <i class="bi bi-calendar-check"></i>
+                    Le planning sera régénéré sur les mêmes dates :
+                    <strong th:text="${joursFormatesAffichage}"></strong>
+                </p>
+                <form th:action="@{/planning/regenerer}" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat"></i> Régénérer
+                    </button>
+                </form>
+            </div>
+
+            <!-- CAS 2 : pas de dates mémorisées (session expirée ou premier démarrage) -->
+            <div th:unless="${derniersJours != null and derniersJours != ''}">
+                <p class="no-dates-msg">
+                    La session a expiré ou le serveur a redémarré — les dates ne sont plus mémorisées.
+                    Retournez sur la page Affectation pour sélectionner de nouvelles dates.
+                </p>
+                <a th:href="@{/affectation}" class="btn btn-primary">
+                    <i class="bi bi-diagram-3"></i> Aller à l'Affectation
+                </a>
+            </div>
+
+        </div>
+    </div><!-- fin .card régénérer -->
+
+    <!-- ── STAT STRIP ── -->
+    <div class="stat-strip anim d2"
+         th:if="${soutenances != null and !soutenances.isEmpty()}">
         <div class="stat-pill">
             <strong th:text="${soutenances.size()}">0</strong>
-            <span class="text-muted">Soutenances planifiées</span>
+            <span class="lbl">Soutenances planifiées</span>
         </div>
         <div class="stat-pill">
             <strong th:text="${#lists.size(soutenances.![date].stream().distinct().toList())}">0</strong>
-            <span class="text-muted">Jours de soutenance</span>
+            <span class="lbl">Jours de soutenance</span>
         </div>
     </div>
-    
-    <!-- Bouton export — visible seulement si planning généré -->
+
+    <!-- Bouton export -->
     <div th:if="${soutenances != null and !soutenances.isEmpty()}"
-        style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+         style="display:flex;justify-content:flex-end;margin-bottom:14px;">
         <a th:href="@{/export}"
-          style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
-              border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;
-              background:rgba(34,197,94,0.08);color:#4ade80;
-              border:1px solid rgba(34,197,94,0.22);transition:all .18s;">
-          <i class="bi bi-download"></i> Exporter ce planning
+           style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
+                  border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;
+                  background:rgba(34,197,94,0.08);color:#4ade80;
+                  border:1px solid rgba(34,197,94,0.22);transition:all .18s;">
+            <i class="bi bi-download"></i> Exporter ce planning
         </a>
     </div>
-    <!-- TABLEAU DES SOUTENANCES -->
+
+    <!-- ── FILTRES ── -->
+    <div class="filters-wrap anim d3"
+         th:if="${soutenances != null and !soutenances.isEmpty()}">
+        <div class="filter-label"><i class="bi bi-funnel"></i> Filtrer :</div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Tous</button>
+            <button class="filter-btn" data-filter="GI">GI</button>
+            <button class="filter-btn" data-filter="TDIA">TDIA</button>
+            <button class="filter-btn" data-filter="DATA">DATA</button>
+            <button class="filter-btn" data-filter="FR">FR</button>
+            <button class="filter-btn" data-filter="EN">EN</button>
+        </div>
+    </div>
+
+    <!-- ── RECHERCHE ── -->
+    <div class="search-wrap anim d3">
+        <i class="bi bi-search" style="color:var(--t2);"></i>
+        <input type="text" id="searchInput"
+               placeholder="Rechercher par étudiant, encadrant, salle..."
+               autocomplete="off"/>
+        <span class="search-result-count" id="searchCount"></span>
+    </div>
+
+    <!-- ── TABLEAU ── -->
     <div class="table-card anim d3">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th><i class="bi bi-calendar icon-sm me-1"></i>Date</th>
-                        <th><i class="bi bi-clock icon-sm me-1"></i>Heure</th>
-                        <th><i class="bi bi-door-open icon-sm me-1"></i>Salle</th>
-                        <th><i class="bi bi-mortarboard icon-sm me-1"></i>Étudiant</th>
+                        <th><i class="bi bi-calendar icon-sm"></i> Date</th>
+                        <th><i class="bi bi-clock icon-sm"></i> Heure</th>
+                        <th><i class="bi bi-door-open icon-sm"></i> Salle</th>
+                        <th><i class="bi bi-mortarboard icon-sm"></i> Étudiant</th>
                         <th>Filière</th>
                         <th>Langue</th>
-                        <th><i class="bi bi-person-badge icon-sm me-1"></i>Encadrant</th>
-                        <th><i class="bi bi-people icon-sm me-1"></i>Jury 1</th>
-                        <th><i class="bi bi-people icon-sm me-1"></i>Jury 2</th>
-                        <th><i class="bi bi-people icon-sm me-1"></i>Jury 3</th>
+                        <th><i class="bi bi-person-badge icon-sm"></i> Encadrant</th>
+                        <th><i class="bi bi-people icon-sm"></i> Jury 2</th>
+                        <th><i class="bi bi-people icon-sm"></i> Jury 3</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="s, stat : ${soutenances}" th:with="etudiant=${s.etudiant}">
+                    <tr th:each="s, stat : ${soutenances}"
+                        th:with="etudiant=${s.etudiant}"
+                        th:attr="data-search=${#strings.toLowerCase(
+                            (etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : '') + ' ' +
+                            (s.encadrant != null ? s.encadrant.nom + ' ' + s.encadrant.prenom : '') + ' ' +
+                            (s.salle != null ? s.salle.nom : '') + ' ' +
+                            (etudiant != null and etudiant.filiere != null ? etudiant.filiere.name() : '') + ' ' +
+                            (etudiant != null and etudiant.langue != null ? etudiant.langue.name() : '')
+                        )},
+                        data-filiere=${etudiant != null and etudiant.filiere != null ? etudiant.filiere.name() : ''},
+                        data-langue=${etudiant != null and etudiant.langue != null ? etudiant.langue.name() : ''}">
+
                         <td class="text-muted" th:text="${stat.index + 1}">1</td>
                         <td class="fw-semibold" th:text="${#temporals.format(s.date, 'dd/MM/yyyy')}">Date</td>
                         <td th:text="${#temporals.format(s.heure, 'HH:mm')}">Heure</td>
@@ -416,9 +438,10 @@
                             <span th:if="${s.salle != null}" class="badge-salle" th:text="${s.salle.nom}">Salle</span>
                             <span th:unless="${s.salle != null}" class="text-muted">-</span>
                         </td>
-                        <td class="fw-semibold" th:text="${etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : '-'}">Étudiant</td>
+                        <td class="fw-semibold"
+                            th:text="${etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : '-'}">Étudiant</td>
                         <td>
-                            <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'GI'}" class="badge-gi">GI</span>
+                            <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'GI'}"   class="badge-gi">GI</span>
                             <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'TDIA'}" class="badge-tdia">TDIA</span>
                             <span th:if="${etudiant != null and etudiant.filiere != null and etudiant.filiere.name() == 'DATA'}" class="badge-data">DATA</span>
                             <span th:unless="${etudiant != null and etudiant.filiere != null}" class="text-muted">-</span>
@@ -429,18 +452,17 @@
                             <span th:unless="${etudiant != null and etudiant.langue != null}" class="text-muted">-</span>
                         </td>
                         <td th:text="${s.encadrant != null ? s.encadrant.nomComplet : '-'}">Encadrant</td>
-                        <td th:text="${s.jury1 != null ? s.jury1.nomComplet : '-'}">Jury 1</td>
                         <td th:text="${s.jury2 != null ? s.jury2.nomComplet : '-'}">Jury 2</td>
                         <td th:text="${s.jury3 != null ? s.jury3.nomComplet : '-'}">Jury 3</td>
                     </tr>
 
                     <tr th:if="${soutenances == null or soutenances.isEmpty()}">
-                        <td colspan="11">
+                        <td colspan="10">
                             <div class="empty-state">
                                 <i class="bi bi-calendar-x"></i>
-                                <p class="mb-3">Aucune soutenance planifiée.</p>
+                                <p>Aucune soutenance planifiée.</p>
                                 <a th:href="@{/affectation}" class="btn btn-outline">
-                                    <i class="bi bi-people icon-sm me-1"></i> Affecter les encadrants d'abord
+                                    <i class="bi bi-people icon-sm"></i> Affecter les encadrants d'abord
                                 </a>
                             </div>
                         </td>
@@ -450,110 +472,155 @@
         </div>
     </div>
 
-</div>
+</div><!-- fin .wrap -->
 
-<!-- MODALE DE GÉNÉRATION -->
+<!-- ══════════════════════════════════════════════════════
+     MODALE — NOUVELLES DATES
+     Accessible uniquement via le bouton "Nouvelles dates"
+     dans le header (visible si affectation faite)
+══════════════════════════════════════════════════════ -->
 <div class="modal fade" id="genererModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-gear-wide-connected icon-sm"></i>Générer le Planning</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">
+                    <i class="bi bi-calendar-plus icon-sm"></i>
+                    Choisir de nouvelles dates
+                </h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-
-                <!-- Avertissement pré-requis -->
-                <div class="prereq-alert">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <div>
-                        <strong>Pré-requis :</strong> Les encadrants doivent être affectés avant de générer le planning.
-                        <a th:href="@{/affectation}">Vérifier l'affectation →</a>
-                    </div>
-                </div>
-
-                <p class="text-muted small mb-3">
-                    Sélectionnez jusqu'à <strong>3 jours</strong> de soutenance (Lundi–Vendredi, pas de dates passées).
+                <p style="font-size:13px;color:var(--t1);margin-bottom:16px;">
+                    Sélectionnez jusqu'à <strong style="color:var(--t0)">3 jours</strong>
+                    de soutenance (Lundi–Vendredi, pas de dates passées).
                 </p>
 
                 <form th:action="@{/planning/generer}" method="post" id="planningForm">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Jours de soutenance :</label>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--t0);
+                                      display:block;margin-bottom:8px;">
+                            Jours de soutenance :
+                        </label>
                         <input type="hidden" name="jours" id="selectedDatesInput">
-                        <input type="text" id="datePicker" class="form-control"
-                               placeholder="Cliquez pour choisir les dates..." readonly style="cursor:pointer; background:var(--bg3); border-color:var(--border); color:var(--t0);">
-                        <div class="form-text text-danger mt-2" id="dateError" style="display:none;">
-                            <i class="bi bi-exclamation-circle icon-sm me-1"></i>Maximum 3 jours.
+                        <input type="text" id="datePicker"
+                               class="date-input-styled"
+                               placeholder="Cliquez pour choisir les dates..."
+                               readonly/>
+                        <div class="date-feedback" id="dateFeedbackOk">
+                            <i class="bi bi-check-circle"></i>
+                            <span id="countDisplay">0</span>/3 jours sélectionnés.
                         </div>
-                        <div class="form-text text-success mt-2" id="dateSuccess" style="display:none;">
-                            <i class="bi bi-check-circle icon-sm me-1"></i><span id="countDisplay">0</span>/3 jours sélectionnés.
+                        <div class="date-feedback err" id="dateFeedbackErr">
+                            <i class="bi bi-exclamation-circle"></i> Maximum 3 jours autorisés.
                         </div>
                     </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg" id="btnGenerate" disabled>
-                            <i class="bi bi-play-fill icon-sm"></i>Lancer la génération
-                        </button>
-                    </div>
+                    <button type="submit" class="btn btn-primary"
+                            id="btnGenerate" disabled
+                            style="width:100%;padding:13px;">
+                        <i class="bi bi-play-fill icon-sm"></i>Lancer la génération
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-
-
-<!-- SCRIPTS -->
+<!-- ── SCRIPTS ── -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const hiddenInput   = document.getElementById('selectedDatesInput');
-        const countDisplay  = document.getElementById('countDisplay');
-        const dateError     = document.getElementById('dateError');
-        const dateSuccess   = document.getElementById('dateSuccess');
-        const btnGenerate   = document.getElementById('btnGenerate');
-        const maxDays = 3;
+// ── Flatpickr ──
+document.addEventListener('DOMContentLoaded', function () {
+    const hiddenInput      = document.getElementById('selectedDatesInput');
+    const countDisplay     = document.getElementById('countDisplay');
+    const feedbackOk       = document.getElementById('dateFeedbackOk');
+    const feedbackErr      = document.getElementById('dateFeedbackErr');
+    const btnGenerate      = document.getElementById('btnGenerate');
+    const MAX = 3;
 
-        flatpickr(document.getElementById('datePicker'), {
-            mode: "multiple",
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            disable: [function (date) { return date.getDay() === 0 || date.getDay() === 6; }],
-            locale: "fr",
-            onChange: function (dates) {
-                if (dates.length > maxDays) {
-                    this.clear();
-                    for (let i = 0; i < maxDays; i++) this.setDate(dates[i], false);
-                    dateError.style.display = 'block';
-                    setTimeout(() => { dateError.style.display = 'none'; }, 3000);
-                    updateState(this.selectedDates);
-                } else {
-                    updateState(dates);
-                }
-            }
-        });
-
-        function updateState(dates) {
-            countDisplay.innerText = dates.length;
-            hiddenInput.value = dates.map(d => {
-                let y = d.getFullYear();
-                let m = ('0' + (d.getMonth() + 1)).slice(-2);
-                let day = ('0' + d.getDate()).slice(-2);
-                return `${y}-${m}-${day}`;
-            }).join(',');
-
-            if (dates.length > 0) {
-                btnGenerate.disabled = false;
-                dateError.style.display = 'none';
-                dateSuccess.style.display = 'block';
+    flatpickr(document.getElementById('datePicker'), {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        disable: [function (date) { return date.getDay() === 0 || date.getDay() === 6; }],
+        locale: "fr",
+        onChange: function (dates) {
+            if (dates.length > MAX) {
+                this.clear();
+                for (let i = 0; i < MAX; i++) this.setDate(dates[i], false);
+                feedbackErr.classList.add('show');
+                setTimeout(() => feedbackErr.classList.remove('show'), 3000);
+                updateState(this.selectedDates);
             } else {
-                btnGenerate.disabled = true;
-                dateSuccess.style.display = 'none';
+                updateState(dates);
             }
         }
     });
+
+    function updateState(dates) {
+        countDisplay.innerText = dates.length;
+        hiddenInput.value = dates.map(d => {
+            const y = d.getFullYear();
+            const m = ('0' + (d.getMonth() + 1)).slice(-2);
+            const j = ('0' + d.getDate()).slice(-2);
+            return `${y}-${m}-${j}`;
+        }).join(',');
+
+        if (dates.length > 0) {
+            btnGenerate.disabled = false;
+            feedbackOk.classList.add('show');
+            feedbackOk.style.color = '#4ade80';
+        } else {
+            btnGenerate.disabled = true;
+            feedbackOk.classList.remove('show');
+        }
+    }
+});
+
+// ── Filtres ──
+const filterBtns  = document.querySelectorAll('.filter-btn');
+const rows        = document.querySelectorAll('tbody tr[data-search]');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+let currentFilter = 'all';
+let searchQuery   = '';
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', function () {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilter = this.getAttribute('data-filter');
+        applyFilters();
+    });
+});
+
+if (searchInput) {
+    searchInput.addEventListener('input', function () {
+        searchQuery = this.value.toLowerCase().trim();
+        applyFilters();
+    });
+}
+
+function applyFilters() {
+    let visible = 0;
+    rows.forEach(row => {
+        const filiere    = row.getAttribute('data-filiere') || '';
+        const langue     = row.getAttribute('data-langue')  || '';
+        const searchData = row.getAttribute('data-search')  || '';
+        const filterMatch = currentFilter === 'all' || currentFilter === filiere || currentFilter === langue;
+        const searchMatch = !searchQuery || searchData.includes(searchQuery);
+        const show = filterMatch && searchMatch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    searchCount.textContent = (searchQuery || currentFilter !== 'all')
+        ? visible + ' résultat(s)' : '';
+}
 </script>
+
 </body>
 </html>
