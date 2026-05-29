@@ -163,112 +163,181 @@ public class ExportService {
      * @param out         flux de sortie vers lequel écrire le PDF
      */
     public void exporterPdf(List<Soutenance> soutenances, OutputStream out) {
-        Document doc = new Document(PageSize.A4.rotate(), 30, 30, 50, 40);
+        Document doc = new Document(PageSize.A4.rotate(), 25, 25, 45, 35);
         try {
-            PdfWriter writer = PdfWriter.getInstance(doc, out);
+            PdfWriter.getInstance(doc, out);
             doc.open();
 
-            // Couleurs
-            BaseColor violet    = new BaseColor(99,  102, 241);
-            BaseColor violetLt  = new BaseColor(165, 180, 252);
-            BaseColor dark      = new BaseColor(13,  17,  23);
-            BaseColor darkCard  = new BaseColor(22,  27,  34);
-            BaseColor darkRow   = new BaseColor(33,  38,  45);
-            BaseColor textLight = new BaseColor(240, 246, 252);
-            BaseColor textMuted = new BaseColor(139, 148, 158);
-            BaseColor green     = new BaseColor(34,  197, 94);
-            BaseColor amber     = new BaseColor(245, 158, 11);
+            // ── COULEURS INSTITUTIONNELLES ──
+            BaseColor bleuMarine  = new BaseColor(26,  58,  92);   // #1a3a5c
+            BaseColor bleuSecond  = new BaseColor(46, 109, 164);   // #2e6da4
+            BaseColor or          = new BaseColor(240, 165,   0);   // #f0a500
+            BaseColor grisClair   = new BaseColor(245, 247, 250);
+            BaseColor grisMoyen   = new BaseColor(220, 228, 236);
+            BaseColor blanc       = BaseColor.WHITE;
+            BaseColor textSombre  = new BaseColor(20,  20,  20);
+            BaseColor textMuted   = new BaseColor(80,  80,  80);
 
-            com.itextpdf.text.Font titleFont  = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, textLight);
-            com.itextpdf.text.Font subFont    = FontFactory.getFont(FontFactory.HELVETICA, 10, textMuted);
-            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, textLight);
-            com.itextpdf.text.Font cellFont   = FontFactory.getFont(FontFactory.HELVETICA, 8, textLight);
-            com.itextpdf.text.Font mutedFont  = FontFactory.getFont(FontFactory.HELVETICA, 7, textMuted);
+            // ── POLICES ──
+            com.itextpdf.text.Font fontTitre   = FontFactory.getFont(FontFactory.TIMES_BOLD,   14, bleuMarine);
+            com.itextpdf.text.Font fontSousTitre = FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, bleuSecond);
+            com.itextpdf.text.Font fontHeader  = FontFactory.getFont(FontFactory.TIMES_BOLD,    8, blanc);
+            com.itextpdf.text.Font fontData    = FontFactory.getFont(FontFactory.TIMES_ROMAN,   8, textSombre);
+            com.itextpdf.text.Font fontMuted   = FontFactory.getFont(FontFactory.TIMES_ROMAN,   7, textMuted);
+            com.itextpdf.text.Font fontFooter  = FontFactory.getFont(FontFactory.TIMES_ROMAN,   7, textMuted);
 
-            // Background page
-            PdfContentByte canvas = writer.getDirectContentUnder();
-            canvas.setColorFill(dark);
-            canvas.rectangle(0, 0, doc.getPageSize().getWidth(), doc.getPageSize().getHeight());
-            canvas.fill();
+            // ── EN-TÊTE INSTITUTIONNEL ──
+            // Ligne dorée en haut
+            PdfPTable topLine = new PdfPTable(1);
+            topLine.setWidthPercentage(100);
+            topLine.setSpacingAfter(4);
+            PdfPCell topCell = new PdfPCell();
+            topCell.setBackgroundColor(or);
+            topCell.setFixedHeight(4);
+            topCell.setBorder(Rectangle.NO_BORDER);
+            topLine.addCell(topCell);
+            doc.add(topLine);
 
-            // Header band
-            canvas.setColorFill(darkCard);
-            canvas.rectangle(0, doc.getPageSize().getHeight() - 80, doc.getPageSize().getWidth(), 80);
-            canvas.fill();
+            // Bloc entête bleu
+            PdfPTable headerBlock = new PdfPTable(1);
+            headerBlock.setWidthPercentage(100);
+            headerBlock.setSpacingAfter(6);
+            PdfPCell headerCell = new PdfPCell();
+            headerCell.setBackgroundColor(bleuMarine);
+            headerCell.setPadding(12);
+            headerCell.setBorder(Rectangle.NO_BORDER);
 
-            // Accent line top
-            canvas.setColorFill(violet);
-            canvas.rectangle(0, doc.getPageSize().getHeight() - 4, doc.getPageSize().getWidth(), 4);
-            canvas.fill();
+            com.itextpdf.text.Font fH1 = FontFactory.getFont(FontFactory.TIMES_BOLD,  13, blanc);
+            com.itextpdf.text.Font fH2 = FontFactory.getFont(FontFactory.TIMES_ROMAN,  9, grisMoyen);
+            com.itextpdf.text.Font fH3 = FontFactory.getFont(FontFactory.TIMES_BOLD,  11, or);
 
-            // Titre
-            Paragraph titre = new Paragraph("PLANNING DES SOUTENANCES PFE 2024/2025", titleFont);
-            titre.setAlignment(Element.ALIGN_CENTER);
-            titre.setSpacingBefore(16);
-            titre.setSpacingAfter(2);
-            doc.add(titre);
+            Phrase ph1 = new Phrase("Ecole Nationale des Sciences Appliquées - Al Hoceima\n", fH2);
+            Phrase ph2 = new Phrase("Département Mathématiques et Informatique\n", fH2);
+            Phrase ph3 = new Phrase("Planning des Soutenances des Projets de Fin d'Étude", fH3);
+            Phrase ph4 = new Phrase("\nAnnée Universitaire 2024/2025", fH2);
 
-            Paragraph sub = new Paragraph("ENSA Al Hoceima — Département Mathématiques & Informatique", subFont);
-            sub.setAlignment(Element.ALIGN_CENTER);
-            sub.setSpacingAfter(20);
-            doc.add(sub);
+            com.itextpdf.text.Paragraph headerPara = new com.itextpdf.text.Paragraph();
+            headerPara.setAlignment(Element.ALIGN_CENTER);
+            headerPara.add(ph1);
+            headerPara.add(ph2);
+            headerPara.add(ph3);
+            headerPara.add(ph4);
+            headerCell.addElement(headerPara);
+            headerBlock.addCell(headerCell);
+            doc.add(headerBlock);
 
-            // Tableau
-            PdfPTable table = new PdfPTable(8);
+            // ── TABLEAU PLANNING ──
+            PdfPTable table = new PdfPTable(9);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{1.2f, 0.9f, 1f, 2.4f, 0.7f, 0.7f, 2f, 2f});
-            table.setSpacingBefore(8);
+            table.setWidths(new float[]{0.6f, 2.4f, 2.2f, 2.2f, 1.8f, 0.9f, 1.4f, 2.2f, 2.0f});
+            table.setSpacingBefore(4);
 
-            // En-têtes
-            String[] cols = {"Date","Heure","Salle","Étudiant","Filière","Langue","Encadrant","Jury"};
+            // En-têtes colonnes
+            String[] cols = {"ID", "Encadrant", "Membre de jury 1", "Membre de jury 2",
+                    "Date", "Heure", "Salle", "Nom d'étudiant", "Prénom d'étudiant"};
             for (String col : cols) {
-                PdfPCell cell = new PdfPCell(new Phrase(col, headerFont));
-                cell.setBackgroundColor(violet);
-                cell.setPadding(8);
+                PdfPCell cell = new PdfPCell(new Phrase(col, fontHeader));
+                cell.setBackgroundColor(bleuMarine);
+                cell.setPadding(6);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cell.setBorder(Rectangle.NO_BORDER);
+                cell.setBorderColor(bleuSecond);
+                cell.setBorderWidth(0.5f);
                 table.addCell(cell);
             }
 
+            // Lignes de données
             soutenances.sort(Comparator.comparing(Soutenance::getDate)
                                        .thenComparing(Soutenance::getHeure));
+            
 
-            boolean alt = false;
+            // Grouper par date pour alterner les blocs visuellement
+            String dernierDate = "";
+            boolean altLigne = false;
+            int idx = 1;
+
             for (Soutenance s : soutenances) {
-                BaseColor bg = alt ? darkRow : darkCard;
-                alt = !alt;
+                String dateStr = s.getDate().format(DATE_FMT);
 
-                // Indicateur langue
-                boolean isEn = s.getEtudiant().getLangue().toString().equals("EN");
-                com.itextpdf.text.Font langFont = FontFactory.getFont(
-                    FontFactory.HELVETICA_BOLD, 7,
-                    isEn ? amber : green);
+                // Ligne séparatrice de date — bleu secondaire pleine largeur
+                if (!dateStr.equals(dernierDate)) {
+                    dernierDate = dateStr;
+                    altLigne = false;
 
-                ajouterCellule(table, s.getDate().format(DATE_FMT), cellFont, bg);
-                ajouterCellule(table, s.getHeure().format(HEURE_FMT), cellFont, bg);
-                ajouterCellule(table, s.getSalle().getNom(), cellFont, bg);
-                ajouterCellule(table, s.getEtudiant().getNom() + " " + s.getEtudiant().getPrenom(), cellFont, bg);
-                ajouterCellule(table, s.getEtudiant().getFiliere().toString(), mutedFont, bg);
-                ajouterCellule(table, s.getEtudiant().getLangue().toString(), langFont, bg);
-                ajouterCellule(table, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), cellFont, bg);
-                String jury = (s.getJury2() != null ? s.getJury2().getNom() : "") +
-                              (s.getJury3() != null ? " / " + s.getJury3().getNom() : "");
-                ajouterCellule(table, jury, mutedFont, bg);
+                    com.itextpdf.text.Font fontDate =
+                        FontFactory.getFont(FontFactory.TIMES_BOLD, 8, blanc);
+                    PdfPCell fullCell = new PdfPCell(new Phrase("  " + dateStr, fontDate));
+                    fullCell.setBackgroundColor(bleuSecond);
+                    fullCell.setPadding(5);
+                    fullCell.setBorder(Rectangle.NO_BORDER);
+                    fullCell.setColspan(9);  // ← 9 colonnes maintenant
+                    table.addCell(fullCell);
+                }
+
+                altLigne = !altLigne;
+                BaseColor bg = altLigne ? blanc : grisClair;
+
+                // Heure format "9h", "10h" comme dans l'exemple
+                String heureStr = s.getHeure().format(HEURE_FMT);
+                // Convertir "09:00" → "9h", "14:00" → "14h"
+                int heure = s.getHeure().getHour();
+                int minute = s.getHeure().getMinute();
+                String heureAffichage = (minute == 0)
+                    ? heure + "h"
+                    : heure + "h" + String.format("%02d", minute);
+
+                ajouterCelluleStyle(table, String.valueOf(idx++),
+                    fontMuted, bg, Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table,
+                    s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(),
+                    fontData, bg, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table,
+                    s.getJury2() != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "-",
+                    fontData, bg, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table,
+                    s.getJury3() != null ? s.getJury3().getNom() + " " + s.getJury3().getPrenom() : "-",
+                    fontData, bg, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table, dateStr,
+                    fontData, bg, Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, heureAffichage,
+                    fontData, bg, Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table,
+                    s.getSalle() != null ? s.getSalle().getNom() : "-",
+                    fontData, bg, Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table,
+                    s.getEtudiant().getNom(),
+                    fontData, bg, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table,
+                    s.getEtudiant().getPrenom(),
+                    fontData, bg, Element.ALIGN_LEFT);
             }
 
+               
             doc.add(table);
 
-            // Footer
+            // ── PIED DE PAGE ──
             Paragraph footer = new Paragraph(
-                "Généré automatiquement — PFE Planning ENSA Al Hoceima · " +
-                java.time.LocalDate.now().format(DATE_FMT),
-                FontFactory.getFont(FontFactory.HELVETICA, 7, textMuted));
+                "Document généré automatiquement — PFE Planning ENSA Al Hoceima  ·  " +
+                java.time.LocalDate.now().format(DATE_FMT) +
+                "  ·  " + soutenances.size() + " soutenance(s)",
+                fontFooter);
             footer.setAlignment(Element.ALIGN_CENTER);
-            footer.setSpacingBefore(16);
+            footer.setSpacingBefore(10);
             doc.add(footer);
 
+            // Ligne dorée en bas
+            PdfPTable bottomLine = new PdfPTable(1);
+            bottomLine.setWidthPercentage(100);
+            bottomLine.setSpacingBefore(6);
+            PdfPCell bottomCell = new PdfPCell();
+            bottomCell.setBackgroundColor(or);
+            bottomCell.setFixedHeight(3);
+            bottomCell.setBorder(Rectangle.NO_BORDER);
+            bottomLine.addCell(bottomCell);
+            doc.add(bottomLine);
+
             doc.close();
+
         } catch (Exception e) {
             throw new RuntimeException("Erreur PDF : " + e.getMessage(), e);
         }
@@ -567,10 +636,16 @@ public class ExportService {
         cell.setCellStyle(style);
     }
 
-    private void ajouterCellule(PdfPTable table, String text, com.itextpdf.text.Font font, BaseColor bg) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+    private void ajouterCelluleStyle(PdfPTable table, String text,
+            com.itextpdf.text.Font font,
+            BaseColor bg, int align) {
+        PdfPCell cell = new PdfPCell(new Phrase(text != null ? text : "-", font));
         cell.setBackgroundColor(bg);
-        cell.setPadding(4);
+        cell.setPadding(4.5f);
+        cell.setHorizontalAlignment(align);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setBorderColor(new BaseColor(200, 210, 220));
+        cell.setBorderWidth(0.4f);
         table.addCell(cell);
     }
 
