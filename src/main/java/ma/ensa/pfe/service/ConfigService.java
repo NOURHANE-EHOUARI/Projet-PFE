@@ -22,6 +22,7 @@ public class ConfigService {
     private static final String DEFAULT_HEURE_FIN_JOURNEE      = "18:00";
     private static final int    DEFAULT_NB_JURY_MIN            = 3;
     private static final int    DEFAULT_NB_PROFS_SPECIALITE_MIN = 2;
+    private static final int DEFAULT_PAUSE_SALLE = 15;
 
     // ══════════════════════════════════════════════
     //  GETTERS TYPÉS
@@ -57,6 +58,9 @@ public class ConfigService {
 
     public int getNbProfsSpecialiteMin() {
         return getInt("NB_PROFS_SPECIALITE_MIN", DEFAULT_NB_PROFS_SPECIALITE_MIN);
+    }
+    public int getPauseSalle() {
+        return getInt("PAUSE_SALLE", DEFAULT_PAUSE_SALLE);
     }
 
     // ══════════════════════════════════════════════

@@ -48,8 +48,7 @@ public class PlanificationService {
         this.delaiProf       = configService.getPauseEntreSoutenances();
         this.debutJournee    = configService.getHeureDebutJournee();
         this.finJournee      = configService.getHeureFinJournee();
-        // PAUSE_SALLE = 15 min fixe (intervalle entre créneaux dans la même salle)
-        this.pauseSalle      = 15;
+        this.pauseSalle = configService.getPauseSalle();
         this.intervalle      = this.dureeSoutenance + this.pauseSalle;
 
         System.out.println(" CONFIG CHARGÉE :");
@@ -439,7 +438,7 @@ public class PlanificationService {
     //           Si aucun prof anglais n'est disponible → retourner null
     //           pour forcer un autre créneau (pas de fallback sans anglophone).
     // ══════════════════════════════════════════════════════════════════════
-    pprivate ListeJury choisirJury(Professeur encadrant, List<Professeur> tousProfs,
+    private ListeJury choisirJury(Professeur encadrant, List<Professeur> tousProfs,
             LocalDate jour, LocalTime heure,
             Etudiant.Filiere filiere, boolean exigeAnglais) {
 
