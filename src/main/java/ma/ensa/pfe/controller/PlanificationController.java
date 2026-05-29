@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +50,10 @@ public class PlanificationController {
         if (derniereVersion != null) {
             List<Soutenance> soutenances =
                     soutenanceRepository.findByVersion(derniereVersion);
+            soutenances.sort(Comparator
+                    .comparing(Soutenance::getDate)
+                    .thenComparing(Soutenance::getHeure));
+
             model.addAttribute("soutenances",    soutenances);
             model.addAttribute("versionActuelle", derniereVersion);
         } else {
@@ -233,7 +237,11 @@ public class PlanificationController {
                                HttpSession session) {  // ajouter session
         VersionPlanning version = versionPlanningRepository.findById(id).orElse(null);
         if (version != null) {
-            model.addAttribute("soutenances", soutenanceRepository.findByVersion(version));
+        	List<Soutenance> soutenances = soutenanceRepository.findByVersion(version);
+            soutenances.sort(Comparator
+                    .comparing(Soutenance::getDate)
+                    .thenComparing(Soutenance::getHeure));
+            model.addAttribute("soutenances", soutenances);
             model.addAttribute("versionActuelle", version);
         } else {
             model.addAttribute("soutenances", new ArrayList<>());
