@@ -26,7 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
-
+import java.util.LinkedHashMap;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
@@ -48,8 +48,6 @@ import java.util.zip.ZipOutputStream;
  *   <li>Génération automatique du dossier PVs (un PDF par étudiant, groupés par encadrant) en archive ZIP</li>
  * </ul>
  *
- * @author Membre B — ENSA Al Hoceima 2024/2025
- * @version 1.0
  */
 @Service
 public class ExportService {
@@ -227,14 +225,42 @@ public class ExportService {
             doc.add(headerBlock);
 
             // ── TABLEAU PLANNING ──
-            PdfPTable table = new PdfPTable(9);
+            PdfPTable table = new PdfPTable(10);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{0.6f, 2.4f, 2.2f, 2.2f, 1.8f, 0.9f, 1.4f, 2.2f, 2.0f});
+            table.setWidths(new float[]{0.6f, 2.2f, 2.0f, 2.0f, 1.6f, 0.8f, 1.2f, 1.0f, 2.0f, 1.8f});
             table.setSpacingBefore(4);
+         // Couleurs distinctes pour les dates (cycle sur 3 jours max)
+            BaseColor[] dateColors = {
+                new BaseColor(232, 240, 254),  // bleu très clair — jour 1
+                new BaseColor(232, 248, 237),  // vert très clair — jour 2
+                new BaseColor(255, 243, 224),  // orange très clair — jour 3
+            };
+            // Couleurs pour les heures (matin/après-midi)
+            BaseColor[] heureColors = {
+                new BaseColor(255, 253, 235),  // jaune très clair — 8h-9h
+                new BaseColor(240, 253, 250),  // cyan très clair — 10h-11h
+                new BaseColor(253, 235, 255),  // mauve très clair — 12h-13h
+                new BaseColor(235, 245, 255),  // bleu clair — 14h-15h
+                new BaseColor(255, 240, 240),  // rose très clair — 16h+
+            };
+
+            Map<String, Integer> dateIndex = new LinkedHashMap<>();
+            Map<String, BaseColor> profColors = new LinkedHashMap<>();
+            BaseColor[] profPalette = {
+                new BaseColor(252, 228, 236),  // rose
+                new BaseColor(228, 245, 252),  // bleu clair
+                new BaseColor(228, 252, 236),  // vert menthe
+                new BaseColor(252, 248, 228),  // crème
+                new BaseColor(240, 228, 252),  // lavande
+                new BaseColor(252, 236, 228),  // pêche
+                new BaseColor(228, 252, 248),  // turquoise
+                new BaseColor(244, 252, 228),  // lime
+            };
+            int profColorIdx = 0;
 
             // En-têtes colonnes
             String[] cols = {"ID", "Encadrant", "Membre de jury 1", "Membre de jury 2",
-                    "Date", "Heure", "Salle", "Nom d'étudiant", "Prénom d'étudiant"};
+                    "Date", "Heure", "Salle", "Filière", "Nom d'étudiant", "Prénom d'étudiant"};
             for (String col : cols) {
                 PdfPCell cell = new PdfPCell(new Phrase(col, fontHeader));
                 cell.setBackgroundColor(bleuMarine);
@@ -253,16 +279,43 @@ public class ExportService {
 
             // Grouper par date pour alterner les blocs visuellement
             String dernierDate = "";
-            boolean altLigne = false;
             int idx = 1;
 
             for (Soutenance s : soutenances) {
                 String dateStr = s.getDate().format(DATE_FMT);
+                String encadrantNom = s.getEncadrant().getNom();
+                int heureH = s.getHeure().getHour();
 
+             // ── Couleur par date ──
+                if (!dateIndex.containsKey(dateStr)) {
+                    dateIndex.put(dateStr, dateIndex.size());
+                }
+                int dIdx = dateIndex.get(dateStr) % dateColors.length;
+                BaseColor couleurDate = dateColors[dIdx];
+             // ── Couleur par encadrant ──
+                if (!profColors.containsKey(encadrantNom)) {
+                    profColors.put(encadrantNom, profPalette[profColorIdx % profPalette.length]);
+                    profColorIdx++;
+                }
+                BaseColor couleurProf = profColors.get(encadrantNom);
+             // ── Couleur par heure ──
+                BaseColor couleurHeure;
+                if      (heureH <= 9)  couleurHeure = heureColors[0];
+                else if (heureH <= 11) couleurHeure = heureColors[1];
+                else if (heureH <= 13) couleurHeure = heureColors[2];
+                else if (heureH <= 15) couleurHeure = heureColors[3];
+                else                   couleurHeure = heureColors[4];
+
+                // ── Couleur par filière ──
+                String filiere = s.getEtudiant().getFiliere().toString();
+                BaseColor couleurFiliere = switch (filiere) {
+                    case "GI"   -> new BaseColor(219, 234, 254);  // bleu doux
+                    case "TDIA" -> new BaseColor(254, 243, 199);  // jaune doux
+                    default     -> new BaseColor(209, 250, 229);  // vert doux (DATA)
+                };
                 // Ligne séparatrice de date — bleu secondaire pleine largeur
                 if (!dateStr.equals(dernierDate)) {
                     dernierDate = dateStr;
-                    altLigne = false;
 
                     com.itextpdf.text.Font fontDate =
                         FontFactory.getFont(FontFactory.TIMES_BOLD, 8, blanc);
@@ -270,12 +323,9 @@ public class ExportService {
                     fullCell.setBackgroundColor(bleuSecond);
                     fullCell.setPadding(5);
                     fullCell.setBorder(Rectangle.NO_BORDER);
-                    fullCell.setColspan(9);  // ← 9 colonnes maintenant
+                    fullCell.setColspan(10);  
                     table.addCell(fullCell);
                 }
-
-                altLigne = !altLigne;
-                BaseColor bg = altLigne ? blanc : grisClair;
 
                 // Heure format "9h", "10h" comme dans l'exemple
                 String heureStr = s.getHeure().format(HEURE_FMT);
@@ -286,30 +336,33 @@ public class ExportService {
                     ? heure + "h"
                     : heure + "h" + String.format("%02d", minute);
 
-                ajouterCelluleStyle(table, String.valueOf(idx++),
-                    fontMuted, bg, Element.ALIGN_CENTER);
-                ajouterCelluleStyle(table,
-                    s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(),
-                    fontData, bg, Element.ALIGN_LEFT);
-                ajouterCelluleStyle(table,
-                    s.getJury2() != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "-",
-                    fontData, bg, Element.ALIGN_LEFT);
-                ajouterCelluleStyle(table,
-                    s.getJury3() != null ? s.getJury3().getNom() + " " + s.getJury3().getPrenom() : "-",
-                    fontData, bg, Element.ALIGN_LEFT);
-                ajouterCelluleStyle(table, dateStr,
-                    fontData, bg, Element.ALIGN_CENTER);
-                ajouterCelluleStyle(table, heureAffichage,
-                    fontData, bg, Element.ALIGN_CENTER);
-                ajouterCelluleStyle(table,
-                    s.getSalle() != null ? s.getSalle().getNom() : "-",
-                    fontData, bg, Element.ALIGN_CENTER);
-                ajouterCelluleStyle(table,
-                    s.getEtudiant().getNom(),
-                    fontData, bg, Element.ALIGN_LEFT);
-                ajouterCelluleStyle(table,
-                    s.getEtudiant().getPrenom(),
-                    fontData, bg, Element.ALIGN_LEFT);
+             // ── Remplir les cellules avec couleurs distinctes ──
+                ajouterCelluleStyle(table, String.valueOf(idx++),                                           fontMuted, couleurDate,    Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), fontData,  couleurProf,    Element.ALIGN_LEFT);
+                String jury2Nom = s.getJury2() != null ? s.getJury2().getNom() : null;
+                String jury3Nom = s.getJury3() != null ? s.getJury3().getNom() : null;
+
+                if (jury2Nom != null && !profColors.containsKey(jury2Nom)) {
+                    profColors.put(jury2Nom, profPalette[profColorIdx % profPalette.length]);
+                    profColorIdx++;
+                }
+                if (jury3Nom != null && !profColors.containsKey(jury3Nom)) {
+                    profColors.put(jury3Nom, profPalette[profColorIdx % profPalette.length]);
+                    profColorIdx++;
+                }
+
+                BaseColor couleurJury2 = jury2Nom != null ? profColors.get(jury2Nom) : blanc;
+                BaseColor couleurJury3 = jury3Nom != null ? profColors.get(jury3Nom) : blanc;
+
+                ajouterCelluleStyle(table, jury2Nom != null ? s.getJury2().getNom() + " " + s.getJury2().getPrenom() : "-", fontData, couleurJury2, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table, jury3Nom != null ? s.getJury3().getNom() + " " + s.getJury3().getPrenom() : "-", fontData, couleurJury3, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table, dateStr,                                                         fontData,  couleurDate,    Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, heureAffichage,                                                  fontData,  couleurHeure,   Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, s.getSalle() != null ? s.getSalle().getNom() : "-",             fontData,  couleurDate,    Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, filiere,    
+                	    fontData, couleurFiliere, Element.ALIGN_CENTER);
+                ajouterCelluleStyle(table, s.getEtudiant().getNom(),                                        fontData,  couleurFiliere, Element.ALIGN_LEFT);
+                ajouterCelluleStyle(table, s.getEtudiant().getPrenom(),                                     fontData,  couleurFiliere, Element.ALIGN_LEFT);
             }
 
                
