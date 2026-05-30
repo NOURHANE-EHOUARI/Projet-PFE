@@ -92,6 +92,10 @@ public class PlanificationService {
         cacheContraintes        = contrainteRepository.findAll().stream()
             .collect(Collectors.groupingBy(c -> c.getProfesseur().getId()));
         cacheChargeJury = new HashMap<>();
+        etudiantRepository.findAll().stream()
+        .filter(e -> e.getEncadrant() != null)
+        .forEach(e -> cacheChargeJury.merge(e.getEncadrant().getId(), 1L, Long::sum));
+
 
         List<Etudiant>   etudiants   = etudiantRepository.findAll();
         List<Professeur> professeurs = professeurRepository.findAll();

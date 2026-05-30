@@ -9,7 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import java.util.Map;
+import java.util.Objects;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -22,6 +23,9 @@ public class ProfesseurController {
     @Autowired
     private ProfesseurService professeurService;
 
+    @Autowired
+    private ma.ensa.pfe.dao.EtudiantRepository etudiantRepository;
+    
     // ===== LISTE =====
     @GetMapping
     public String liste(Model model,
@@ -29,29 +33,30 @@ public class ProfesseurController {
                         @RequestParam(required = false) Boolean anglophone) {
 
         List<Professeur> professeurs;
-
-        // ✅ Filtrage combiné : spécialité + anglophone
-        if (specialite != null && !specialite.isBlank() && anglophone != null) {
-            // On charge par spécialité puis on filtre en mémoire pour l'anglophone
-            // (plus simple que d'ajouter une nouvelle requête repo)
+ 
+        if (specialite != null && !specialite.isBlank() && anglophone != null) { 
             professeurs = professeurService.findBySpecialite(specialite).stream()
                     .filter(p -> p.getParleAnglais().equals(anglophone))
                     .collect(Collectors.toList());
-        } 
-        // ✅ Filtrage par spécialité uniquement
+        }  
         else if (specialite != null && !specialite.isBlank()) {
             professeurs = professeurService.findBySpecialite(specialite);
-        } 
-        // ✅ Filtrage par anglophone uniquement
+        }  
         else if (anglophone != null) {
             professeurs = professeurService.findByParleAnglais(anglophone);
-        } 
-        // ✅ Aucun filtre : tous les professeurs
+        }  
         else {
             professeurs = professeurService.findAll();
         }
+        Map<Long, Long> chargeEncadrants = etudiantRepository.findAll().stream()
+                .filter(e -> e.getEncadrant() != null)
+                .collect(Collectors.groupingBy(
+                    e -> e.getEncadrant().getId(),
+                    Collectors.counting()));
+
 
         model.addAttribute("professeurs", professeurs);
+        model.addAttribute("chargeEncadrants", chargeEncadrants);
         model.addAttribute("totalProfs", professeurService.countAll());
         model.addAttribute("totalAnglophones", professeurService.countAnglophones());
         model.addAttribute("specialites", professeurService.findAllSpecialites());
