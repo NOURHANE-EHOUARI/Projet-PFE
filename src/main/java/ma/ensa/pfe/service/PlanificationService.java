@@ -647,6 +647,8 @@ public class PlanificationService {
     private void ajouterAuCache(Soutenance s) {
         getCacheJour(s.getDate()).add(s);
         incrementerCharge(s.getEncadrant().getId());
+        if (s.getJury1() != null)
+            cacheChargeJury.merge(s.getJury1().getId(), 1L, Long::sum);
         if (s.getJury2() != null)
             cacheChargeJury.merge(s.getJury2().getId(), 1L, Long::sum);
         if (s.getJury3() != null)
