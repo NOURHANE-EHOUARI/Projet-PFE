@@ -1,5 +1,7 @@
 package ma.ensa.pfe.controller;
 
+import ma.ensa.pfe.service.AffectationService;
+import ma.ensa.pfe.service.AffectationService.AffectationResult;
 import ma.ensa.pfe.service.ExcelImportService;
 import ma.ensa.pfe.service.ExcelImportService.ImportResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,29 +11,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Contrôleur gérant l'upload du fichier Excel et l'affichage du rapport d'import.
- *
- * @author Membre A
- */
 @Controller
 @RequestMapping("/import")
 public class ImportController {
 
-    @Autowired
-    private ExcelImportService excelImportService;
+    @Autowired private ExcelImportService excelImportService;
+    @Autowired private AffectationService affectationService; // ✅ AJOUTÉ
 
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 Mo
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
- 
-
-    // ===== TRAITEMENT DU FICHIER =====
     @PostMapping("/traiter")
     public String traiterFichier(@RequestParam("fichier") MultipartFile fichier,
                                   Model model,
                                   RedirectAttributes redirectAttrs) {
 
-        // Validation basique
         if (fichier == null || fichier.isEmpty()) {
             model.addAttribute("erreurUpload", "Veuillez sélectionner un fichier Excel.");
             return "import/upload";
@@ -40,7 +33,7 @@ public class ImportController {
         String filename = fichier.getOriginalFilename();
         if (filename == null || (!filename.toLowerCase().endsWith(".xlsx")
                 && !filename.toLowerCase().endsWith(".xls"))) {
-            model.addAttribute("erreurUpload", "Format invalide. Seuls les fichiers .xlsx et .xls sont acceptés.");
+            model.addAttribute("erreurUpload", "Format invalide. Seuls .xlsx et .xls sont acceptés.");
             return "import/upload";
         }
 
@@ -49,16 +42,25 @@ public class ImportController {
             return "import/upload";
         }
 
-        // Import
         try {
+            // 1. Import Excel
             ImportResult result = excelImportService.importerFichier(fichier);
-            model.addAttribute("result", result);
-            model.addAttribute("nomFichier", filename);
-            return "import/resultat";
+
+            // 2. ✅ Affectation automatique immédiatement après l'import
+            if (result.getEtudiantsImportes() > 0 && result.getProfsImportes() > 0) {
+                AffectationResult affResult = affectationService.affecterEncadrants();
+                redirectAttrs.addFlashAttribute("nbAffectes", affResult.getNbAffectes());
+                redirectAttrs.addFlashAttribute("success",
+                    result.getEtudiantsImportes() + " étudiant(s) importé(s) — " +
+                    affResult.getNbAffectes() + " encadrant(s) affecté(s) automatiquement.");
+            }
+
+            redirectAttrs.addFlashAttribute("importSuccess", true);
+            return "redirect:/affectation";
 
         } catch (Exception e) {
             model.addAttribute("erreurUpload",
-                    "Erreur lors du traitement du fichier : " + e.getMessage());
+                    "Erreur lors du traitement : " + e.getMessage());
             return "import/upload";
         }
     }
