@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface ContrainteRepository extends JpaRepository<Contrainte, Long> {
 
-    // Contraintes d'un professeur
+    
     List<Contrainte> findByProfesseur(Professeur professeur);
 
-    // Contraintes d'un professeur à une date donnée
+    
     List<Contrainte> findByProfesseurAndDateIndisponible(Professeur professeur, LocalDate date);
 }

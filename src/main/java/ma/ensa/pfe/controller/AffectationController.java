@@ -24,10 +24,6 @@ public class AffectationController {
         model.addAttribute("chargeEncadrants", charge);
         model.addAttribute("nbSansEncadrant",  affectationService.getNbEtudiantsSansEncadrant());
         model.addAttribute("activePage", "affectation");
-
-        // ✅ CORRECTION : calcul du max côté Java
-        // SpEL/Thymeleaf ne supporte pas les lambdas Java (v -> v)
-        // donc on calcule maxCharge ici et on l'envoie directement au template
         long maxCharge = 1L;
         if (charge != null && !charge.isEmpty()) {
             maxCharge = charge.values().stream()

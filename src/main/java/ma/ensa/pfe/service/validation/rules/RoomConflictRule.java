@@ -12,9 +12,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Règle : détecte les chevauchements de salles (2 soutenances dans la même salle au même créneau).
- */
+
 @Component
 public class RoomConflictRule implements ValidationRule<List<Soutenance>> {
     
@@ -28,22 +26,20 @@ public class RoomConflictRule implements ValidationRule<List<Soutenance>> {
             return results;
         }
         
-        // Grouper par (date, salle)
+        
         Map<DateSalleKey, List<Soutenance>> parDateSalle = soutenances.stream()
             .filter(s -> s.getSalle() != null && s.getDate() != null && s.getHeure() != null)
             .collect(Collectors.groupingBy(
                 s -> new DateSalleKey(s.getDate(), s.getSalle().getId())
             ));
         
-        // Vérifier les conflits dans chaque groupe
+        
         for (Map.Entry<DateSalleKey, List<Soutenance>> entry : parDateSalle.entrySet()) {
             List<Soutenance> groupe = entry.getValue();
             if (groupe.size() < 2) continue;
-            
-            // Trier par heure de début
+           
             groupe.sort(Comparator.comparing(Soutenance::getHeure));
-            
-            // Vérifier les chevauchements
+         
             for (int i = 0; i < groupe.size() - 1; i++) {
                 Soutenance s1 = groupe.get(i);
                 Soutenance s2 = groupe.get(i + 1);
@@ -51,7 +47,7 @@ public class RoomConflictRule implements ValidationRule<List<Soutenance>> {
                 LocalTime fin1 = s1.getHeure().plusMinutes(DUREE_SOUTENANCE_MIN);
                 
                 if (!fin1.isBefore(s2.getHeure())) {
-                    // ✅ CORRECTION : utiliser getNom() + getPrenom()
+                    
                     String etudiant1 = s1.getEtudiant() != null ? 
                         s1.getEtudiant().getNom() + " " + s1.getEtudiant().getPrenom() : "Inconnu";
                     String etudiant2 = s2.getEtudiant() != null ? 
@@ -85,7 +81,7 @@ public class RoomConflictRule implements ValidationRule<List<Soutenance>> {
         return "Détecte les chevauchements de salles (deux soutenances dans la même salle au même créneau)";
     }
     
-    // Clé composite pour le grouping
+   
     private static class DateSalleKey {
         private final LocalDate date;
         private final Long salleId;

@@ -12,9 +12,6 @@ public class ConfigService {
     @Autowired
     private PlanningConfigRepository configRepository;
 
-    // ══════════════════════════════════════════════
-    //  VALEURS PAR DÉFAUT (si clé absente en base)
-    // ══════════════════════════════════════════════
     private static final int    DEFAULT_DUREE_SOUTENANCE      = 45;
     private static final int    DEFAULT_PAUSE_ENTRE_SOUTENANCES = 60;
     private static final int    DEFAULT_NB_JOURS_PLANNING      = 3;
@@ -23,10 +20,6 @@ public class ConfigService {
     private static final int    DEFAULT_NB_JURY_MIN            = 3;
     private static final int    DEFAULT_NB_PROFS_SPECIALITE_MIN = 2;
     private static final int DEFAULT_PAUSE_SALLE = 15;
-
-    // ══════════════════════════════════════════════
-    //  GETTERS TYPÉS
-    // ══════════════════════════════════════════════
 
     public int getDureeSoutenance() {
         return getInt("DUREE_SOUTENANCE", DEFAULT_DUREE_SOUTENANCE);
@@ -62,10 +55,6 @@ public class ConfigService {
     public int getPauseSalle() {
         return getInt("PAUSE_SALLE", DEFAULT_PAUSE_SALLE);
     }
-
-    // ══════════════════════════════════════════════
-    //  UTILITAIRES PRIVÉS
-    // ══════════════════════════════════════════════
 
     private int getInt(String cle, int defaut) {
         return configRepository.findByCle(cle)

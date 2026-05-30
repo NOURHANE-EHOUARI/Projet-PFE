@@ -36,14 +36,13 @@ public class HomeController {
         return "index";
     }
 
-    // Redirection intelligente — Affectation
+    
     @GetMapping("/go/affectation")
     public String goAffectation() {
         if (etudiantRepository.count() == 0) return "redirect:/import";
         return "redirect:/affectation";
     }
 
-    // Redirection intelligente — Planning
     @GetMapping("/go/planning")
     public String goPlanning() {
         if (etudiantRepository.count() == 0) return "redirect:/import";

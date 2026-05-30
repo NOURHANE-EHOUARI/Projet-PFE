@@ -27,12 +27,7 @@ import ma.ensa.pfe.model.Soutenance;
 import ma.ensa.pfe.model.VersionPlanning;
 import ma.ensa.pfe.service.PlanificationService;
 
-/**
- * Module 2 du schéma synoptique : PLANNING DES SOUTENANCES
- * URL de base : /planning
- *
- * Pré-requis : les encadrants doivent être affectés via /affectation
- */
+
 @Controller
 @RequestMapping("/planning")
 public class PlanificationController {
@@ -42,9 +37,7 @@ public class PlanificationController {
     @Autowired private VersionPlanningRepository versionPlanningRepository;
     @Autowired private EtudiantRepository        etudiantRepository;
 
-    /**
-     * Affiche la liste des soutenances de la dernière version générée.
-     */
+    
     @GetMapping
     public String afficherPlanning(Model model, HttpSession session) {
         VersionPlanning derniereVersion =
@@ -65,17 +58,17 @@ public class PlanificationController {
                 "Aucun planning généré.");
         }
 
-        // ✅ Vérifier si l'affectation a été faite
+        
         long nbSansEncadrant = etudiantRepository.countByEncadrantIsNull();
         long nbEtudiants = etudiantRepository.count();
         boolean affectationFaite = nbEtudiants > 0 && nbSansEncadrant == 0;
         model.addAttribute("affectationFaite", affectationFaite);
 
-        // ✅ Récupérer les dates mémorisées depuis la session
+        
         String derniersJours = (String) session.getAttribute("derniersJours");
         model.addAttribute("derniersJours", derniersJours);
 
-        // ✅ Formater les dates pour affichage lisible
+        
         if (derniersJours != null && !derniersJours.isBlank()) {
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             String joursFormates = Arrays.stream(derniersJours.split(","))
@@ -90,9 +83,7 @@ public class PlanificationController {
         return "planning/tableau";
     }
 
-    /**
-     * Affiche le calendrier (vue graphique).
-     */
+    
     @GetMapping("/calendrier")
     public String afficherCalendrier(Model model) {
         VersionPlanning derniereVersion =
@@ -107,49 +98,34 @@ public class PlanificationController {
         return "planning/calendrier";
     }
 
-    /**
-     * Génère le planning complet (jury + dates + heures + salles).
-     * 
-     * Gestion des 3 cas :
-     * 1️⃣ Pas de dates sélectionnées → alerte + reste sur /planning
-     * 2️⃣ Dates choisies mais affectation non faite → redirect /affectation
-     * 3️⃣ Pas d'import fait (pas d'étudiants) → redirect /#importSection
-     *
-     * @param joursStr dates séparées par virgule ex: "2026-05-20,2026-05-21"
-     */
+   
     @PostMapping("/generer")
     public String genererPlanning(
             @RequestParam(value = "jours", required = false) String joursStr,
             HttpSession session,
             RedirectAttributes redirectAttrs) {
 
-        // ════════════════════════════════════════════════════════════════
-        // ✅ CAS 3 : Vérifier si des étudiants existent en base (import fait)
-        // ════════════════════════════════════════════════════════════════
+        
         long nbEtudiants = etudiantRepository.count();
         if (nbEtudiants == 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     "Aucun étudiant en base. <a href='/' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
-            return "redirect:/#importSection"; // ✅ Redirige vers section import de l'accueil
+            return "redirect:/#importSection"; 
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // ✅ CAS 2 : Vérifier si tous les étudiants ont un encadrant
-        // ════════════════════════════════════════════════════════════════
+        
         long nbSansEncadrant = etudiantRepository.countByEncadrantIsNull();
         if (nbSansEncadrant > 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     nbSansEncadrant + " étudiant(s) sans encadrant. Veuillez d'abord <a href='/affectation' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>affecter les encadrants</a>.");
-            return "redirect:/affectation"; // ✅ Redirige vers page affectation
+            return "redirect:/affectation"; 
         }
 
-        // ════════════════════════════════════════════════════════════════
-        // ✅ CAS 1 : Vérifier que des dates sont sélectionnées
-        // ════════════════════════════════════════════════════════════════
+        
         if (joursStr == null || joursStr.isBlank()) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     "Veuillez sélectionner au moins un jour de soutenance.");
-            return "redirect:/planning"; // ✅ Reste sur la page planning (pas de redirection vers affectation)
+            return "redirect:/planning"; 
         }
 
         try {
@@ -162,15 +138,13 @@ public class PlanificationController {
             if (jours.size() > 3) {
                 redirectAttrs.addFlashAttribute("erreurPlanning",
                         "Maximum 3 jours de soutenance autorisés.");
-                return "redirect:/planning"; // ✅ Reste sur planning en cas d'erreur
+                return "redirect:/planning"; 
             }
             
-            // Sauvegarder les dates en session pour la régénération
+            
             session.setAttribute("derniersJours", joursStr);
 
-            // ════════════════════════════════════════════════════════════════
-            // ✅ TOUT EST BON → Générer le planning (ta logique existante)
-            // ════════════════════════════════════════════════════════════════
+            
             String resultat = planificationService.genererPlanningComplet(jours);
             redirectAttrs.addFlashAttribute("successPlanning",
                     "Planning généré avec succès : " + resultat);
@@ -186,16 +160,13 @@ public class PlanificationController {
         return "redirect:/planning";
     }
 
-    /**
-     * AJOUT : Régénère le planning avec les mêmes dates que la dernière version.
-     * Appelé depuis le bouton "Régénérer (mêmes dates)" dans la modale.
-     */
+    
     @PostMapping("/regenerer")
     public String regenererPlanning(
             HttpSession session,
             RedirectAttributes redirectAttrs) {
 
-        // ✅ Garder tes validations existantes
+        
         long nbEtudiants = etudiantRepository.count();
         if (nbEtudiants == 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
@@ -210,7 +181,7 @@ public class PlanificationController {
             return "redirect:/affectation";
         }
 
-        // ✅ Récupérer les dates depuis la SESSION (pas la DB)
+        
         String joursStr = (String) session.getAttribute("derniersJours");
 
         if (joursStr == null || joursStr.isBlank()) {
@@ -243,9 +214,7 @@ public class PlanificationController {
         return "redirect:/planning";
     }
 
-    /**
-     * Voir une version spécifique de l'historique.
-     */
+   
     @GetMapping("/version/{id}")
     public String voirVersion(@PathVariable Long id, Model model,
                                HttpSession session) {  // ajouter session
@@ -261,7 +230,7 @@ public class PlanificationController {
             model.addAttribute("soutenances", new ArrayList<>());
         }
 
-        // ✅ Même logique que afficherPlanning()
+    
         String derniersJours = (String) session.getAttribute("derniersJours");
         model.addAttribute("derniersJours", derniersJours);
         if (derniersJours != null && !derniersJours.isBlank()) {

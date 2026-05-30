@@ -25,9 +25,6 @@ public class ExcelImportService {
     @Autowired private VersionPlanningRepository versionPlanningRepository;
     @Autowired private PlanningConfigRepository configRepository;
     @Autowired private NlpLangueService nlpLangueService;
-    // ══════════════════════════════════════════════
-    //  RÉSULTAT D'IMPORT
-    // ══════════════════════════════════════════════
     public static class ImportResult {
         private int profsImportes     = 0;
         private int etudiantsImportes = 0;
@@ -46,9 +43,6 @@ public class ExcelImportService {
         void incrSalles(int n)    { sallesImportees += n; }
     }
 
-    // ══════════════════════════════════════════════
-    //  POINT D'ENTRÉE
-    // ══════════════════════════════════════════════
     public ImportResult importerFichier(MultipartFile file) throws Exception {
         ImportResult result = new ImportResult();
 
@@ -69,7 +63,7 @@ public class ExcelImportService {
                 result.addErreur("Feuille 'PROFS' introuvable dans le fichier Excel.");
             }
 
-            // 2. SALLES
+           
             Sheet sheetSalles = trouverFeuille(wb, "salles");
             if (sheetSalles != null) {
                 importerSalles(sheetSalles, result);
@@ -77,15 +71,13 @@ public class ExcelImportService {
                 result.addErreur("Feuille 'SALLES' introuvable dans le fichier Excel.");
             }
 
-            // 3. ÉTUDIANTS
+            
             Sheet sheetEtudiants = trouverFeuille(wb, "etudiants");
             if (sheetEtudiants != null) {
                 importerEtudiants(sheetEtudiants, result);
             } else {
                 result.addErreur("Feuille 'ETUDIANTS' introuvable dans le fichier Excel.");
             }
-
-            // 4. VERSION PLANNING
             if (result.getProfsImportes() > 0 || result.getEtudiantsImportes() > 0) {
                 VersionPlanning version = new VersionPlanning();
                 version.setDateGeneration(LocalDateTime.now());
@@ -133,13 +125,6 @@ public class ExcelImportService {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT PROFESSEURS
-    //  Colonne 0 : nom
-    //  Colonne 1 : prenom
-    //  Colonne 2 : specialite_cible  (GI / Informatique / Mathématique / Gestion / Anglais)
-    //  Colonne 3 : parle_anglais     (Oui / Non)
-    // ══════════════════════════════════════════════
     private void importerProfesseurs(Sheet sheet, ImportResult result) {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
@@ -147,7 +132,6 @@ public class ExcelImportService {
             try {
                 String nom        = lireString(row, 0).toUpperCase().trim();
                 String prenom     = capitalize(lireString(row, 1)).trim();
-                // ✅ On stocke la vraie spécialité : GI / Informatique / Mathématique / Gestion / Anglais
                 String specialite = normaliserSpecialite(lireString(row, 2).trim());
                 boolean parleAng  = lireBoolean(row, 3);
 
@@ -171,10 +155,6 @@ public class ExcelImportService {
         }
     }
 
-    /**
-     * Normalise la spécialité lue depuis Excel vers une valeur standard.
-     * Valeurs standard : GI | INFORMATIQUE | MATHEMATIQUE | GESTION | ANGLAIS
-     */
     private String normaliserSpecialite(String raw) {
         if (raw == null || raw.isBlank()) return "AUTRE";
         String s = raw.toUpperCase()
@@ -187,12 +167,9 @@ public class ExcelImportService {
         if (s.contains("MATH"))                    return "MATHEMATIQUE";
         if (s.contains("GESTION"))                 return "GESTION";
         if (s.contains("ANGL"))                    return "ANGLAIS";
-        return s; // garder tel quel si inconnu
+        return s; 
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT SALLES
-    // ══════════════════════════════════════════════
     private void importerSalles(Sheet sheet, ImportResult result) {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
@@ -222,9 +199,6 @@ public class ExcelImportService {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  IMPORT ÉTUDIANTS
-    // ══════════════════════════════════════════════
     private void importerEtudiants(Sheet sheet, ImportResult result) {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
@@ -257,11 +231,10 @@ public class ExcelImportService {
                               || langLower.contains("english"))
                               ? Langue.EN : Langue.FR;
                
-                // NLP sur le titre si disponible
+                
                 if (!titre.isBlank()) {
                     boolean titreAnglais = nlpLangueService.estAnglais(titre);
-                    // NLP prend le dessus si la colonne langue est vide/ambiguë
-                    // OU si le titre est clairement anglais
+                    
                     boolean langueAmbigu = langueStr.isBlank() || langueStr.equalsIgnoreCase("?");
                     if (langueAmbigu || titreAnglais) {
                         langue = titreAnglais ? Langue.EN : langue;
@@ -276,7 +249,7 @@ public class ExcelImportService {
                 etudiant.setLangue(langue);
                 etudiant.setEmail(email);
                 etudiant.setTitreProjet(titre);
-                etudiant.setEncadrant(null); // affecté via module Affectation
+                etudiant.setEncadrant(null); 
 
                 etudiantRepository.save(etudiant);
                 etudiantRepository.flush();
@@ -288,9 +261,6 @@ public class ExcelImportService {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  UTILITAIRES POI
-    // ══════════════════════════════════════════════
     private Workbook ouvrirWorkbook(String filename, InputStream is) throws Exception {
         if (filename != null && filename.toLowerCase().endsWith(".xls"))
             return new HSSFWorkbook(is);

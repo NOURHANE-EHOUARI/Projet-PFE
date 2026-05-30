@@ -26,7 +26,7 @@ public class ProfesseurController {
     @Autowired
     private ma.ensa.pfe.dao.EtudiantRepository etudiantRepository;
     
-    // ===== LISTE =====
+    
     @GetMapping
     public String liste(Model model,
                         @RequestParam(required = false) String specialite,
@@ -67,7 +67,7 @@ public class ProfesseurController {
         return "professeurs/liste";
     }
 
-    // ===== FORMULAIRE AJOUT =====
+    
     @GetMapping("/nouveau")
     public String formulaireAjout(Model model) {
         model.addAttribute("professeur", new Professeur());
@@ -76,7 +76,7 @@ public class ProfesseurController {
         return "professeurs/formulaire";
     }
 
-    // ===== FORMULAIRE MODIFICATION =====
+    
     @GetMapping("/modifier/{id}")
     public String formulaireModif(@PathVariable Long id, Model model) {
         model.addAttribute("professeur", professeurService.findById(id));
@@ -85,7 +85,7 @@ public class ProfesseurController {
         return "professeurs/formulaire";
     }
 
-    // ===== SAUVEGARDER (ajout + modification) =====
+    
     @PostMapping("/sauvegarder")
     public String sauvegarder(@Valid @ModelAttribute Professeur professeur,
                                BindingResult result,
@@ -113,14 +113,14 @@ public class ProfesseurController {
         return "redirect:/professeurs";
     }
 
-    // ===== SUPPRIMER =====
+    
     @PostMapping("/supprimer/{id}")
     public String supprimer(@PathVariable Long id, RedirectAttributes redirectAttrs) {
         try {
             professeurService.deleteById(id);
             redirectAttrs.addFlashAttribute("successMsg", "Professeur supprimé avec succès !");
         } catch (IllegalStateException e) {
-            // Le professeur encadre encore des étudiants — on affiche l'erreur dans la liste
+            
             redirectAttrs.addFlashAttribute("errorMsg", e.getMessage());
         } catch (EntityNotFoundException e) {
             redirectAttrs.addFlashAttribute("errorMsg", e.getMessage());
@@ -128,7 +128,7 @@ public class ProfesseurController {
         return "redirect:/professeurs";
     }
 
-    // ===== FICHE DÉTAIL (contraintes) =====
+    
     @GetMapping("/{id}/contraintes")
     public String contraintes(@PathVariable Long id, Model model) {
         Professeur prof = professeurService.findById(id);
@@ -139,7 +139,7 @@ public class ProfesseurController {
         return "professeurs/contraintes";
     }
 
-    // ===== AJOUTER UNE CONTRAINTE =====
+    
     @PostMapping("/{id}/contraintes/ajouter")
     public String ajouterContrainte(@PathVariable Long id,
                                      @ModelAttribute Contrainte contrainte,
@@ -153,7 +153,7 @@ public class ProfesseurController {
         return "redirect:/professeurs/" + id + "/contraintes";
     }
 
-    // ===== SUPPRIMER UNE CONTRAINTE =====
+    
     @PostMapping("/{profId}/contraintes/supprimer/{contrainteId}")
     public String supprimerContrainte(@PathVariable Long profId,
                                        @PathVariable Long contrainteId,

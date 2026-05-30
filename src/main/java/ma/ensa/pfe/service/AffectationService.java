@@ -20,10 +20,6 @@ public class AffectationService {
     @Autowired private NlpLangueService     nlpLangueService;
 
 
- 
-    // ══════════════════════════════════════════════
-    //  RÉSULTAT D'AFFECTATION
-    // ══════════════════════════════════════════════
     public static class AffectationResult {
         private int nbAffectes = 0;
         private int nbEchecs   = 0;
@@ -45,9 +41,7 @@ public class AffectationService {
         void addErreur(String e)         { erreurs.add(e); }
     }
 
-    // ══════════════════════════════════════════════
-    //  POINT D'ENTRÉE
-    // ══════════════════════════════════════════════
+  
     public AffectationResult affecterEncadrants() {
         AffectationResult result = new AffectationResult();
 
@@ -74,7 +68,7 @@ public class AffectationService {
                 .map(p -> p.getNom() + " [" + p.getSpecialite() + "]")
                 .collect(Collectors.joining(", ")));
         
-        // Profs anglophones — pour affichage diagnostic
+
         List<Professeur> profsAnglais = tousProfs.stream()
                 .filter(p -> Boolean.TRUE.equals(p.getParleAnglais()))
                 .collect(Collectors.toList());
@@ -87,8 +81,6 @@ public class AffectationService {
         Map<Long, Integer> charge = new HashMap<>();
         tousProfs.forEach(p -> charge.put(p.getId(), 0));
 
-        // ✅ Ne PAS écraser les encadrants choisis manuellement
-        // Seuls les étudiants sans encadrant sont affectés automatiquement
         List<Etudiant> etudiants = tousEtudiants.stream()
                 .filter(e -> e.getEncadrant() == null)
                 .collect(Collectors.toList());
@@ -99,13 +91,13 @@ public class AffectationService {
                 tousEtudiants.size() - etudiants.size());
 
         if (etudiants.isEmpty()) {
-            result.addDetail("✅ Tous les étudiants ont déjà un encadrant assigné.");
+            result.addDetail(" Tous les étudiants ont déjà un encadrant assigné.");
             return result;
         }
 
         Collections.shuffle(etudiants);
 
-        // ── ÉTAPE NLP ────────────────────────────────────────────────────────
+
         System.out.println("══════ NLP - DÉTECTION LANGUE TITRE ══════");
         for (Etudiant etudiant : etudiants) {
             try {
@@ -116,7 +108,7 @@ public class AffectationService {
                         etudiant.setLangue(Langue.EN);
                         etudiantRepository.save(etudiant);
                         result.incrNlpDetectes();
-                        result.addDetail("🔍 NLP : \"" + titre
+                        result.addDetail(" NLP : \"" + titre
                                 + "\" → langue EN pour "
                                 + etudiant.getNom() + " " + etudiant.getPrenom());
                         System.out.println("[NLP] EN détecté → "
@@ -130,7 +122,7 @@ public class AffectationService {
         }
         System.out.println("══════════════════════════════════════════");
 
-        // ── AFFECTATION ENCADRANTS ────────────────────────────────────────────
+        
         for (Etudiant etudiant : etudiants) {
             Professeur encadrant = choisirEncadrant(
             		etudiant.getFiliere(), profsEligibles, charge);
@@ -153,21 +145,12 @@ public class AffectationService {
             }
         }
 
-        // ── AFFECTATION ÉQUITABLE PROFS ANGLOPHONES ───────────────────────────
-        // Les profs anglophones sont affectés équitablement aux étudiants EN
-        // qui n'ont pas encore de prof anglophone comme encadrant.
-        // (L'encadrant reste celui affecté ci-dessus — ici on prépare
-        //  la charge initiale pour que PlanificationService les distribue bien)
+       
         affecterChargeAnglophones(profsAnglais, etudiants, result);
 
         return result;
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    //  ✅ NOUVEAU : Répartition équitable des profs anglophones
-    //  Principe : compter les étudiants EN et afficher le diagnostic
-    //  La vraie répartition se fait dans PlanificationService via chargeProf
-    // ══════════════════════════════════════════════════════════════════════════
     private void affecterChargeAnglophones(List<Professeur> profsAnglais,
                                             List<Etudiant> etudiants,
                                             AffectationResult result) {
@@ -183,7 +166,7 @@ public class AffectationService {
         System.out.printf("  %d étudiant(s) EN pour %d prof(s) anglophone(s)%n",
                 nbEN, profsAnglais.size());
 
-        // Répartition théorique équitable
+        
         long parProf = nbEN / profsAnglais.size();
         long reste   = nbEN % profsAnglais.size();
         System.out.printf("  Répartition idéale : %d par prof, %d en surplus%n",
@@ -197,24 +180,18 @@ public class AffectationService {
         System.out.println("═══════════════════════════════════════");
 
         result.addDetail(String.format(
-                "📊 Profs anglophones : %d prof(s) pour %d soutenance(s) EN",
+                " Profs anglophones : %d prof(s) pour %d soutenance(s) EN",
                 profsAnglais.size(), nbEN));
     }
 
-    // ══════════════════════════════════════════════
-    //  LOGIQUE DE CHOIX ENCADRANT
-    // ══════════════════════════════════════════════
     private Professeur choisirEncadrant(Filiere filiere,
             List<Professeur> profsEligibles,
             Map<Long, Integer> charge) {
-      //  Tous les profs éligibles peuvent encadrer n'importe quelle filière
-      // L'équité est assurée par la charge minimale
+      
       return choisirAvecCharge(profsEligibles, charge);
     }
 
-    // ══════════════════════════════════════════════
-    //  CHOIX AVEC CHARGE ÉQUITABLE
-    // ══════════════════════════════════════════════
+  
     private Professeur choisirAvecCharge(List<Professeur> profs,
                                           Map<Long, Integer> charge) {
         if (profs == null || profs.isEmpty()) return null;
@@ -231,13 +208,6 @@ public class AffectationService {
         return profsChargeMin.get(0);
     }
 
-    // ══════════════════════════════════════════════
-    //  UTILITAIRES
-    // ══════════════════════════════════════════════
-
-
- 
-
     private String normaliser(String s) {
         if (s == null) return "";
         return s.toUpperCase()
@@ -247,9 +217,6 @@ public class AffectationService {
                 .trim();
     }
 
-    // ══════════════════════════════════════════════
-    //  STATS (pour la vue)
-    // ══════════════════════════════════════════════
     public Map<String, Long> getChargeEncadrants() {
         return etudiantRepository.findAll().stream()
                 .filter(e -> e.getEncadrant() != null)

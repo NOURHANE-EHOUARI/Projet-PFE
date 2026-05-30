@@ -1,4 +1,4 @@
--- ===== DONNÉES DE TEST — 10 PROFESSEURS =====
+
 
 INSERT INTO professeurs (nom, prenom, specialite, parle_anglais) VALUES
 ('BADI',     'Imad',    'Génie Informatique',       FALSE),
@@ -12,7 +12,7 @@ INSERT INTO professeurs (nom, prenom, specialite, parle_anglais) VALUES
 ('MANSOURI', 'Leila',   'Réseaux & Systèmes',       FALSE),
 ('ZOUHRI',   'Amine',   'Génie Informatique',       TRUE);
 
--- ===== 20 ÉTUDIANTS =====
+
 
 INSERT INTO etudiants (nom, prenom, filiere, langue, encadrant_id, titre_projet) VALUES
 ('CHENTOUF',  'Ismail',      'GI', 'FR', 1, 'Système de gestion des absences'),
@@ -36,7 +36,6 @@ INSERT INTO etudiants (nom, prenom, filiere, langue, encadrant_id, titre_projet)
 ('SABRI',     'Dounia',      'ID', 'FR', 10, 'Optimisation chaîne logistique'),
 ('TAZI',      'Anas',        'GI', 'FR', 10, 'Chatbot intelligent Spring AI');
 
--- ===== 5 SALLES =====
 
 INSERT INTO salles (nom, capacite) VALUES
 ('S4A', 30),
@@ -45,7 +44,7 @@ INSERT INTO salles (nom, capacite) VALUES
 ('S5B', 25),
 ('Amphi', 100);
 
--- ===== CONTRAINTES (indisponibilités) =====
+
 
 INSERT INTO contraintes (professeur_id, date_indisponible, heure_debut, heure_fin) VALUES
 (1, '2025-06-10', '08:00', '10:00'),

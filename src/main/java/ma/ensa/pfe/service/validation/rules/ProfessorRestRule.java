@@ -13,9 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Règle : vérifie qu'un professeur a au moins 1 heure de repos entre deux soutenances successives.
- */
 @Component
 public class ProfessorRestRule implements ValidationRule<List<Soutenance>> {
     
@@ -30,29 +27,28 @@ public class ProfessorRestRule implements ValidationRule<List<Soutenance>> {
             return results;
         }
         
-        // Grouper par prof et date
         Map<ProfDateKey, List<Soutenance>> parProfDate = new HashMap<>();
         
         for (Soutenance s : soutenances) {
             if (s.getDate() == null || s.getHeure() == null) continue;
             
-            // Ajouter pour l'encadrant
+           
             addSoutenance(parProfDate, s.getEncadrant(), s);
-            // Ajouter pour les membres du jury
+            
             addSoutenance(parProfDate, s.getJury1(), s);
             addSoutenance(parProfDate, s.getJury2(), s);
             addSoutenance(parProfDate, s.getJury3(), s);
         }
         
-        // Vérifier le repos pour chaque (prof, date)
+       
         for (Map.Entry<ProfDateKey, List<Soutenance>> entry : parProfDate.entrySet()) {
             List<Soutenance> groupe = entry.getValue();
             if (groupe.size() < 2) continue;
             
-            // Trier par heure de début
+            
             groupe.sort(Comparator.comparing(Soutenance::getHeure));
             
-            // Vérifier le temps entre chaque paire consécutive
+        
             for (int i = 0; i < groupe.size() - 1; i++) {
                 Soutenance s1 = groupe.get(i);
                 Soutenance s2 = groupe.get(i + 1);
@@ -61,7 +57,7 @@ public class ProfessorRestRule implements ValidationRule<List<Soutenance>> {
                 long minutesRepos = ChronoUnit.MINUTES.between(fin1, s2.getHeure());
                 
                 if (minutesRepos < REPOS_MINIMUM_MINUTES && minutesRepos >= 0) {
-                    // ✅ CORRECTION : utiliser getNom() + getPrenom()
+                    
                     String nomProf = entry.getKey().prof.getNom() + " " + entry.getKey().prof.getPrenom();
                     String etudiant1 = s1.getEtudiant() != null ? 
                         s1.getEtudiant().getNom() + " " + s1.getEtudiant().getPrenom() : "Inconnu";
@@ -103,7 +99,7 @@ public class ProfessorRestRule implements ValidationRule<List<Soutenance>> {
         return "Vérifie qu'un professeur a au moins 1 heure de repos entre deux soutenances successives";
     }
     
-    // Clé composite pour le grouping
+   
     private static class ProfDateKey {
         private final Professeur prof;
         private final LocalDate date;

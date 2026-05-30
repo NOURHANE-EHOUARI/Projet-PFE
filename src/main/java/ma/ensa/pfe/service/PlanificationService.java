@@ -39,10 +39,6 @@ public class PlanificationService {
     private Map<Long, Long>             cacheChargeProf;
     private Map<Long, List<Contrainte>> cacheContraintes;
     private Map<Long, Long> cacheChargeJury;
-
-    // ══════════════════════════════════════════════════════════════════════
-    //  POINT D'ENTRÉE — GÉNÉRATION COMPLÈTE
-    // ══════════════════════════════════════════════════════════════════════
     private void chargerConfig() {
         this.dureeSoutenance = configService.getDureeSoutenance();
         this.delaiProf       = configService.getPauseEntreSoutenances();
@@ -111,9 +107,6 @@ public class PlanificationService {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  RECALCUL DU JURY QUAND LA LANGUE D'UN ÉTUDIANT CHANGE
-    // ══════════════════════════════════════════════════════════════════════
     public String recalculerJuryPourEtudiant(Long etudiantId, Etudiant.Langue ancienneLangue) {
     	chargerConfig();
         Etudiant etudiant = etudiantRepository.findById(etudiantId).orElse(null);
@@ -164,14 +157,6 @@ public class PlanificationService {
                 + etudiant.getPrenom() + " (langue : " + etudiant.getLangue() + ").";
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  ✅ NOUVEAU : RECALCUL DES SOUTENANCES APRÈS AJOUT D'UNE INDISPONIBILITÉ
-    //
-    //  Appelé depuis ProfesseurService.ajouterContrainte() après sauvegarde.
-    //  Pour chaque soutenance du prof dans la dernière version :
-    //    - Si le créneau tombe dans la plage d'indisponibilité → chercher un autre créneau
-    //    - Sinon → ne rien faire
-    // ══════════════════════════════════════════════════════════════════════
     public String recalculerSoutenancesPourContrainte(Long professeurId) {
     	chargerConfig();
         Professeur prof = professeurRepository.findById(professeurId).orElse(null);
@@ -181,11 +166,11 @@ public class PlanificationService {
                 versionPlanningRepository.findFirstByOrderByDateGenerationDesc();
         if (derniereVersion == null) return "Aucun planning généré.";
 
-        // Charger toutes les contraintes à jour
+   
         cacheContraintes = contrainteRepository.findAll().stream()
                 .collect(Collectors.groupingBy(c -> c.getProfesseur().getId()));
 
-        // Trouver toutes les soutenances où ce prof est impliqué
+        
         List<Soutenance> soutenancesProf = soutenanceRepository
                 .findByVersion(derniereVersion).stream()
                 .filter(s -> implique(s, prof))
@@ -203,14 +188,13 @@ public class PlanificationService {
             LocalDate jour  = soutenance.getDate();
             LocalTime heure = soutenance.getHeure();
 
-            // Vérifier si le prof est indisponible à ce créneau
+            
             if (!estProfIndisponibleContrainte(prof, jour, heure)) continue;
 
-            // Le créneau est en conflit avec une indisponibilité — chercher un autre créneau
+            
             System.out.printf("  ⚠️  Conflit indisponibilité : %s le %s à %s - recalcul...%n",
                 prof.getNom(), jour, heure);
 
-            // Initialiser le cache avec les autres soutenances du même jour
             cacheSoutenancesParJour = new HashMap<>();
             cacheChargeProf         = new HashMap<>();
 
@@ -222,30 +206,30 @@ public class PlanificationService {
             cacheSoutenancesParJour.put(jour.toEpochDay(),
                     new ArrayList<>(autresSoutenancesDuJour));
 
-            // Chercher un nouveau créneau sur le même jour
+           
             boolean trouve = false;
             for (LocalTime nouveauCreneau : creneaux) {
                 if (nouveauCreneau.equals(heure)) continue;
 
-                // Vérifier que l'encadrant est dispo
+                
                 if (encadrantOccupeMemeCreneauExact(soutenance.getEncadrant(), jour, nouveauCreneau))
                     continue;
 
-                // Vérifier que le prof impliqué est dispo
+              
                 if (!estProfDisponible(prof, jour, nouveauCreneau)) continue;
 
-                // Vérifier une salle libre
+              
                 Salle salleLibre = trouverSalleLibre(salles, jour, nouveauCreneau);
                 if (salleLibre == null) continue;
 
-                // Vérifier que le jury est toujours valide à ce créneau
+               
                 Etudiant etudiant    = soutenance.getEtudiant();
                 boolean exigeAnglais = etudiant.getLangue() == Etudiant.Langue.EN;
                 ListeJury jury = choisirJury(soutenance.getEncadrant(), tousProfs,
                         jour, nouveauCreneau, etudiant.getFiliere(), exigeAnglais);
                 if (jury == null) continue;
 
-                // Mettre à jour la soutenance
+                
                 soutenance.setHeure(nouveauCreneau);
                 soutenance.setSalle(salleLibre);
                 soutenance.setJury1(jury.j1());
@@ -271,10 +255,7 @@ public class PlanificationService {
             : "Aucune soutenance affectée par cette indisponibilité.";
     }
 
-    /**
-     * Vérifie uniquement les contraintes d'indisponibilité (pas les autres soutenances).
-     * Utilisé pour détecter les conflits après ajout d'une contrainte.
-     */
+   
     private boolean estProfIndisponibleContrainte(Professeur prof,
                                                    LocalDate jour,
                                                    LocalTime heureDebut) {
@@ -288,9 +269,6 @@ public class PlanificationService {
         return false;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  EXÉCUTION
-    // ══════════════════════════════════════════════════════════════════════
     private String executer(List<Etudiant> etudiants, List<Professeur> professeurs,
                              List<Salle> salles, List<LocalDate> jours,
                              VersionPlanning version) {
@@ -357,9 +335,6 @@ public class PlanificationService {
         return msg;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  PLACEMENT D'UN ÉTUDIANT
-    // ══════════════════════════════════════════════════════════════════════
     private ResultatPlacement placerEtudiant(Etudiant etudiant,
                                               List<Professeur> professeurs,
                                               List<Salle> salles,
@@ -420,9 +395,6 @@ public class PlanificationService {
             : derniereRaison);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  VÉRIFICATION ENCADRANT
-    // ══════════════════════════════════════════════════════════════════════
     private boolean encadrantOccupeMemeCreneauExact(Professeur encadrant,
                                                      LocalDate jour,
                                                      LocalTime heure) {
@@ -433,21 +405,11 @@ public class PlanificationService {
         return false;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  SÉLECTION DU JURY
-    // ══════════════════════════════════════════════════════════════════════
- // ══════════════════════════════════════════════════════════════════════
-    //  SÉLECTION DU JURY
-    //  ✅ FIX : Pour EN, le jury doit TOUJOURS contenir exactement 1 prof anglais.
-    //           Si aucun prof anglais n'est disponible → retourner null
-    //           pour forcer un autre créneau (pas de fallback sans anglophone).
-    // ══════════════════════════════════════════════════════════════════════
     private ListeJury choisirJury(Professeur encadrant, List<Professeur> tousProfs,
             LocalDate jour, LocalTime heure,
             Etudiant.Filiere filiere, boolean exigeAnglais) {
 
-        // Pool : tous les profs disponibles sauf l'encadrant
-        // triés par charge jury croissante → équité automatique
+
         List<Professeur> candidats = tousProfs.stream()
             .filter(p -> !p.getId().equals(encadrant.getId()))
             .filter(p -> estProfDisponible(p, jour, heure))
@@ -457,15 +419,14 @@ public class PlanificationService {
         if (candidats.size() < 2) return null;
 
         if (exigeAnglais) {
-            // ── SOUTENANCE EN ──────────────────────────────────────────────
-            // Chercher un prof anglophone parmi les candidats
+       
             Professeur profAnglais = candidats.stream()
                 .filter(p -> Boolean.TRUE.equals(p.getParleAnglais()))
                 .findFirst()
                 .orElse(null);
 
             if (profAnglais != null) {
-                // jury2 = premier prof de la même spécialité (≠ profAnglais)
+              
                 Professeur profSpec = candidats.stream()
                     .filter(p -> !p.getId().equals(profAnglais.getId()))
                     .filter(p -> estSpecialiteFiliere(p, filiere))
@@ -475,7 +436,7 @@ public class PlanificationService {
                     return new ListeJury(encadrant, profSpec, profAnglais);
                 }
 
-                // Mode dégradé : pas de prof spécialité dispo → n'importe qui
+                
                 Professeur autre = candidats.stream()
                     .filter(p -> !p.getId().equals(profAnglais.getId()))
                     .findFirst().orElse(null);
@@ -485,19 +446,18 @@ public class PlanificationService {
                 }
                 return null;
             }
-            //  Aucun anglophone dispo → prendre les 2 premiers candidats
+            
             System.out.printf("  ⚠️  Aucun prof anglophone dispo à %s — jury sans anglophone%n", heure);
             return new ListeJury(encadrant, candidats.get(0), candidats.get(1));
 
         } else {
-            // ── SOUTENANCE FR ──
-            // jury2 = premier prof de la même spécialité
+            
             Professeur profSpec = candidats.stream()
                 .filter(p -> estSpecialiteFiliere(p, filiere))
                 .findFirst().orElse(null);
 
             if (profSpec != null) {
-                // jury3 = n'importe qui d'autre (charge minimale)
+             
                 Professeur autre = candidats.stream()
                     .filter(p -> !p.getId().equals(profSpec.getId()))
                     .findFirst().orElse(null);
@@ -506,15 +466,12 @@ public class PlanificationService {
                 }
             }
 
-            // Mode dégradé : pas de prof spécialité dispo → 2 premiers par charge
+            
             System.out.printf("  ⚠️  Mode dégradé FR : pas de prof spécialité %s dispo%n", filiere);
             return new ListeJury(encadrant, candidats.get(0), candidats.get(1));
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  DISPONIBILITÉ PROF
-    // ══════════════════════════════════════════════════════════════════════
     public boolean estProfDisponible(Professeur prof, LocalDate jour, LocalTime heureDebut) {
     	LocalTime heureFin = heureDebut.plusMinutes(dureeSoutenance);
 
@@ -536,9 +493,6 @@ public class PlanificationService {
         return true;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  DISPONIBILITÉ SALLE
-    // ══════════════════════════════════════════════════════════════════════
     public boolean estSalleLibre(Salle salle, LocalDate jour, LocalTime heureDebut) {
     	LocalTime heureFin = heureDebut.plusMinutes(dureeSoutenance);
         for (Soutenance s : getCacheJour(jour)) {
@@ -559,9 +513,6 @@ public class PlanificationService {
         return null;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  GÉNÉRATION DES CRÉNEAUX
-    // ══════════════════════════════════════════════════════════════════════
     private List<LocalTime> genererCreneaux() {
         List<LocalTime> cr = new ArrayList<>();
 
@@ -574,7 +525,7 @@ public class PlanificationService {
             t = t.plusMinutes(intervalle);
         }
 
-        // Après-midi : de 14h00 jusqu'à finJournee
+ 
         LocalTime debutApres = LocalTime.of(14, 0);
         t = debutApres;
         while (!t.plusMinutes(dureeSoutenance).isAfter(finJournee)) {
@@ -586,9 +537,7 @@ public class PlanificationService {
         return cr;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  MÉLANGE INTER-FILIÈRES
-    // ══════════════════════════════════════════════════════════════════════
+
     private List<Etudiant> melangerParFiliere(List<Etudiant> etudiants) {
         Map<Etudiant.Filiere, List<Etudiant>> map = etudiants.stream()
             .collect(Collectors.groupingBy(Etudiant::getFiliere));
@@ -606,9 +555,7 @@ public class PlanificationService {
         return res;
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  DIAGNOSTIC PRÉ-GÉNÉRATION
-    // ══════════════════════════════════════════════════════════════════════
+
     private void afficherDiagnosticComplet(List<Etudiant> etudiants,
                                             List<LocalTime> creneaux,
                                             List<LocalDate> jours) {
@@ -636,9 +583,6 @@ public class PlanificationService {
         System.out.println("═══════════════════════════════════════════════");
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  VALIDATION DES PRÉREQUIS
-    // ══════════════════════════════════════════════════════════════════════
     private void validerPrerequis(List<Etudiant> etudiants,
                                    List<Professeur> professeurs,
                                    List<Salle> salles) {
@@ -654,21 +598,13 @@ public class PlanificationService {
                 "Il faut au moins 2 profs GI (actuellement " + nbGI + ").");
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  UTILITAIRES
-    // ══════════════════════════════════════════════════════════════════════
     private boolean estProfAnglais(Professeur p) {
         if (p.getSpecialite() == null) return false;
         String sp = p.getSpecialite().trim().toUpperCase()
             .replace("É", "E").replace("È", "E");
         return sp.equals("ANGLAIS");
     }
-    /**
-     * Vérifie si un prof correspond à la spécialité requise par la filière.
-     * GI   → GI ou INFORMATIQUE
-     * TDIA → GI, INFORMATIQUE ou MATHEMATIQUE
-     * DATA → MATHEMATIQUE
-     */
+
     private boolean estSpecialiteFiliere(Professeur p, Etudiant.Filiere filiere) {
         if (p.getSpecialite() == null) return false;
         String sp = p.getSpecialite().trim().toUpperCase()

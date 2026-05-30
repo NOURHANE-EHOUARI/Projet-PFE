@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ImportController {
 
     @Autowired private ExcelImportService excelImportService;
-    @Autowired private AffectationService affectationService; // ✅ AJOUTÉ
+    @Autowired private AffectationService affectationService; 
 
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -43,10 +43,10 @@ public class ImportController {
         }
 
         try {
-            // 1. Import Excel
+            
             ImportResult result = excelImportService.importerFichier(fichier);
 
-            // 2. ✅ Affectation automatique immédiatement après l'import
+            
             if (result.getEtudiantsImportes() > 0 && result.getProfsImportes() > 0) {
                 AffectationResult affResult = affectationService.affecterEncadrants();
                 redirectAttrs.addFlashAttribute("nbAffectes", affResult.getNbAffectes());

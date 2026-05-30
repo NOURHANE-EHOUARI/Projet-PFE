@@ -22,10 +22,7 @@ public class StatistiquesService {
     @Autowired private ProfesseurRepository professeurRepository;
     @Autowired private EtudiantRepository   etudiantRepository;
 
-    // ══════════════════════════════════════════════
-    //  CHARGE PAR PROFESSEUR
-    // ══════════════════════════════════════════════
-
+  
     public Map<String, Long> getChargeParProfesseur() {
         List<Soutenance> soutenances = soutenanceRepository.findAll();
         List<Professeur> professeurs = professeurRepository.findAll();
@@ -37,7 +34,7 @@ public class StatistiquesService {
                 .forEach(prof -> {
                     long count = soutenances.stream()
                             .filter(s -> {
-                                // Sécurité : vérifier que l'encadrant n'est pas null
+                                
                                 boolean isEncadrant = s.getEncadrant() != null && s.getEncadrant().getId().equals(prof.getId());
                                 boolean isJury1 = s.getJury1() != null && s.getJury1().getId().equals(prof.getId());
                                 boolean isJury2 = s.getJury2() != null && s.getJury2().getId().equals(prof.getId());
@@ -49,7 +46,7 @@ public class StatistiquesService {
                     charges.put(prof.getNomComplet(), count);
                 });
 
-        // Trier par charge décroissante
+       
         return charges.entrySet().stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .collect(Collectors.toMap(
@@ -59,10 +56,6 @@ public class StatistiquesService {
                         LinkedHashMap::new
                 ));
     }
-
-    // ══════════════════════════════════════════════
-    //  SOUTENANCES PAR JOUR
-    // ══════════════════════════════════════════════
 
     public Map<String, Long> getSoutenancesParJour() {
         List<Soutenance> soutenances = soutenanceRepository.findAll();
@@ -82,17 +75,11 @@ public class StatistiquesService {
                 ));
     }
 
-    // ══════════════════════════════════════════════
-    //  RÉPARTITION PAR FILIÈRE (CORRIGÉ)
-    // ══════════════════════════════════════════════
 
-    /**
-     * Retourne le nombre d'étudiants par filière (GI / TDIA / DATA).
-     */
     public Map<String, Long> getRepartitionFiliere() {
         Map<String, Long> result = new LinkedHashMap<>();
         
-        // ✅ CORRECTION : Utilisation des nouvelles énumérations
+       
         result.put("GI", etudiantRepository.countByFiliere(Etudiant.Filiere.GI));
         result.put("TDIA", etudiantRepository.countByFiliere(Etudiant.Filiere.TDIA));
         result.put("DATA", etudiantRepository.countByFiliere(Etudiant.Filiere.DATA));
@@ -100,15 +87,11 @@ public class StatistiquesService {
         return result;
     }
 
-    // ══════════════════════════════════════════════
-    //  RÉPARTITION PAR LANGUE
-    // ══════════════════════════════════════════════
 
     public Map<String, Long> getRepartitionLangue() {
         List<Soutenance> soutenances = soutenanceRepository.findAll();
         Map<String, Long> result = new LinkedHashMap<>();
         
-        // Sécurité : filtrer les soutenances sans étudiant ou langue null
         result.put("FR", soutenances.stream()
                 .filter(s -> s.getEtudiant() != null && s.getEtudiant().getLangue() == Etudiant.Langue.FR)
                 .count());
@@ -119,9 +102,7 @@ public class StatistiquesService {
         return result;
     }
 
-    // ══════════════════════════════════════════════
-    //  STATS GLOBALES
-    // ══════════════════════════════════════════════
+    
 
     public long getTotalSoutenances() {
         return soutenanceRepository.count();

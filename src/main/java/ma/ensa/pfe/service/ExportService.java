@@ -38,38 +38,12 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Service responsable de la génération des exports du planning des soutenances PFE.
- * <p>
- * Ce service fournit trois fonctionnalités principales :
- * <ul>
- *   <li>Export du planning en fichier Excel (.xlsx) avec 3 feuilles (global, par salle, par prof)</li>
- *   <li>Export du planning en fichier PDF formaté</li>
- *   <li>Génération automatique du dossier PVs (un PDF par étudiant, groupés par encadrant) en archive ZIP</li>
- * </ul>
- *
- */
 @Service
 public class ExportService {
 
     private static final DateTimeFormatter DATE_FMT  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter HEURE_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
-    // ══════════════════════════════════════════════
-    //  EXPORT EXCEL
-    // ══════════════════════════════════════════════
-    /**
-     * Génère un fichier Excel du planning des soutenances avec 3 feuilles.
-     * <ul>
-     *   <li>Feuille 1 : Planning global trié par date et heure</li>
-     *   <li>Feuille 2 : Planning groupé par salle</li>
-     *   <li>Feuille 3 : Planning groupé par professeur encadrant</li>
-     * </ul>
-     *
-     * @param soutenances liste des soutenances à exporter
-     * @param out         flux de sortie vers lequel écrire le fichier Excel
-     * @throws IOException en cas d'erreur d'écriture
-     */
     public void exporterExcel(List<Soutenance> soutenances, OutputStream out) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
 
@@ -87,7 +61,7 @@ public class ExportService {
             dataStyle.setBorderLeft(BorderStyle.THIN);
             dataStyle.setBorderRight(BorderStyle.THIN);
 
-            // Feuille 1 - Planning global
+           
             XSSFSheet sheet1 = workbook.createSheet("Planning Global");
             String[] headers = {"#","Date","Heure","Salle","Etudiant","Filiere","Langue","Encadrant","Jury 1","Jury 2"};
             creerEntete(sheet1, headers, headerStyle, 0);
@@ -109,7 +83,7 @@ public class ExportService {
             }
             for (int i = 0; i < headers.length; i++) sheet1.autoSizeColumn(i);
 
-            // Feuille 2 - Par salle
+            
             XSSFSheet sheet2 = workbook.createSheet("Par Salle");
             Map<String, List<Soutenance>> parSalle = soutenances.stream()
                 .collect(Collectors.groupingBy(s -> s.getSalle().getNom(), TreeMap::new, Collectors.toList()));
@@ -127,7 +101,7 @@ public class ExportService {
                 row2++;
             }
 
-            // Feuille 3 - Par prof
+            
             XSSFSheet sheet3 = workbook.createSheet("Par Professeur");
             Map<String, List<Soutenance>> parProf = soutenances.stream()
                 .collect(Collectors.groupingBy(
@@ -150,23 +124,14 @@ public class ExportService {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  EXPORT PDF
-    // ══════════════════════════════════════════════
-    /**
-     * Génère un fichier PDF du planning des soutenances.
-     * Le tableau est formaté avec alternance de couleurs et entête ENSA.
-     *
-     * @param soutenances liste des soutenances à exporter
-     * @param out         flux de sortie vers lequel écrire le PDF
-     */
+    
     public void exporterPdf(List<Soutenance> soutenances, OutputStream out) {
         Document doc = new Document(PageSize.A4.rotate(), 25, 25, 45, 35);
         try {
             PdfWriter.getInstance(doc, out);
             doc.open();
 
-            // ── COULEURS INSTITUTIONNELLES ──
+            
             BaseColor bleuMarine  = new BaseColor(26,  58,  92);   // #1a3a5c
             BaseColor bleuSecond  = new BaseColor(46, 109, 164);   // #2e6da4
             BaseColor or          = new BaseColor(240, 165,   0);   // #f0a500
@@ -176,7 +141,7 @@ public class ExportService {
             BaseColor textSombre  = new BaseColor(20,  20,  20);
             BaseColor textMuted   = new BaseColor(80,  80,  80);
 
-            // ── POLICES ──
+            
             com.itextpdf.text.Font fontTitre   = FontFactory.getFont(FontFactory.TIMES_BOLD,   14, bleuMarine);
             com.itextpdf.text.Font fontSousTitre = FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, bleuSecond);
             com.itextpdf.text.Font fontHeader  = FontFactory.getFont(FontFactory.TIMES_BOLD,    8, blanc);
@@ -184,8 +149,7 @@ public class ExportService {
             com.itextpdf.text.Font fontMuted   = FontFactory.getFont(FontFactory.TIMES_ROMAN,   7, textMuted);
             com.itextpdf.text.Font fontFooter  = FontFactory.getFont(FontFactory.TIMES_ROMAN,   7, textMuted);
 
-            // ── EN-TÊTE INSTITUTIONNEL ──
-            // Ligne dorée en haut
+            
             PdfPTable topLine = new PdfPTable(1);
             topLine.setWidthPercentage(100);
             topLine.setSpacingAfter(4);
@@ -196,7 +160,7 @@ public class ExportService {
             topLine.addCell(topCell);
             doc.add(topLine);
 
-            // Bloc entête bleu
+           
             PdfPTable headerBlock = new PdfPTable(1);
             headerBlock.setWidthPercentage(100);
             headerBlock.setSpacingAfter(6);
@@ -224,41 +188,41 @@ public class ExportService {
             headerBlock.addCell(headerCell);
             doc.add(headerBlock);
 
-            // ── TABLEAU PLANNING ──
+            
             PdfPTable table = new PdfPTable(10);
             table.setWidthPercentage(100);
             table.setWidths(new float[]{0.6f, 2.2f, 2.0f, 2.0f, 1.6f, 0.8f, 1.2f, 1.0f, 2.0f, 1.8f});
             table.setSpacingBefore(4);
-         // Couleurs distinctes pour les dates (cycle sur 3 jours max)
+         
             BaseColor[] dateColors = {
-                new BaseColor(232, 240, 254),  // bleu très clair — jour 1
-                new BaseColor(232, 248, 237),  // vert très clair — jour 2
-                new BaseColor(255, 243, 224),  // orange très clair — jour 3
+                new BaseColor(232, 240, 254),  
+                new BaseColor(232, 248, 237),  
+                new BaseColor(255, 243, 224),  
             };
-            // Couleurs pour les heures (matin/après-midi)
+            
             BaseColor[] heureColors = {
-                new BaseColor(255, 253, 235),  // jaune très clair — 8h-9h
-                new BaseColor(240, 253, 250),  // cyan très clair — 10h-11h
-                new BaseColor(253, 235, 255),  // mauve très clair — 12h-13h
-                new BaseColor(235, 245, 255),  // bleu clair — 14h-15h
-                new BaseColor(255, 240, 240),  // rose très clair — 16h+
+                new BaseColor(255, 253, 235),  
+                new BaseColor(240, 253, 250), 
+                new BaseColor(253, 235, 255),  
+                new BaseColor(235, 245, 255),  
+                new BaseColor(255, 240, 240),  
             };
 
             Map<String, Integer> dateIndex = new LinkedHashMap<>();
             Map<String, BaseColor> profColors = new LinkedHashMap<>();
             BaseColor[] profPalette = {
-                new BaseColor(252, 228, 236),  // rose
-                new BaseColor(228, 245, 252),  // bleu clair
-                new BaseColor(228, 252, 236),  // vert menthe
-                new BaseColor(252, 248, 228),  // crème
-                new BaseColor(240, 228, 252),  // lavande
-                new BaseColor(252, 236, 228),  // pêche
-                new BaseColor(228, 252, 248),  // turquoise
-                new BaseColor(244, 252, 228),  // lime
+                new BaseColor(252, 228, 236),  
+                new BaseColor(228, 245, 252),  
+                new BaseColor(228, 252, 236),  
+                new BaseColor(252, 248, 228),  
+                new BaseColor(240, 228, 252),  
+                new BaseColor(252, 236, 228),  
+                new BaseColor(228, 252, 248),  
+                new BaseColor(244, 252, 228), 
             };
             int profColorIdx = 0;
 
-            // En-têtes colonnes
+            
             String[] cols = {"ID", "Encadrant", "Membre de jury 1", "Membre de jury 2",
                     "Date", "Heure", "Salle", "Filière", "Nom d'étudiant", "Prénom d'étudiant"};
             for (String col : cols) {
@@ -272,12 +236,12 @@ public class ExportService {
                 table.addCell(cell);
             }
 
-            // Lignes de données
+           
             soutenances.sort(Comparator.comparing(Soutenance::getDate)
                                        .thenComparing(Soutenance::getHeure));
             
 
-            // Grouper par date pour alterner les blocs visuellement
+            
             String dernierDate = "";
             int idx = 1;
 
@@ -286,19 +250,19 @@ public class ExportService {
                 String encadrantNom = s.getEncadrant().getNom();
                 int heureH = s.getHeure().getHour();
 
-             // ── Couleur par date ──
+             
                 if (!dateIndex.containsKey(dateStr)) {
                     dateIndex.put(dateStr, dateIndex.size());
                 }
                 int dIdx = dateIndex.get(dateStr) % dateColors.length;
                 BaseColor couleurDate = dateColors[dIdx];
-             // ── Couleur par encadrant ──
+            
                 if (!profColors.containsKey(encadrantNom)) {
                     profColors.put(encadrantNom, profPalette[profColorIdx % profPalette.length]);
                     profColorIdx++;
                 }
                 BaseColor couleurProf = profColors.get(encadrantNom);
-             // ── Couleur par heure ──
+             
                 BaseColor couleurHeure;
                 if      (heureH <= 9)  couleurHeure = heureColors[0];
                 else if (heureH <= 11) couleurHeure = heureColors[1];
@@ -306,14 +270,14 @@ public class ExportService {
                 else if (heureH <= 15) couleurHeure = heureColors[3];
                 else                   couleurHeure = heureColors[4];
 
-                // ── Couleur par filière ──
+                
                 String filiere = s.getEtudiant().getFiliere().toString();
                 BaseColor couleurFiliere = switch (filiere) {
                     case "GI"   -> new BaseColor(219, 234, 254);  // bleu doux
                     case "TDIA" -> new BaseColor(254, 243, 199);  // jaune doux
                     default     -> new BaseColor(209, 250, 229);  // vert doux (DATA)
                 };
-                // Ligne séparatrice de date — bleu secondaire pleine largeur
+                
                 if (!dateStr.equals(dernierDate)) {
                     dernierDate = dateStr;
 
@@ -327,16 +291,16 @@ public class ExportService {
                     table.addCell(fullCell);
                 }
 
-                // Heure format "9h", "10h" comme dans l'exemple
+                
                 String heureStr = s.getHeure().format(HEURE_FMT);
-                // Convertir "09:00" → "9h", "14:00" → "14h"
+                
                 int heure = s.getHeure().getHour();
                 int minute = s.getHeure().getMinute();
                 String heureAffichage = (minute == 0)
                     ? heure + "h"
                     : heure + "h" + String.format("%02d", minute);
 
-             // ── Remplir les cellules avec couleurs distinctes ──
+            
                 ajouterCelluleStyle(table, String.valueOf(idx++),                                           fontMuted, couleurDate,    Element.ALIGN_CENTER);
                 ajouterCelluleStyle(table, s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom(), fontData,  couleurProf,    Element.ALIGN_LEFT);
                 String jury2Nom = s.getJury2() != null ? s.getJury2().getNom() : null;
@@ -368,7 +332,7 @@ public class ExportService {
                
             doc.add(table);
 
-            // ── PIED DE PAGE ──
+           
             Paragraph footer = new Paragraph(
                 "Document généré automatiquement — PFE Planning ENSA Al Hoceima  ·  " +
                 java.time.LocalDate.now().format(DATE_FMT) +
@@ -378,7 +342,6 @@ public class ExportService {
             footer.setSpacingBefore(10);
             doc.add(footer);
 
-            // Ligne dorée en bas
             PdfPTable bottomLine = new PdfPTable(1);
             bottomLine.setWidthPercentage(100);
             bottomLine.setSpacingBefore(6);
@@ -396,25 +359,7 @@ public class ExportService {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  GENERATION PVs + ZIP
-    // ══════════════════════════════════════════════
-    /**
-     * Génère une archive ZIP contenant les PVs de soutenance.
-     * <p>
-     * Structure du ZIP :
-     * <pre>
-     * PVs/
-     *   NomProf_PrenomProf/
-     *     PV_NomEtudiant_PrenomEtudiant.pdf
-     *     ...
-     * </pre>
-     * Chaque étudiant possède un et un seul PV.
-     *
-     * @param soutenances liste des soutenances
-     * @param out         flux de sortie vers lequel écrire le ZIP
-     * @throws IOException en cas d'erreur d'écriture
-     */
+  
     public void genererPvsZip(List<Soutenance> soutenances, OutputStream out) throws IOException {
         Map<String, List<Soutenance>> parEncadrant = soutenances.stream()
             .collect(Collectors.groupingBy(
@@ -446,7 +391,7 @@ public class ExportService {
         com.itextpdf.text.Font fontSmall    = FontFactory.getFont(FontFactory.TIMES_ROMAN, 10);
         com.itextpdf.text.Font fontSmallB   = FontFactory.getFont(FontFactory.TIMES_BOLD, 10);
 
-        // ── ENTÊTE UNIVERSITÉ ──
+       
         Paragraph univ = new Paragraph("UNIVERSITE ABDELMALEK ESSAADI", fontBold);
         univ.setAlignment(Element.ALIGN_CENTER);
         doc.add(univ);
@@ -462,7 +407,7 @@ public class ExportService {
         dept.setSpacingAfter(8);
         doc.add(dept);
 
-        // Ligne séparatrice
+        
         PdfPTable ligne = new PdfPTable(1);
         ligne.setWidthPercentage(100);
         ligne.setSpacingAfter(6);
@@ -475,7 +420,7 @@ public class ExportService {
         ligne.addCell(ligneCell);
         doc.add(ligne);
 
-        // ── TITRE FICHE ──
+       
         Paragraph titre = new Paragraph(
             "Fiche d'évaluation du Projet de Fin d'Étude", fontTitre);
         titre.setAlignment(Element.ALIGN_CENTER);
@@ -488,7 +433,7 @@ public class ExportService {
         annee.setSpacingAfter(8);
         doc.add(annee);
 
-        // ── NOM ÉTUDIANT ──
+      
         Paragraph nomLabel = new Paragraph();
         nomLabel.add(new Chunk("Nom - Prénom de l'élève ingénieur : ", fontBold));
         doc.add(nomLabel);
@@ -499,12 +444,10 @@ public class ExportService {
         nomVal.setSpacingAfter(6);
         doc.add(nomVal);
 
-        // ── FILIÈRE ──
         Paragraph filiereLabel = new Paragraph();
         filiereLabel.add(new Chunk("Filière :          ", fontBold));
         String filiere = s.getEtudiant().getFiliere().toString();
 
-        // Cases à cocher avec tableau
         filiereLabel.setSpacingAfter(6);
         doc.add(filiereLabel);
 
@@ -513,7 +456,6 @@ public class ExportService {
         filiereTable.setWidths(new float[]{0.5f, 2.5f, 0.5f, 2f, 0.5f, 4f});
         filiereTable.setSpacingAfter(8);
 
-        // Case ID/DATA
         PdfPCell cbID = new PdfPCell(new Phrase(
           (filiere.equals("ID") || filiere.equals("DATA")) ? "☑" : "☐", fontNormal));
         cbID.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
@@ -524,7 +466,7 @@ public class ExportService {
         lblID.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
         filiereTable.addCell(lblID);
 
-        // Case GI
+       
         PdfPCell cbGI = new PdfPCell(new Phrase(filiere.equals("GI") ? "☑" : "☐", fontNormal));
         cbGI.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
         cbGI.setPaddingTop(2);
@@ -534,7 +476,6 @@ public class ExportService {
         lblGI.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
         filiereTable.addCell(lblGI);
 
-        // Case TDIA
         PdfPCell cbTDIA = new PdfPCell(new Phrase(
            (filiere.equals("TDIA") || filiere.equals("TD")) ? "☑" : "☐", fontNormal));
         cbTDIA.setBorder(com.itextpdf.text.Rectangle.NO_BORDER);
@@ -547,7 +488,7 @@ public class ExportService {
         filiereTable.addCell(lblTDIA);
 
         doc.add(filiereTable);
-        // ── INTITULÉ RAPPORT ──
+        
         Paragraph rapportLabel = new Paragraph();
         rapportLabel.add(new Chunk("Intitulé du rapport :", fontBold));
         doc.add(rapportLabel);
@@ -558,7 +499,7 @@ public class ExportService {
         rapportVal.setSpacingAfter(6);
         doc.add(rapportVal);
 
-        // ── ENCADRANT INTERNE ──
+        
         Paragraph encLabel = new Paragraph();
         encLabel.add(new Chunk("L'encadrant(e) interne :", fontBold));
         doc.add(encLabel);
@@ -568,24 +509,24 @@ public class ExportService {
         encVal.setSpacingAfter(6);
         doc.add(encVal);
 
-        // ── MEMBRES DU JURY ──
+        
         Paragraph juryLabel = new Paragraph("Membres du jury :", fontBold);
         juryLabel.setSpacingAfter(4);
         doc.add(juryLabel);
 
-        // Tableau jury (encadrant = Président, jury2 et jury3 = Rapporteurs)
+    
         PdfPTable juryTable = new PdfPTable(1);
         juryTable.setWidthPercentage(100);
         juryTable.setSpacingAfter(8);
 
-        // Ligne 1 : Encadrant = Président
+       
         String presidentNom = s.getEncadrant().getNom() + " " + s.getEncadrant().getPrenom();
         PdfPCell cellPresident = new PdfPCell(
             new Phrase("Pr.   " + presidentNom + "               Président", fontNormal));
         cellPresident.setPadding(6);
         juryTable.addCell(cellPresident);
 
-        // Ligne 2 : Jury2 et Jury3 = Rapporteurs
+        
         String rap1 = s.getJury2() != null ?
             "Pr.   " + s.getJury2().getNom() + " " + s.getJury2().getPrenom() +
             "               Rapporteur" : "Pr.   ………………………………………               Rapporteur";
@@ -601,7 +542,7 @@ public class ExportService {
 
         doc.add(juryTable);
 
-        // ── NOTES ──
+        
         Paragraph noteContenu = new Paragraph();
         noteContenu.add(new Chunk("Note du Contenu", fontBold));
         noteContenu.add(new Chunk(
@@ -624,7 +565,7 @@ public class ExportService {
         noteS.setSpacingAfter(4);
         doc.add(noteS);
 
-        // ── TABLEAU MOYENNE ──
+       
         PdfPTable moyTable = new PdfPTable(1);
         moyTable.setWidthPercentage(100);
         moyTable.setSpacingAfter(10);
@@ -637,7 +578,7 @@ public class ExportService {
         moyTable.addCell(moyCell);
         doc.add(moyTable);
 
-        // ── DATE ET SIGNATURES ──
+        
         Paragraph dateLine = new Paragraph(
             "Le :      " + s.getDate().format(DATE_FMT), fontNormal);
         dateLine.setSpacingAfter(16);
@@ -648,7 +589,6 @@ public class ExportService {
         sigLabel.setSpacingAfter(10);
         doc.add(sigLabel);
 
-        // Tableau signatures 3 colonnes
         PdfPTable sigTable = new PdfPTable(3);
         sigTable.setWidthPercentage(100);
 
@@ -673,7 +613,7 @@ public class ExportService {
         throw new RuntimeException("Erreur PV : " + e.getMessage(), e);
      }
   }
-    // ── Helpers ──
+    
     private void creerEntete(Sheet sheet, String[] headers, CellStyle style, int rowIndex) {
         Row row = sheet.createRow(rowIndex);
         for (int i = 0; i < headers.length; i++) {
@@ -738,7 +678,7 @@ public class ExportService {
         try (org.apache.poi.xwpf.usermodel.XWPFDocument doc =
                  new org.apache.poi.xwpf.usermodel.XWPFDocument()) {
 
-            // Entête
+            
             org.apache.poi.xwpf.usermodel.XWPFParagraph header = doc.createParagraph();
             header.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
             org.apache.poi.xwpf.usermodel.XWPFRun r = header.createRun();
@@ -747,9 +687,9 @@ public class ExportService {
             r.addBreak();
             r.setText("Année Universitaire 2024/2025");
 
-            doc.createParagraph(); // ligne vide
+            doc.createParagraph(); 
 
-            // Titre PV
+            
             org.apache.poi.xwpf.usermodel.XWPFParagraph titre = doc.createParagraph();
             titre.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
             org.apache.poi.xwpf.usermodel.XWPFRun rt = titre.createRun();
@@ -758,7 +698,7 @@ public class ExportService {
 
             doc.createParagraph();
 
-            // Tableau infos
+            
             org.apache.poi.xwpf.usermodel.XWPFTable table = doc.createTable(8, 2);
             table.setWidth("100%");
             String[][] rows = {
@@ -778,7 +718,7 @@ public class ExportService {
 
             doc.createParagraph();
 
-            // Note et signature
+            
             org.apache.poi.xwpf.usermodel.XWPFParagraph note = doc.createParagraph();
             note.createRun().setText("Note finale : _______ / 20");
             doc.createParagraph().createRun().setText("Mention : _____________________________");
@@ -787,7 +727,7 @@ public class ExportService {
             doc.createParagraph().createRun().setText("________________________________________________________________");
             doc.createParagraph();
 
-            // Signatures
+            
             org.apache.poi.xwpf.usermodel.XWPFTable sigTable = doc.createTable(1, 3);
             sigTable.getRow(0).getCell(0).setText("Encadrant\n\n\n_____________");
             sigTable.getRow(0).getCell(1).setText("Président du jury\n\n\n_____________");
@@ -798,7 +738,7 @@ public class ExportService {
     }
         
         public void sauvegarderVersion(List<Soutenance> soutenances, String dossierBase) throws IOException {
-            // Trouver le prochain numéro de version
+            
             java.io.File base = new java.io.File(dossierBase);
             base.mkdirs();
             int version = 1;
@@ -808,19 +748,19 @@ public class ExportService {
             java.io.File dossierVersion = new java.io.File(dossierBase + "/version_" + version);
             dossierVersion.mkdirs();
 
-            // Sauvegarder Excel
+            
             try (java.io.FileOutputStream excelOut =
                      new java.io.FileOutputStream(new java.io.File(dossierVersion, "planning.xlsx"))) {
                 exporterExcel(soutenances, excelOut);
             }
 
-            // Sauvegarder PDF
+          
             try (java.io.FileOutputStream pdfOut =
                      new java.io.FileOutputStream(new java.io.File(dossierVersion, "planning.pdf"))) {
                 exporterPdf(soutenances, pdfOut);
             }
 
-            // Sauvegarder PVs ZIP
+            
             try (java.io.FileOutputStream zipOut =
                      new java.io.FileOutputStream(new java.io.File(dossierVersion, "PVs.zip"))) {
                 genererPvsZip(soutenances, zipOut);

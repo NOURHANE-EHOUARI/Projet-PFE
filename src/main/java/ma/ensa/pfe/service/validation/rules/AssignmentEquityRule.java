@@ -10,10 +10,6 @@ import ma.ensa.pfe.service.validation.Severity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Règle : vérifie que la répartition des étudiants par encadrant est équitable.
- * Moyenne cible : 3-4 étudiants par prof. Écart significatif = ±2 de la moyenne.
- */
 @Component
 public class AssignmentEquityRule implements ValidationRule<List<Soutenance>> {
     
@@ -23,7 +19,7 @@ public class AssignmentEquityRule implements ValidationRule<List<Soutenance>> {
     public List<ValidationResult> validate(List<Soutenance> soutenances) {
         List<ValidationResult> results = new ArrayList<>();
 
-        //  Compter uniquement les encadrements
+        
         Map<String, Long> chargeEncadrement = new HashMap<>();
         for (Soutenance s : soutenances) {
             if (s.getEncadrant() == null) continue;

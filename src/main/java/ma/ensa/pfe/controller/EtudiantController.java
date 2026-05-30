@@ -102,10 +102,7 @@ public class EtudiantController {
             model.addAttribute("errLangue", "Veuillez choisir une langue.");
             hasError = true;
         }
-        // ✅ CORRECTION : la ligne qui rendait l'encadrant obligatoire en mode édition
-        // a été supprimée — l'encadrant est optionnel dans les deux modes.
-        // L'affectation se fait via le module Affectation automatique.
-
+        
         if (hasError) {
             model.addAttribute("modeEdition", form.getId() != null);
             addCommonAttributes(model);
@@ -180,9 +177,7 @@ public class EtudiantController {
         return "redirect:/etudiants";
     }
 
-    // ══════════════════════════════════════════════
-    //  FORM DTO
-    // ══════════════════════════════════════════════
+    
     public static class EtudiantForm {
         private Long    id;
         private String  cne;

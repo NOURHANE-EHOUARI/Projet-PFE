@@ -25,11 +25,11 @@ public class ProfesseurService {
     @Autowired
     private EtudiantRepository etudiantRepository;
 
-    // ===== LECTURE =====
+   
 
     @Transactional(readOnly = true)
     public List<Professeur> findAll() {
-        // ✅ Utilise la méthode avec JOIN FETCH pour charger les étudiants encadrés
+      
         return professeurRepository.findAllWithDetails();
     }
 
@@ -41,19 +41,19 @@ public class ProfesseurService {
 
     @Transactional(readOnly = true)
     public List<Professeur> findBySpecialite(String specialite) {
-        // ✅ Utilise la méthode avec JOIN FETCH pour éviter LazyInitializationException
+        
         return professeurRepository.findBySpecialite(specialite);
     }
 
     @Transactional(readOnly = true)
     public List<Professeur> findByParleAnglais(Boolean parleAnglais) {
-        // ✅ NOUVELLE MÉTHODE : avec JOIN FETCH pour les étudiants
+       
         return professeurRepository.findByParleAnglais(parleAnglais);
     }
 
     @Transactional(readOnly = true)
     public List<Professeur> findAnglophones() {
-        // ✅ Utilise la méthode avec JOIN FETCH
+       
         return professeurRepository.findByParleAnglais(true);
     }
 
@@ -72,17 +72,16 @@ public class ProfesseurService {
         return professeurRepository.findByParleAnglais(Boolean.TRUE).size();
     }
 
-    // ===== ÉCRITURE =====
+   
 
     public Professeur save(Professeur professeur) {
-        // Si mode édition, vérifier que le professeur existe réellement en base
+        
         if (professeur.getId() != null) {
             professeurRepository.findById(professeur.getId())
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Professeur introuvable : id=" + professeur.getId()));
         }
 
-        // Validation : nom et prénom obligatoires (en plus de @NotBlank)
         if (professeur.getNom() == null || professeur.getNom().isBlank()) {
             throw new IllegalArgumentException("Le nom du professeur est obligatoire.");
         }
@@ -100,7 +99,6 @@ public class ProfesseurService {
         Professeur prof = professeurRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Professeur introuvable : id=" + id));
 
-        // Vérifier qu'aucun étudiant n'est encore encadré par ce professeur
         long nbEtudiants = etudiantRepository.countByEncadrant(prof);
         if (nbEtudiants > 0) {
             throw new IllegalStateException(
@@ -109,8 +107,6 @@ public class ProfesseurService {
 
         professeurRepository.deleteById(id);
     }
-
-    // ===== CONTRAINTES (indisponibilités) =====
 
     public Contrainte ajouterContrainte(Long professeurId, Contrainte contrainte) {
         Professeur prof = professeurRepository.findById(professeurId)

@@ -16,15 +16,10 @@ public class Salle {
 
     @Column(name = "capacite", nullable = false)
     private int capacite;
-
-    // ===== RELATION INVERSE POUR LE PLANNING =====
-    
-    // Liste des soutenances qui se déroulent dans cette salle.
-    // FetchType.LAZY est important pour ne pas charger tout l'historique quand on liste les salles.
     @OneToMany(mappedBy = "salle", fetch = FetchType.LAZY)
     private List<Soutenance> soutenances;
 
-    // Constructeurs
+  
     public Salle() {}
 
     public Salle(String nom, int capacite) {
@@ -32,7 +27,7 @@ public class Salle {
         this.capacite = capacite;
     }
 
-    // Getters / Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -50,10 +45,7 @@ public class Salle {
         return "Salle{id=" + id + ", nom='" + nom + "', capacite=" + capacite + "}";
     }
 
-    /**
-     * Méthode utilitaire pour vérifier si la salle peut accueillir un jury de taille donnée.
-     * Utile si tu as des contraintes de capacité strictes.
-     */
+    
     public boolean peutAccueillir(int nbPersonnes) {
         return this.capacite >= nbPersonnes;
     }

@@ -18,8 +18,6 @@ public class Etudiant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // ✅ NOUVEAU : Identifiant unique national (pour éviter les doublons à l'import)
     @NotBlank(message = "Le CNE est obligatoire")
     @Column(unique = true, nullable = false)
     private String cne;
@@ -32,7 +30,6 @@ public class Etudiant {
     @Column(nullable = false)
     private String prenom;
 
-    // ✅ NOUVEAU : Email académique ou personnel
     @Column(name = "email_academique")
     private String email;
 
@@ -53,25 +50,13 @@ public class Etudiant {
     @Column(name = "titre_projet")
     private String titreProjet;
 
-    // ✅ NOUVEAU : Relation inverse pour le planning
-    // Permet de savoir si un étudiant a déjà une soutenance planifiée
     @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
     private List<Soutenance> soutenances;
 
-    // ===== MÉTHODES UTILITAIRES =====
-
-    /**
-     * Setter simple pour l'encadrant (utilisé lors de l'import Excel).
-     * Ne synchronise pas la collection LAZY du professeur pour éviter les erreurs.
-     */
     public void setEncadrant(Professeur encadrant) {
         this.encadrant = encadrant;
     }
 
-    /**
-     * Setter avec synchronisation bidirectionnelle.
-     * À utiliser uniquement dans un service @Transactional quand on manipule l'objet en mémoire.
-     */
     public void setEncadrantWithSync(Professeur encadrant) {
         if (this.encadrant != null) {
             this.encadrant.getEtudiantsEncadres().remove(this);
@@ -82,15 +67,15 @@ public class Etudiant {
         }
     }
 
-    // ===== ENUMS MIS À JOUR SELON TES DONNÉES =====
+  
     public enum Filiere { 
-        GI,   // Génie Informatique
-        TDIA, // Transformation Digitale et IA
-        DATA  // Ingénierie de Données
+        GI,   
+        TDIA, 
+        DATA 
     }
 
     public enum Langue { 
-        FR, // Français
-        EN  // Anglais
+        FR, 
+        EN 
     }
 }

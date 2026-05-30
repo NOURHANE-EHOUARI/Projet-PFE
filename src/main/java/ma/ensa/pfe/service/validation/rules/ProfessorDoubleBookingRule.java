@@ -12,9 +12,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Règle : détecte si un professeur est affecté à deux soutenances prévues au même horaire exact.
- */
+
 @Component
 public class ProfessorDoubleBookingRule implements ValidationRule<List<Soutenance>> {
     
@@ -26,26 +24,25 @@ public class ProfessorDoubleBookingRule implements ValidationRule<List<Soutenanc
             return results;
         }
         
-        // Grouper par (prof, date, heure)
+        
         Map<ProfTimeKey, List<Soutenance>> parProfHeure = new HashMap<>();
         
         for (Soutenance s : soutenances) {
             if (s.getDate() == null || s.getHeure() == null) continue;
             
-            // Ajouter pour l'encadrant
+            
             addSoutenance(parProfHeure, s.getEncadrant(), s);
-            // Ajouter pour les membres du jury
+            
             addSoutenance(parProfHeure, s.getJury1(), s);
             addSoutenance(parProfHeure, s.getJury2(), s);
             addSoutenance(parProfHeure, s.getJury3(), s);
         }
         
-        // Détecter les doublons
         for (Map.Entry<ProfTimeKey, List<Soutenance>> entry : parProfHeure.entrySet()) {
             if (entry.getValue().size() > 1) {
                 List<Soutenance> conflits = entry.getValue();
                 
-                // ✅ CORRECTION : utiliser getNom() + getPrenom() au lieu de getNomComplet()
+                
                 String etudiants = conflits.stream()
                     .map(s -> {
                         Etudiant e = s.getEtudiant();
@@ -88,7 +85,7 @@ public class ProfessorDoubleBookingRule implements ValidationRule<List<Soutenanc
         return "Détecte si un professeur est affecté à deux soutenances prévues au même horaire exact";
     }
     
-    // Clé composite pour le grouping
+    
     private static class ProfTimeKey {
         private final Professeur prof;
         private final LocalDate date;

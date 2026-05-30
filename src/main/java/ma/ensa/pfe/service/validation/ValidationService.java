@@ -7,10 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service principal qui orchestre l'exécution de toutes les règles de validation.
- * Respecte le principe Open/Closed : pour ajouter une règle, il suffit de l'injecter.
- */
 @Service
 public class ValidationService {
     
@@ -21,9 +17,7 @@ public class ValidationService {
         this.rules = rules;
     }
     
-    /**
-     * Valide une liste de soutenances contre toutes les règles enregistrées.
-     */
+ 
     public ValidationSummary validatePlanning(List<Soutenance> soutenances) {
         ValidationSummary summary = new ValidationSummary();
         summary.setValid(true);
@@ -37,10 +31,6 @@ public class ValidationService {
         
         return summary;
     }
-    
-    /**
-     * Valide et lance une exception si des erreurs bloquantes sont trouvées.
-     */
     public void validateOrThrow(List<Soutenance> soutenances) {
         ValidationSummary summary = validatePlanning(soutenances);
         if (!summary.isValid() && !summary.getErrors().isEmpty()) {
@@ -48,9 +38,6 @@ public class ValidationService {
         }
     }
     
-    /**
-     * Exception personnalisée pour les échecs de validation.
-     */
     public static class PlanningValidationException extends RuntimeException {
         public PlanningValidationException(String message) {
             super(message);

@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Résumé global de toutes les validations.
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

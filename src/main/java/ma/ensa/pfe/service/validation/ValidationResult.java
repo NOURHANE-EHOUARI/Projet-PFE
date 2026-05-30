@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Résultat d'une validation individuelle.
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +13,7 @@ public class ValidationResult {
     private String ruleName;
     private Severity severity;
     private String message;
-    private Object context; // Données contextuelles (ex: nom du prof, salle, date...)
+    private Object context; 
     
     public static ValidationResult ok(String ruleName) {
         return new ValidationResult(ruleName, Severity.WARNING, null, null);

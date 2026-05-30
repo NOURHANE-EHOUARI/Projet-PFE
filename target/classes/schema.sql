@@ -1,4 +1,4 @@
--- ===== SCHEMA PFE PLANNING — ENSA AL HOCEIMA =====
+
 
 DROP TABLE IF EXISTS contraintes;
 DROP TABLE IF EXISTS soutenances;

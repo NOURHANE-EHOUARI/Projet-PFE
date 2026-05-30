@@ -15,36 +15,36 @@ import java.util.Optional;
 @Repository
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
 
-    // ✅ LEFT JOIN FETCH — inclut les étudiants AVEC et SANS encadrant
+    
     @Query("SELECT e FROM Etudiant e LEFT JOIN FETCH e.encadrant ORDER BY e.nom")
     List<Etudiant> findAllWithEncadrant();
 
-    // ✅ LEFT JOIN FETCH par filière
+   
     @Query("SELECT e FROM Etudiant e LEFT JOIN FETCH e.encadrant " +
            "WHERE e.filiere = :filiere ORDER BY e.nom")
     List<Etudiant> findByFiliereWithEncadrant(@Param("filiere") Filiere filiere);
 
-    // ✅ LEFT JOIN FETCH par langue
+    
     @Query("SELECT e FROM Etudiant e LEFT JOIN FETCH e.encadrant " +
            "WHERE e.langue = :langue ORDER BY e.nom")
     List<Etudiant> findByLangueWithEncadrant(@Param("langue") Langue langue);
 
-    // Filtres simples
+    
     List<Etudiant> findByFiliere(Filiere filiere);
     List<Etudiant> findByLangue(Langue langue);
     List<Etudiant> findByEncadrant(Professeur encadrant);
     List<Etudiant> findByFiliereAndLangue(Filiere filiere, Langue langue);
 
-    // Comptages
+    
     long countByFiliere(Filiere filiere);
     long countByEncadrant(Professeur encadrant);
     
-    // ✅ NOUVELLE MÉTHODE : Compter les étudiants SANS encadrant
+    
     long countByEncadrantIsNull();
 
-    // Recherche par CNE (identifiant unique étudiant)
+    
     Optional<Etudiant> findByCne(String cne);
 
-    // Recherche par nom + prénom (upsert dans l'import)
+   
     Optional<Etudiant> findByNomAndPrenom(String nom, String prenom);
 }
