@@ -8,7 +8,7 @@ Application web de planification automatique des soutenances de Projets de Fin d
 |--------|-------------|
 | Framework | Spring MVC 6 + Spring Data JPA |
 | Vue | Thymeleaf 3.1 + Bootstrap 5 |
-| Persistance | Hibernate 6 + H2 (dev) / MySQL (prod) |
+| Persistance | Hibernate 6 + H2 (dev)   |
 | Excel | Apache POI 5.2 |
 | PDF | iText 5.5 |
 | Build | Maven 3.6+ |
