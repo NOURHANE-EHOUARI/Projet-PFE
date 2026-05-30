@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             height: 'auto',
             allDaySlot: false,
             nowIndicator: true,
-            events: events,   // pass pre-loaded array directly — no URL fetch needed
+            events: events,   
             eventClick: function(info) {
                 showDetail(info.event);
             }
@@ -356,14 +356,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const fCls = fMap[p.filiere] || 'bdg-gi';
         const lCls = lMap[p.langue]  || 'bdg-fr';
 
-        const jury = [p.jury1, p.jury2].filter(j => j && j !== '—').join(' / ') || '—';
+        const jury = [p.jury1, p.jury2].filter(j => j && j !== '-').join(' / ') || '-';
 
         document.getElementById('modalBody').innerHTML = `
             <div class="drow">
                 <div class="d-icon"><i class="bi bi-mortarboard" style="color:#93c5fd;"></i></div>
                 <div>
                     <div class="d-lbl">Étudiant</div>
-                    <div class="d-val">${p.etudiant || '—'}<span class="bdg ${fCls}">${p.filiere || ''}</span><span class="bdg ${lCls}" style="margin-left:4px;">${p.langue || ''}</span></div>
+                    <div class="d-val">${p.etudiant || '-'}<span class="bdg ${fCls}">${p.filiere || ''}</span><span class="bdg ${lCls}" style="margin-left:4px;">${p.langue || ''}</span></div>
                     ${p.titre ? `<div class="d-val2"><i class="bi bi-file-text" style="margin-right:4px;"></i>${p.titre}</div>` : ''}
                 </div>
             </div>
@@ -379,14 +379,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="d-icon"><i class="bi bi-door-open" style="color:#c4b5fd;"></i></div>
                 <div>
                     <div class="d-lbl">Salle</div>
-                    <div class="d-val">${p.salle || '—'}</div>
+                    <div class="d-val">${p.salle || '-'}</div>
                 </div>
             </div>
             <div class="drow">
                 <div class="d-icon"><i class="bi bi-person-badge" style="color:#86efac;"></i></div>
                 <div>
                     <div class="d-lbl">Encadrant</div>
-                    <div class="d-val">${p.encadrant || '—'}</div>
+                    <div class="d-val">${p.encadrant || '-'}</div>
                 </div>
             </div>
             <div class="drow">

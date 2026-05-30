@@ -14,8 +14,6 @@
     <context:component-scan base-package="ma.ensa.pfe.controller"/>
     <mvc:annotation-driven/>
     <mvc:resources mapping="/static/**" location="/static/"/>
-
-    <!-- Thymeleaf 3.1 avec spring6 -->
     <bean id="templateResolver"
           class="org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver">
         <property name="prefix" value="/WEB-INF/views/"/>
