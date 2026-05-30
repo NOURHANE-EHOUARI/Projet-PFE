@@ -194,7 +194,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
-            <!-- ✅ SUPPRIMÉ : Lien Import -->
+            
             <a th:href="@{/etudiants}"          class="nav-link active"><i class="bi bi-mortarboard"></i>Etudiants</a>
             <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
             <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
@@ -251,11 +251,9 @@
             <div class="s-lbl">Filière DATA</div>
         </div>
     </div>
-
-    <!-- FILTERS + SEARCH + TABLE -->
+ 
     <div class="sec-label a3">Liste des étudiants</div>
-
-    <!-- Filter pills — use @{} so Thymeleaf prepends context path correctly -->
+ 
     <div class="filter-row a3">
         <span class="filter-label">Filière :</span>
         <a th:href="@{/etudiants}"

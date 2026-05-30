@@ -338,8 +338,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- ERROR LIST (if any) -->
+ 
         <div th:if="${result.hasErreurs()}" class="card anim d3" style="grid-column: 1 / -1">
             <div class="card-header">
                 <div class="icon"><i class="bi bi-bug"></i></div>
@@ -368,8 +367,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="d-flex flex-column gap-3">
-                    <!-- Bouton étape suivante -->
+                <div class="d-flex flex-column gap-3"> 
                     <div th:if="${result.etudiantsImportes > 0 and result.profsImportes > 0}">
                         <form th:action="@{/affectation/affecter}" method="post" style="display:inline">
                           <button type="submit" class="btn btn-primary">
@@ -381,8 +379,7 @@
                             Les étudiants ont été importés. L'affectation automatique des encadrants se fait à l'étape suivante.
                         </p>
                     </div>
-
-                    <!-- Boutons secondaires -->
+ 
                     <div class="d-flex gap-3 flex-wrap">
                         <a th:href="@{/import}" class="btn btn-secondary">
                             <i class="bi bi-arrow-return-left"></i> Nouvel Import

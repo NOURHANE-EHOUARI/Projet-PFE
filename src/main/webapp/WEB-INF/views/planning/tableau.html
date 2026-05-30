@@ -222,8 +222,7 @@
 </head>
 <body>
 <div class="wrap">
-
-    <!-- ── NAVIGATION ── -->
+ 
     <nav class="anim">
         <a th:href="@{/}" class="logo">
             <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
@@ -231,7 +230,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}"                    class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <!-- ✅ SUPPRIMÉ : Lien Import -->
+       
             <a th:href="@{/etudiants}"           class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}"         class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}"              class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -241,8 +240,7 @@
             <a th:href="@{/export}"              class="nav-link"><i class="bi bi-download icon-sm"></i>Export</a>
         </div>
     </nav>
-
-    <!-- ── PAGE HEADER ── -->
+ 
     <div class="page-header anim d1">
         <div class="page-header-inner">
             <div>
@@ -252,7 +250,7 @@
                        ? 'Version : ' + #temporals.format(versionActuelle.dateGeneration, 'dd/MM/yyyy HH:mm')
                        : 'Aucune version générée'}">Version actuelle</p>
             </div>
-            <!-- Bouton "Nouvelles dates" — ouvre la modale uniquement si affectation faite -->
+            
             <button th:if="${affectationFaite}" type="button"
                     class="btn btn-outline"
                     data-bs-toggle="modal" data-bs-target="#genererModal">
@@ -261,7 +259,6 @@
         </div>
     </div>
 
-    <!-- ── PROGRESS STEPS ── -->
     <div class="progress-steps anim d2">
         <div class="step-item">
             <span class="step-badge step-done"><i class="bi bi-check"></i></span>
@@ -283,10 +280,6 @@
             <span class="step-label">Export</span>
         </div>
     </div>
-
-    <!-- ── ALERTS ── -->
-
-    <!-- Prérequis : visible UNIQUEMENT si affectation non faite -->
     <div th:unless="${affectationFaite}" class="alert alert-warn anim">
         <i class="bi bi-exclamation-triangle"></i>
         <div>
@@ -294,24 +287,17 @@
             <a th:href="@{/affectation}">Vérifier l'affectation →</a>
         </div>
     </div>
-
-    <!-- ✅ Message de succès -->
+ 
     <div th:if="${successPlanning}" class="alert alert-success anim">
         <i class="bi bi-check-circle"></i>
         <span th:text="${successPlanning}"></span>
     </div>
-
-    <!-- ✅ Message d'erreur (Cas 1, 2, 3) - th:utext pour afficher les liens HTML -->
+ 
     <div th:if="${erreurPlanning}" class="alert alert-error anim">
         <i class="bi bi-exclamation-triangle"></i>
         <span th:utext="${erreurPlanning}"></span>
     </div>
-
-    <!-- ── CARD RÉGÉNÉRER ──
-         Visible seulement si :
-         1. affectation faite
-         2. planning déjà généré (versionActuelle != null)
-    ── -->
+ 
     <div th:if="${affectationFaite and versionActuelle != null}"
          class="card anim d2">
         <div class="card-header">
@@ -325,9 +311,7 @@
                 </div>
             </div>
         </div>
-        <div class="card-body">
-
-            <!-- CAS 1 : dates mémorisées → bouton Régénérer direct -->
+        <div class="card-body"> 
             <div th:if="${derniersJours != null and derniersJours != ''}">
                 <p class="regen-info">
                     <i class="bi bi-calendar-check"></i>
@@ -340,8 +324,7 @@
                     </button>
                 </form>
             </div>
-
-            <!-- CAS 2 : pas de dates mémorisées (session expirée ou premier démarrage) -->
+ 
             <div th:unless="${derniersJours != null and derniersJours != ''}">
                 <p class="no-dates-msg">
                     La session a expiré ou le serveur a redémarré — les dates ne sont plus mémorisées.
@@ -353,9 +336,8 @@
             </div>
 
         </div>
-    </div><!-- fin .card régénérer -->
-
-    <!-- ── STAT STRIP ── -->
+    </div> 
+ 
     <div class="stat-strip anim d2"
          th:if="${soutenances != null and !soutenances.isEmpty()}">
         <div class="stat-pill">
@@ -367,8 +349,7 @@
             <span class="lbl">Jours de soutenance</span>
         </div>
     </div>
-
-    <!-- Bouton export -->
+ 
     <div th:if="${soutenances != null and !soutenances.isEmpty()}"
          style="display:flex;justify-content:flex-end;margin-bottom:14px;">
         <a th:href="@{/export}"
@@ -379,8 +360,7 @@
             <i class="bi bi-download"></i> Exporter ce planning
         </a>
     </div>
-
-    <!-- ── FILTRES ── -->
+ 
     <div class="filters-wrap anim d3"
          th:if="${soutenances != null and !soutenances.isEmpty()}">
         <div class="filter-label"><i class="bi bi-funnel"></i> Filtrer :</div>
@@ -475,13 +455,8 @@
         </div>
     </div>
 
-</div><!-- fin .wrap -->
-
-<!-- ══════════════════════════════════════════════════════
-     MODALE — NOUVELLES DATES
-     Accessible uniquement via le bouton "Nouvelles dates"
-     dans le header (visible si affectation faite)
-══════════════════════════════════════════════════════ -->
+</div> 
+ 
 <div class="modal fade" id="genererModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

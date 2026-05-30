@@ -209,7 +209,7 @@
             <ol class="breadcrumb">
                 <li><a th:href="@{/}">Accueil</a></li>
                 <li class="sep">/</li>
-                <!-- ✅ CORRECTION : Lien breadcrumb vers /planning -->
+          
                 <li><a th:href="@{/planning}">Planning</a></li>
                 <li class="sep">/</li>
                 <li class="curr">Calendrier</li>
@@ -218,16 +218,13 @@
             <div class="page-subtitle">Vue interactive : cliquez sur une soutenance pour afficher les détails.</div>
         </div>
     </div>
-
-    <!-- VIEW TABS -->
-    <div class="view-tabs a2">
-        <!-- ✅ CORRECTION : Lien vers /planning (pas /go/planning) -->
+ 
+    <div class="view-tabs a2"> 
         <a th:href="@{/planning}" class="view-tab"><i class="bi bi-table"></i>Vue tableau</a>
         <a th:href="@{/planning/calendrier}" class="view-tab active"><i class="bi bi-calendar3"></i>Vue calendrier</a>
         <a th:href="@{/stats}" class="view-tab"><i class="bi bi-bar-chart"></i>Statistiques</a>
     </div>
-
-    <!-- ERROR BANNER (shown if fetch fails) -->
+ 
     <div class="error-banner" id="errorBanner">
         <i class="bi bi-exclamation-triangle-fill"></i>
         <div>
@@ -247,8 +244,7 @@
     </div>
 
 </div>
-
-<!-- MODAL DÉTAIL -->
+ 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
     <div class="modal-box">
         <div class="modal-hd">

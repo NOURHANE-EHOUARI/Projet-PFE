@@ -259,7 +259,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <!-- ✅ SUPPRIMÉ : Lien Import -->
+          
             <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}" class="nav-link active"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -273,7 +273,7 @@
     <!-- HEADER -->
     <div class="page-header anim d1">
         <div>
-            <!-- Breadcrumbs -->
+           
             <div class="breadcrumb">
                 <a th:href="@{/}">Accueil</a>
                 <span class="separator">/</span>
@@ -301,8 +301,7 @@
             <form th:action="@{/professeurs/sauvegarder}" th:object="${professeur}" method="post" novalidate>
 
                 <input type="hidden" th:field="*{id}"/>
-
-                <!-- ===== SECTION 1 : IDENTITÉ ===== -->
+ 
                 <div class="section-title"><i class="bi bi-person icon-sm"></i>Identité</div>
                 <div class="field-row">
                     <div class="field">
@@ -320,8 +319,7 @@
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}">Erreur</div>
                     </div>
                 </div>
-
-                <!-- ===== SECTION 2 : SPÉCIALITÉ ===== -->
+ 
                 <div class="section-title"><i class="bi bi-briefcase icon-sm"></i>Spécialité</div>
                 <div class="field">
                     <label for="specialite">Spécialité <span class="required">*</span></label>
@@ -343,7 +341,7 @@
                     </div>
                 </div>
 
-                <!-- ===== SECTION 3 : LANGUE ===== -->
+
                 <div class="section-title"><i class="bi bi-globe2 icon-sm"></i>Capacité linguistique</div>
                 <div class="field">
                     <div class="toggle-wrapper">
@@ -360,8 +358,7 @@
                     </div>
                     <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('parleAnglais')}" th:errors="*{parleAnglais}">Erreur</div>
                 </div>
-
-                <!-- ===== BOUTONS ===== -->
+ 
                 <div class="btn-row">
                     <a th:href="@{/professeurs}" class="btn btn-outline">
                         <i class="bi bi-arrow-left icon-sm"></i>Annuler

@@ -312,8 +312,7 @@
 
     <!-- HEADER -->
     <div class="page-header anim d1">
-        <div>
-            <!-- Breadcrumbs -->
+        <div> 
             <div class="breadcrumb">
                 <a th:href="@{/}">Accueil</a>
                 <span class="separator">/</span>
@@ -325,8 +324,7 @@
             <p class="subtitle">Gérez les créneaux d'indisponibilité de ce professeur pour la planification.</p>
         </div>
     </div>
-
-    <!-- PROF BADGE -->
+ 
     <div class="prof-badge anim d2">
         <i class="bi bi-person-badge"></i>
         <div>
@@ -368,7 +366,7 @@
                             <span th:text="${#temporals.format(c.dateIndisponible, 'EEEE dd MMMM yyyy', new java.util.Locale('fr'))}">date</span>
                         </div>
                         <div>
-                            <!-- Cas : plage horaire définie -->
+                             
                             <span th:if="${c.heureDebut != null and c.heureFin != null}"
                                   class="contrainte-heure plage">
                                 <i class="bi bi-clock"></i>
@@ -376,7 +374,7 @@
                                 →
                                 <span th:text="${#temporals.format(c.heureFin, 'HH:mm')}">00:00</span>
                             </span>
-                            <!-- Cas : toute la journée -->
+                             
                             <span th:unless="${c.heureDebut != null and c.heureFin != null}"
                                   class="contrainte-heure toute-journee">
                                 <i class="bi bi-x-circle"></i>Toute la journée
@@ -436,8 +434,7 @@
         </div>
 
     </div>
-
-    <!-- BACK LINK -->
+ 
     <div class="anim d3" style="margin-top:24px;">
         <a th:href="@{/professeurs}" class="btn btn-outline">
             <i class="bi bi-arrow-left icon-sm"></i>Retour à la liste des professeurs

@@ -147,7 +147,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
-            <!-- ✅ SUPPRIMÉ : Lien Import -->
+           
             <a th:href="@{/etudiants}"          class="nav-link"><i class="bi bi-mortarboard"></i>Etudiants</a>
             <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
             <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
@@ -160,7 +160,7 @@
 
     <!-- PAGE HEADER -->
     <div class="page-header a1">
-        <!-- ✅ CORRECTION : Lien retour avec Thymeleaf -->
+      
         <a th:href="@{/}" class="back-link">← Retour au tableau de bord</a>
         <h1>Centre d'export</h1>
         <p>Choisissez le format et le contenu à exporter. Tous les exports sont générés à partir du planning actif.</p>
@@ -188,20 +188,18 @@
             <div class="status-dot dot-amber"></div>
             <span class="status-lbl" style="color:var(--amber2);">
                 Planning non généré —
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf vers /affectation -->
+                
                 <a th:href="@{/planning}" style="color:var(--accent2);text-decoration:none;">Générer maintenant</a>
             </span>
         </div>
     </div>
-
-    <!-- ✅ SECTION PLANNING SUPPRIMÉE -->
-
+ 
     <div class="export-grid a2">
 
         <!-- EXCEL -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                <div class="locked-text">Planning non généré<br> 
                     <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
@@ -215,18 +213,16 @@
                     <li>Feuille 2  Répartition par salle</li>
                     <li>Feuille 3  Répartition par professeur</li>
                     <li>Tri automatique par date et heure</li>
-                </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                </ul> 
                 <a th:href="@{/export/excel}" class="exp-btn btn-green">
                     Télécharger Excel →
                 </a>
             </div>
         </div>
-
-        <!-- PDF PLANNING -->
+ 
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                <div class="locked-text">Planning non généré<br> 
                     <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
@@ -240,8 +236,7 @@
                     <li>Entête ENSA Al Hoceima officielle</li>
                     <li>Tableau avec alternance de couleurs</li>
                     <li>Indicateur langue FR / EN</li>
-                </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                </ul> 
                 <a th:href="@{/export/pdf}" class="exp-btn btn-red">
                     Télécharger PDF →
                 </a>
@@ -251,7 +246,7 @@
         <!-- PVs PDF -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                <div class="locked-text">Planning non généré<br>
                     <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
@@ -265,8 +260,7 @@
                     <li>Un PV par étudiant</li>
                     <li>Dossiers organisés par encadrant</li>
                     <li>Filière cochée automatiquement</li>
-                </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                </ul> 
                 <a th:href="@{/export/pvs}" class="exp-btn btn-indigo">
                     Télécharger PVs PDF →
                 </a>
@@ -276,7 +270,7 @@
         <!-- PVs DOCX -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                <div class="locked-text">Planning non généré<br> 
                     <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
@@ -291,7 +285,7 @@
                     <li>Un fichier .docx par étudiant</li>
                     <li>Organisé par encadrant</li>
                 </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+ 
                 <a th:href="@{/export/pvs/docx}" class="exp-btn btn-blue">
                     Télécharger PVs Word →
                 </a>
@@ -311,7 +305,7 @@
                     <li>Excel + PDF + PVs par version</li>
                     <li>Comparaison entre générations</li>
                 </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                
                 <a th:href="@{/export/versions}" class="exp-btn btn-amber">
                     Voir l'historique →
                 </a>
@@ -321,7 +315,7 @@
         <!-- SAUVEGARDER VERSION -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                <div class="locked-text">Planning non généré<br>
                     <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
@@ -335,8 +329,7 @@
                     <li>Excel + PDF + ZIP PVs inclus</li>
                     <li>Accès via l'historique</li>
                     <li>Permet de comparer les versions</li>
-                </ul>
-                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                </ul> 
                 <a th:href="@{/export/sauvegarder}" class="exp-btn"
                    style="background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;box-shadow:0 3px 12px rgba(99,102,241,0.25);">
                     Sauvegarder maintenant →
@@ -355,7 +348,7 @@
         </div>
         <div class="versions-body">
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-                <!-- ✅ CORRECTION : Liens avec Thymeleaf -->
+            
                 <a th:href="@{/export/sauvegarder}" class="save-btn"
                    th:if="${planningGenere}">
                      Créer une nouvelle version

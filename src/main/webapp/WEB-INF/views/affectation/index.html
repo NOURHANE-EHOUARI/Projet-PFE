@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Affectation des Encadrants — PFE Planning</title>
+    <title>Affectation des Encadrants - PFE Planning</title>
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -284,7 +284,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <!-- ✅ SUPPRIMÉ : Lien Import -->
+            
             <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -342,10 +342,8 @@
        <span th:utext="${erreurPlanning}"></span> 
     </div>
 
-    <!-- MAIN GRID -->
     <div class="grid">
-
-        <!-- COLONNE GAUCHE : État + Actions -->
+ 
         <div class="card anim d2">
             <div class="card-header">
                 <div class="icon"><i class="bi bi-speedometer2"></i></div>
@@ -365,8 +363,7 @@
                         <span class="stat-label"><i class="bi bi-person-x me-1"></i>Sans encadrant</span>
                     </div>
                 </div>
-
-                <!-- Bouton Affecter -->
+ 
                 <div class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
                     <h6 class="card-title mb-2"><i class="bi bi-magic icon-sm me-1"></i>Lancer l'affectation</h6>
                     <p class="card-desc mb-4">L'algorithme répartit les encadrants équitablement selon les filières (GI/TDIA → profs GI, DATA → profs AUTRE).</p>
@@ -379,8 +376,7 @@
                         <i class="bi bi-info-circle me-1"></i>Une ré-affectation écrase les affectations précédentes.
                     </p>
                 </div>
-
-                <!-- Bouton Passer au Planning -->
+ 
                 <div th:if="${nbSansEncadrant == 0 and chargeEncadrants != null and !chargeEncadrants.isEmpty()}"
                      class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
 
@@ -397,8 +393,7 @@
                         <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">
                             Sélectionnez jusqu'à 3 jours (Lun–Ven, pas de dates passées).
                         </div>
-
-                        <!-- ✅ Flatpickr — même style que tableau.html -->
+ 
                         <input type="hidden" name="jours" id="selectedDatesAff">
                         <input type="text" id="datePickerAff"
                                placeholder="Cliquez pour choisir les dates..."
@@ -408,8 +403,7 @@
                                       color:var(--t0);border-radius:10px;font-size:13px;
                                       font-family:'Inter',sans-serif;cursor:pointer;
                                       transition:border-color 0.2s;margin-bottom:10px;"/>
-
-                        <!-- Feedback -->
+ 
                         <div id="affFeedbackOk"
                              style="display:none;font-size:12px;color:#4ade80;margin-bottom:10px;">
                             <i class="bi bi-check-circle"></i>
@@ -430,8 +424,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- COLONNE DROITE : Répartition par encadrant -->
+ 
         <div class="card anim d3">
             <div class="card-header">
                 <div class="icon"><i class="bi bi-person-lines-fill"></i></div>
@@ -459,8 +452,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- DÉTAIL DES AFFECTATIONS (Full width) -->
+ 
         <div th:if="${details != null and !details.isEmpty()}" class="card anim d3" style="grid-column: 1 / -1">
             <div class="card-header">
                 <div class="icon"><i class="bi bi-list-check"></i></div>
@@ -484,8 +476,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- ERREURS D'AFFECTATION (Full width) -->
+ 
         <div th:if="${erreurs != null and !erreurs.isEmpty()}" class="card anim d3" style="grid-column: 1 / -1">
             <div class="card-header">
                 <div class="icon"><i class="bi bi-exclamation-triangle"></i></div>
