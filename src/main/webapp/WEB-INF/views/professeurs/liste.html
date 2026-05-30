@@ -473,7 +473,7 @@
                         </td>
                         <td>
                             <span class="badge badge-count"
-                                  th:text="${prof.etudiantsEncadres != null ? prof.etudiantsEncadres.size() : 0} + ' étud.'">
+                                  th:text="${(chargeEncadrants[prof.id] != null ? chargeEncadrants[prof.id] : 0)} + ' étud.'">
                             </span>
                         </td>
                         <td>
@@ -502,8 +502,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(professeurs)}">
-                        <td colspan="7">
-                            <!-- ✅ EMPTY STATE - STYLE IDENTIQUE À ÉTUDIANTS -->
+                        <td colspan="7"> 
                             <div class="empty-state">
                                 <div class="es-icon-wrap">
                                     <i class="bi bi-person-badge"></i>

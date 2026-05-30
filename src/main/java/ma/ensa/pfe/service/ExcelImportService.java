@@ -24,7 +24,7 @@ public class ExcelImportService {
     @Autowired private SalleRepository           salleRepository;
     @Autowired private VersionPlanningRepository versionPlanningRepository;
     @Autowired private PlanningConfigRepository configRepository;
-
+    @Autowired private NlpLangueService nlpLangueService;
     // ══════════════════════════════════════════════
     //  RÉSULTAT D'IMPORT
     // ══════════════════════════════════════════════
@@ -236,6 +236,7 @@ public class ExcelImportService {
                 String filiereStr = lireString(row, 3).toUpperCase().trim();
                 String langueStr  = lireString(row, 4).trim();
                 String email      = lireString(row, 5).trim();
+                String titre      = lireString(row, 6).trim();
 
                 if (nom.isBlank() || prenom.isBlank() || cne.isBlank()) {
                     result.addErreur("Étudiant ligne " + (i + 1) + " : données manquantes.");
@@ -255,7 +256,18 @@ public class ExcelImportService {
                 Langue langue = (langLower.contains("en") || langLower.contains("ang")
                               || langLower.contains("english"))
                               ? Langue.EN : Langue.FR;
-
+               
+                // NLP sur le titre si disponible
+                if (!titre.isBlank()) {
+                    boolean titreAnglais = nlpLangueService.estAnglais(titre);
+                    // NLP prend le dessus si la colonne langue est vide/ambiguë
+                    // OU si le titre est clairement anglais
+                    boolean langueAmbigu = langueStr.isBlank() || langueStr.equalsIgnoreCase("?");
+                    if (langueAmbigu || titreAnglais) {
+                        langue = titreAnglais ? Langue.EN : langue;
+                    }
+                }
+ 
                 Etudiant etudiant = etudiantRepository.findByCne(cne).orElse(new Etudiant());
                 etudiant.setCne(cne);
                 etudiant.setNom(nom);
@@ -263,6 +275,7 @@ public class ExcelImportService {
                 etudiant.setFiliere(filiere);
                 etudiant.setLangue(langue);
                 etudiant.setEmail(email);
+                etudiant.setTitreProjet(titre);
                 etudiant.setEncadrant(null); // affecté via module Affectation
 
                 etudiantRepository.save(etudiant);

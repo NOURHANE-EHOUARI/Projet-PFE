@@ -92,6 +92,10 @@ public class PlanificationService {
         cacheContraintes        = contrainteRepository.findAll().stream()
             .collect(Collectors.groupingBy(c -> c.getProfesseur().getId()));
         cacheChargeJury = new HashMap<>();
+        etudiantRepository.findAll().stream()
+        .filter(e -> e.getEncadrant() != null)
+        .forEach(e -> cacheChargeJury.merge(e.getEncadrant().getId(), 1L, Long::sum));
+
 
         List<Etudiant>   etudiants   = etudiantRepository.findAll();
         List<Professeur> professeurs = professeurRepository.findAll();
@@ -461,24 +465,49 @@ public class PlanificationService {
                 .orElse(null);
 
             if (profAnglais != null) {
-                // ✅ Trouver jury2 : le candidat avec la charge min ≠ profAnglais
-                Professeur jury2 = candidats.stream()
+                // jury2 = premier prof de la même spécialité (≠ profAnglais)
+                Professeur profSpec = candidats.stream()
                     .filter(p -> !p.getId().equals(profAnglais.getId()))
-                    .findFirst()
-                    .orElse(null);
+                    .filter(p -> estSpecialiteFiliere(p, filiere))
+                    .findFirst().orElse(null);
 
-                if (jury2 != null) {
-                    return new ListeJury(encadrant, jury2, profAnglais);
+                if (profSpec != null) {
+                    return new ListeJury(encadrant, profSpec, profAnglais);
                 }
-            }
 
-            // ⚠️ Aucun anglophone dispo → prendre les 2 premiers candidats
+                // Mode dégradé : pas de prof spécialité dispo → n'importe qui
+                Professeur autre = candidats.stream()
+                    .filter(p -> !p.getId().equals(profAnglais.getId()))
+                    .findFirst().orElse(null);
+                if (autre != null) {
+                    System.out.printf("  ⚠️  Mode dégradé EN : pas de prof spécialité %s dispo%n", filiere);
+                    return new ListeJury(encadrant, autre, profAnglais);
+                }
+                return null;
+            }
+            //  Aucun anglophone dispo → prendre les 2 premiers candidats
             System.out.printf("  ⚠️  Aucun prof anglophone dispo à %s — jury sans anglophone%n", heure);
             return new ListeJury(encadrant, candidats.get(0), candidats.get(1));
 
         } else {
-            // ── SOUTENANCE FR ──────────────────────────────────────────────
-            // Prendre les 2 candidats avec la charge la plus faible
+            // ── SOUTENANCE FR ──
+            // jury2 = premier prof de la même spécialité
+            Professeur profSpec = candidats.stream()
+                .filter(p -> estSpecialiteFiliere(p, filiere))
+                .findFirst().orElse(null);
+
+            if (profSpec != null) {
+                // jury3 = n'importe qui d'autre (charge minimale)
+                Professeur autre = candidats.stream()
+                    .filter(p -> !p.getId().equals(profSpec.getId()))
+                    .findFirst().orElse(null);
+                if (autre != null) {
+                    return new ListeJury(encadrant, profSpec, autre);
+                }
+            }
+
+            // Mode dégradé : pas de prof spécialité dispo → 2 premiers par charge
+            System.out.printf("  ⚠️  Mode dégradé FR : pas de prof spécialité %s dispo%n", filiere);
             return new ListeJury(encadrant, candidats.get(0), candidats.get(1));
         }
     }
