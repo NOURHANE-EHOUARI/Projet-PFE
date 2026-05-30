@@ -252,25 +252,72 @@
         }
         .btn-del:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
 
-        /* BUTTONS */
+        /* BUTTONS - ✅ COMPACT */
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
-            gap: 8px; padding: 12px 24px; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
+            gap: 6px; padding: 8px 16px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
             border: none; transition: all 0.18s ease; text-decoration: none;
             letter-spacing: -0.01em;
         }
-        .btn .bi { font-size: 1rem; }
+        .btn .bi { font-size: 0.9rem; }
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), #4f46e5);
-            color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+            color: #fff; box-shadow: 0 3px 12px rgba(99,102,241,0.25);
         }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(99,102,241,0.35); }
         .btn:active { transform: translateY(0); }
 
-        /* EMPTY STATE */
-        .empty-state { text-align: center; padding: 56px 24px; color: var(--t2); }
-        .empty-state .bi { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; display: block; }
+        /* EMPTY STATE - ✅ STYLE IDENTIQUE À ÉTUDIANTS */
+        .empty-state { 
+            text-align: center; 
+            padding: 64px 24px; 
+            color: var(--t2);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .empty-state .es-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .empty-state .es-icon-wrap .bi {
+            font-size: 28px;
+            color: var(--t2);
+            opacity: 0.6;
+        }
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--t0);
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            font-size: 13px;
+            color: var(--t2);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .empty-link {
+            color: var(--accent2);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .empty-link:hover {
+            color: var(--accent3);
+            text-decoration: underline;
+        }
 
         /* FOOTER */
         footer {
@@ -301,6 +348,7 @@
             .filters { flex-direction: column; align-items: flex-start; }
             .actions { flex-direction: column; }
             .btn-icon { width: 100%; justify-content: center; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
@@ -315,7 +363,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <!-- ✅ SUPPRIMÉ : Lien Import -->
             <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}" class="nav-link active"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -333,8 +381,9 @@
                 <h1><i class="bi bi-person-badge icon-md"></i>Professeurs</h1>
                 <p class="subtitle">Gestion du corps enseignant : encadrants &amp; jurys.</p>
             </div>
+            <!-- ✅ BOUTON COMPACT -->
             <a th:href="@{/professeurs/nouveau}" class="btn btn-primary">
-                <i class="bi bi-plus-lg icon-sm"></i>Nouveau professeur
+                <i class="bi bi-plus-lg"></i>Nouveau
             </a>
         </div>
     </div>
@@ -454,11 +503,15 @@
                     </tr>
                     <tr th:if="${#lists.isEmpty(professeurs)}">
                         <td colspan="7">
+                            <!-- ✅ EMPTY STATE - STYLE IDENTIQUE À ÉTUDIANTS -->
                             <div class="empty-state">
-                                <i class="bi bi-person-badge"></i>
-                                <p class="mb-3">Aucun professeur trouvé.</p>
-                                <a th:href="@{/professeurs/nouveau}" class="btn btn-primary">
-                                    <i class="bi bi-plus-lg icon-sm"></i>Ajouter un professeur
+                                <div class="es-icon-wrap">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <h3>Aucun professeur trouvé</h3>
+                                <p>La liste est vide. Importez un fichier Excel ou ajoutez un professeur manuellement.</p>
+                                <a th:href="@{/professeurs/nouveau}" class="empty-link">
+                                    Ajouter le premier professeur
                                 </a>
                             </div>
                         </td>
@@ -469,7 +522,6 @@
     </div>
 
 </div>
-
 
 </body>
 </html>

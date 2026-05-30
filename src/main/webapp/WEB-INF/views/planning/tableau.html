@@ -231,7 +231,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}"                    class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <a href="#importSection"             class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <!-- ✅ SUPPRIMÉ : Lien Import -->
             <a th:href="@{/etudiants}"           class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}"         class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}"              class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -295,10 +295,13 @@
         </div>
     </div>
 
+    <!-- ✅ Message de succès -->
     <div th:if="${successPlanning}" class="alert alert-success anim">
         <i class="bi bi-check-circle"></i>
         <span th:text="${successPlanning}"></span>
     </div>
+
+    <!-- ✅ Message d'erreur (Cas 1, 2, 3) - th:utext pour afficher les liens HTML -->
     <div th:if="${erreurPlanning}" class="alert alert-error anim">
         <i class="bi bi-exclamation-triangle"></i>
         <span th:utext="${erreurPlanning}"></span>
@@ -619,6 +622,41 @@ function applyFilters() {
     });
     searchCount.textContent = (searchQuery || currentFilter !== 'all')
         ? visible + ' résultat(s)' : '';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ✅ VALIDATION CAS 1 : Bloquer si aucune date sélectionnée
+// ════════════════════════════════════════════════════════════════════
+const planningForm = document.getElementById('planningForm');
+if (planningForm) {
+    planningForm.addEventListener('submit', function(e) {
+        const datesValue = document.getElementById('selectedDatesInput')?.value?.trim();
+        
+        // Si aucune date sélectionnée → bloquer et afficher alerte
+        if (!datesValue) {
+            e.preventDefault(); // Bloque la soumission
+            
+            // Crée une alerte temporaire style Bootstrap
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-error anim';
+            alert.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;min-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle" style="margin-right:8px;"></i>
+                <strong>Veuillez choisir au moins une date.</strong>
+            `;
+            document.body.appendChild(alert);
+            
+            // Auto-dismiss après 4 secondes avec animation
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => alert.remove(), 300);
+            }, 4000);
+            
+            return false;
+        }
+        return true;
+    });
 }
 </script>
 

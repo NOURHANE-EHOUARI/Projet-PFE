@@ -140,19 +140,19 @@
 <div class="wrap">
 
     <!-- NAV -->
-        <nav class="a0">
+    <nav class="a0">
         <a th:href="@{/}" class="logo">
             <div class="logo-icon"><i class="bi bi-clipboard-check"></i></div>
             PFE <span>Planning</span>
         </a>
         <div class="nav-links">
             <a th:href="@{/}"                   class="nav-link"><i class="bi bi-house-door"></i>Accueil</a>
-            <a th:href="@{/import}"             class="nav-link"><i class="bi bi-cloud-upload"></i>Import</a>
+            <!-- ✅ SUPPRIMÉ : Lien Import -->
             <a th:href="@{/etudiants}"          class="nav-link"><i class="bi bi-mortarboard"></i>Etudiants</a>
             <a th:href="@{/professeurs}"        class="nav-link"><i class="bi bi-person-badge"></i>Professeurs</a>
             <a th:href="@{/salles}"             class="nav-link"><i class="bi bi-door-open"></i>Salles</a>
-            <a th:href="@{/go/affectation}"     class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
-            <a th:href="@{/go/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
+            <a th:href="@{/affectation}"     class="nav-link"><i class="bi bi-diagram-3"></i>Affectation</a>
+            <a th:href="@{/planning}"        class="nav-link"><i class="bi bi-calendar-week"></i>Planning</a>
             <a th:href="@{/planning/calendrier}" class="nav-link"><i class="bi bi-calendar3"></i>Calendrier</a>
             <a th:href="@{/export}"             class="nav-link nav-export active"><i class="bi bi-download"></i>Export</a>
         </div>
@@ -160,7 +160,8 @@
 
     <!-- PAGE HEADER -->
     <div class="page-header a1">
-        <a href="/pfe-planning/" class="back-link">← Retour au tableau de bord</a>
+        <!-- ✅ CORRECTION : Lien retour avec Thymeleaf -->
+        <a th:href="@{/}" class="back-link">← Retour au tableau de bord</a>
         <h1>Centre d'export</h1>
         <p>Choisissez le format et le contenu à exporter. Tous les exports sont générés à partir du planning actif.</p>
     </div>
@@ -187,29 +188,21 @@
             <div class="status-dot dot-amber"></div>
             <span class="status-lbl" style="color:var(--amber2);">
                 Planning non généré —
-                <a href="/pfe-planning/go/planning" style="color:var(--accent2);text-decoration:none;">Générer maintenant</a>
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf vers /affectation -->
+                <a th:href="@{/planning}" style="color:var(--accent2);text-decoration:none;">Générer maintenant</a>
             </span>
         </div>
     </div>
 
-    <!-- SECTION PLANNING -->
-    <div class="sec a2">Planning complet</div>
-
-    <!-- MESSAGE SI PAS DE PLANNING -->
-    <div th:unless="${planningGenere}" style="margin-bottom:32px;">
-        <div class="no-planning" style="background:var(--card);border:1px solid var(--border);border-radius:16px;">
-            <div class="icon">⚠️</div>
-            <p>Aucun planning n'a encore été généré.<br>
-               <a href="/pfe-planning/go/planning">Générez le planning</a> avant de pouvoir exporter.</p>
-        </div>
-    </div>
+    <!-- ✅ SECTION PLANNING SUPPRIMÉE -->
 
     <div class="export-grid a2">
 
         <!-- EXCEL -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                    <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
                 <div class="exp-format-badge badge-xlsx">XLSX</div>
@@ -223,7 +216,8 @@
                     <li>Feuille 3  Répartition par professeur</li>
                     <li>Tri automatique par date et heure</li>
                 </ul>
-                <a href="/pfe-planning/export/excel" class="exp-btn btn-green">
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/excel}" class="exp-btn btn-green">
                     Télécharger Excel →
                 </a>
             </div>
@@ -232,7 +226,8 @@
         <!-- PDF PLANNING -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                    <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
                 <div class="exp-format-badge badge-pdf">PDF</div>
@@ -246,7 +241,8 @@
                     <li>Tableau avec alternance de couleurs</li>
                     <li>Indicateur langue FR / EN</li>
                 </ul>
-                <a href="/pfe-planning/export/pdf" class="exp-btn btn-red">
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/pdf}" class="exp-btn btn-red">
                     Télécharger PDF →
                 </a>
             </div>
@@ -255,7 +251,8 @@
         <!-- PVs PDF -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                    <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
                 <div class="exp-format-badge badge-zip">ZIP + PDF</div>
@@ -269,7 +266,8 @@
                     <li>Dossiers organisés par encadrant</li>
                     <li>Filière cochée automatiquement</li>
                 </ul>
-                <a href="/pfe-planning/export/pvs" class="exp-btn btn-indigo">
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/pvs}" class="exp-btn btn-indigo">
                     Télécharger PVs PDF →
                 </a>
             </div>
@@ -278,7 +276,8 @@
         <!-- PVs DOCX -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                    <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
                 <div class="exp-format-badge badge-docx">ZIP + DOCX</div>
@@ -292,7 +291,8 @@
                     <li>Un fichier .docx par étudiant</li>
                     <li>Organisé par encadrant</li>
                 </ul>
-                <a href="/pfe-planning/export/pvs/docx" class="exp-btn btn-blue">
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/pvs/docx}" class="exp-btn btn-blue">
                     Télécharger PVs Word →
                 </a>
             </div>
@@ -311,7 +311,8 @@
                     <li>Excel + PDF + PVs par version</li>
                     <li>Comparaison entre générations</li>
                 </ul>
-                <a href="/pfe-planning/export/versions" class="exp-btn btn-amber">
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/versions}" class="exp-btn btn-amber">
                     Voir l'historique →
                 </a>
             </div>
@@ -320,7 +321,8 @@
         <!-- SAUVEGARDER VERSION -->
         <div class="exp-card" th:classappend="${!planningGenere} ? ' disabled' : ''">
             <div th:unless="${planningGenere}" class="locked-overlay">
-                <div class="locked-text">Planning non généré<br><a href="/pfe-planning/go/planning">Générer d'abord</a></div>
+                <div class="locked-text">Planning non généré<br><!-- ✅ CORRECTION -->
+                    <a th:href="@{/affectation}">Générer d'abord</a></div>
             </div>
             <div class="exp-card-top">
                 <div class="exp-format-badge" style="background:rgba(99,102,241,0.1);color:var(--accent2);border:1px solid rgba(99,102,241,0.18);">SNAPSHOT</div>
@@ -334,7 +336,8 @@
                     <li>Accès via l'historique</li>
                     <li>Permet de comparer les versions</li>
                 </ul>
-                <a href="/pfe-planning/export/sauvegarder" class="exp-btn"
+                <!-- ✅ CORRECTION : Lien avec Thymeleaf -->
+                <a th:href="@{/export/sauvegarder}" class="exp-btn"
                    style="background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;box-shadow:0 3px 12px rgba(99,102,241,0.25);">
                     Sauvegarder maintenant →
                 </a>
@@ -352,11 +355,12 @@
         </div>
         <div class="versions-body">
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-                <a href="/pfe-planning/export/sauvegarder" class="save-btn"
+                <!-- ✅ CORRECTION : Liens avec Thymeleaf -->
+                <a th:href="@{/export/sauvegarder}" class="save-btn"
                    th:if="${planningGenere}">
                      Créer une nouvelle version
                 </a>
-                <a href="/pfe-planning/export/versions" class="save-btn"
+                <a th:href="@{/export/versions}" class="save-btn"
                    style="color:var(--accent2);background:rgba(99,102,241,0.06);border-color:rgba(99,102,241,0.18);">
                      Voir toutes les versions
                 </a>

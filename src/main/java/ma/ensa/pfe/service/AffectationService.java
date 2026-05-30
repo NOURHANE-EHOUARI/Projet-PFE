@@ -53,7 +53,7 @@ public class AffectationService {
 
         List<Professeur> tousProfs = professeurRepository.findAll();
         if (tousProfs.isEmpty()) {
-            result.addErreur("Aucun professeur en base. <a href='/pfe-planning/import' "
+            result.addErreur("Aucun professeur en base. <a href='/pfe-planning/#importSection' "
                     + "style='color:#fbbf24;text-decoration:underline;font-weight:600;'>"
                     + "Importez</a> d'abord le fichier Excel.");
             return result;

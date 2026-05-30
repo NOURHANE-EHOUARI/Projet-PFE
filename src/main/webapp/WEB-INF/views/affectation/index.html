@@ -284,7 +284,7 @@
         </a>
         <div class="nav-links">
             <a th:href="@{/}" class="nav-link"><i class="bi bi-house-door icon-sm"></i>Accueil</a>
-            <a th:href="@{/import}" class="nav-link"><i class="bi bi-cloud-upload icon-sm"></i>Import</a>
+            <!-- ✅ SUPPRIMÉ : Lien Import -->
             <a th:href="@{/etudiants}" class="nav-link"><i class="bi bi-mortarboard icon-sm"></i>Étudiants</a>
             <a th:href="@{/professeurs}" class="nav-link"><i class="bi bi-person-badge icon-sm"></i>Professeurs</a>
             <a th:href="@{/salles}" class="nav-link"><i class="bi bi-door-open icon-sm"></i>Salles</a>
@@ -382,52 +382,52 @@
 
                 <!-- Bouton Passer au Planning -->
                 <div th:if="${nbSansEncadrant == 0 and chargeEncadrants != null and !chargeEncadrants.isEmpty()}"
-     class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
+                     class="mt-4 pt-4" style="border-top: 1px solid var(--border);">
 
-    <p style="color:#4ade80;font-weight:600;margin-bottom:16px;">
-        <i class="bi bi-check-circle-fill"></i> Tous les étudiants ont un encadrant !
-    </p>
+                    <p style="color:#4ade80;font-weight:600;margin-bottom:16px;">
+                        <i class="bi bi-check-circle-fill"></i> Tous les étudiants ont un encadrant !
+                    </p>
 
-    <form th:action="@{/planning/generer}" method="post" id="planningForm">
+                    <form th:action="@{/planning/generer}" method="post" id="planningForm">
 
-        <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:8px;">
-            <i class="bi bi-calendar3" style="color:var(--accent2);margin-right:6px;"></i>
-            Jours de soutenance
-        </div>
-        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">
-            Sélectionnez jusqu'à 3 jours (Lun–Ven, pas de dates passées).
-        </div>
+                        <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:8px;">
+                            <i class="bi bi-calendar3" style="color:var(--accent2);margin-right:6px;"></i>
+                            Jours de soutenance
+                        </div>
+                        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;">
+                            Sélectionnez jusqu'à 3 jours (Lun–Ven, pas de dates passées).
+                        </div>
 
-        <!-- ✅ Flatpickr — même style que tableau.html -->
-        <input type="hidden" name="jours" id="selectedDatesAff">
-        <input type="text" id="datePickerAff"
-               placeholder="Cliquez pour choisir les dates..."
-               readonly
-               style="width:100%;padding:11px 14px;
-                      background:var(--bg3);border:1px solid var(--border);
-                      color:var(--t0);border-radius:10px;font-size:13px;
-                      font-family:'Inter',sans-serif;cursor:pointer;
-                      transition:border-color 0.2s;margin-bottom:10px;"/>
+                        <!-- ✅ Flatpickr — même style que tableau.html -->
+                        <input type="hidden" name="jours" id="selectedDatesAff">
+                        <input type="text" id="datePickerAff"
+                               placeholder="Cliquez pour choisir les dates..."
+                               readonly
+                               style="width:100%;padding:11px 14px;
+                                      background:var(--bg3);border:1px solid var(--border);
+                                      color:var(--t0);border-radius:10px;font-size:13px;
+                                      font-family:'Inter',sans-serif;cursor:pointer;
+                                      transition:border-color 0.2s;margin-bottom:10px;"/>
 
-        <!-- Feedback -->
-        <div id="affFeedbackOk"
-             style="display:none;font-size:12px;color:#4ade80;margin-bottom:10px;">
-            <i class="bi bi-check-circle"></i>
-            <span id="affCount">0</span>/3 jours sélectionnés.
-        </div>
-        <div id="affFeedbackErr"
-             style="display:none;font-size:12px;color:#f87171;margin-bottom:10px;">
-            <i class="bi bi-exclamation-circle"></i> Maximum 3 jours autorisés.
-        </div>
+                        <!-- Feedback -->
+                        <div id="affFeedbackOk"
+                             style="display:none;font-size:12px;color:#4ade80;margin-bottom:10px;">
+                            <i class="bi bi-check-circle"></i>
+                            <span id="affCount">0</span>/3 jours sélectionnés.
+                        </div>
+                        <div id="affFeedbackErr"
+                             style="display:none;font-size:12px;color:#f87171;margin-bottom:10px;">
+                            <i class="bi bi-exclamation-circle"></i> Maximum 3 jours autorisés.
+                        </div>
 
-        <button type="submit" class="btn btn-success"
-                id="btnGenerateAff" disabled
-                style="width:100%;margin-top:4px;">
-            <i class="bi bi-calendar-week"></i> Générer le Planning
-        </button>
+                        <button type="submit" class="btn btn-success"
+                                id="btnGenerateAff" disabled
+                                style="width:100%;margin-top:4px;">
+                            <i class="bi bi-calendar-week"></i> Générer le Planning
+                        </button>
 
-    </form>
-</div>
+                    </form>
+                </div>
             </div>
         </div>
 

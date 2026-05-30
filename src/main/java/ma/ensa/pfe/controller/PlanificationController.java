@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import jakarta.servlet.http.HttpSession;
 import java.time.format.DateTimeFormatter;
+
 import ma.ensa.pfe.dao.EtudiantRepository;
 import ma.ensa.pfe.dao.SoutenanceRepository;
 import ma.ensa.pfe.dao.VersionPlanningRepository;
@@ -106,9 +109,11 @@ public class PlanificationController {
 
     /**
      * Génère le planning complet (jury + dates + heures + salles).
-     * Pré-requis : 
-     * 1. Des étudiants doivent exister en base → sinon redirect /import
-     * 2. Tous les étudiants doivent avoir un encadrant → sinon redirect /affectation
+     * 
+     * Gestion des 3 cas :
+     * 1️⃣ Pas de dates sélectionnées → alerte + reste sur /planning
+     * 2️⃣ Dates choisies mais affectation non faite → redirect /affectation
+     * 3️⃣ Pas d'import fait (pas d'étudiants) → redirect /#importSection
      *
      * @param joursStr dates séparées par virgule ex: "2026-05-20,2026-05-21"
      */
@@ -118,27 +123,33 @@ public class PlanificationController {
             HttpSession session,
             RedirectAttributes redirectAttrs) {
 
-        //  VALIDATION 1 : Vérifier si des étudiants existent en base
+        // ════════════════════════════════════════════════════════════════
+        // ✅ CAS 3 : Vérifier si des étudiants existent en base (import fait)
+        // ════════════════════════════════════════════════════════════════
         long nbEtudiants = etudiantRepository.count();
         if (nbEtudiants == 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
-                    "Aucun étudiant en base. <a href='/import' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
-            return "redirect:/import";
+                    "Aucun étudiant en base. <a href='/' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>Importez</a> d'abord le fichier Excel.");
+            return "redirect:/#importSection"; // ✅ Redirige vers section import de l'accueil
         }
 
-        //  VALIDATION 2 : Vérifier si tous les étudiants ont un encadrant
+        // ════════════════════════════════════════════════════════════════
+        // ✅ CAS 2 : Vérifier si tous les étudiants ont un encadrant
+        // ════════════════════════════════════════════════════════════════
         long nbSansEncadrant = etudiantRepository.countByEncadrantIsNull();
         if (nbSansEncadrant > 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     nbSansEncadrant + " étudiant(s) sans encadrant. Veuillez d'abord <a href='/affectation' style='color:#fbbf24;text-decoration:underline;font-weight:600;'>affecter les encadrants</a>.");
-            return "redirect:/affectation";
+            return "redirect:/affectation"; // ✅ Redirige vers page affectation
         }
 
-        //  VALIDATION 3 : Vérifier que des dates sont sélectionnées
+        // ════════════════════════════════════════════════════════════════
+        // ✅ CAS 1 : Vérifier que des dates sont sélectionnées
+        // ════════════════════════════════════════════════════════════════
         if (joursStr == null || joursStr.isBlank()) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
                     "Veuillez sélectionner au moins un jour de soutenance.");
-            return "redirect:/affectation";
+            return "redirect:/planning"; // ✅ Reste sur la page planning (pas de redirection vers affectation)
         }
 
         try {
@@ -151,12 +162,15 @@ public class PlanificationController {
             if (jours.size() > 3) {
                 redirectAttrs.addFlashAttribute("erreurPlanning",
                         "Maximum 3 jours de soutenance autorisés.");
-                return "redirect:/affectation";
+                return "redirect:/planning"; // ✅ Reste sur planning en cas d'erreur
             }
-         // Sauvegarder les dates en session pour la régénération
+            
+            // Sauvegarder les dates en session pour la régénération
             session.setAttribute("derniersJours", joursStr);
 
-            // TOUT EST BON → Générer le planning
+            // ════════════════════════════════════════════════════════════════
+            // ✅ TOUT EST BON → Générer le planning (ta logique existante)
+            // ════════════════════════════════════════════════════════════════
             String resultat = planificationService.genererPlanningComplet(jours);
             redirectAttrs.addFlashAttribute("successPlanning",
                     "Planning généré avec succès : " + resultat);
@@ -181,7 +195,7 @@ public class PlanificationController {
             HttpSession session,
             RedirectAttributes redirectAttrs) {
 
-        //  Garder tes validations existantes
+        // ✅ Garder tes validations existantes
         long nbEtudiants = etudiantRepository.count();
         if (nbEtudiants == 0) {
             redirectAttrs.addFlashAttribute("erreurPlanning",
@@ -196,7 +210,7 @@ public class PlanificationController {
             return "redirect:/affectation";
         }
 
-        //  Récupérer les dates depuis la SESSION (pas la DB)
+        // ✅ Récupérer les dates depuis la SESSION (pas la DB)
         String joursStr = (String) session.getAttribute("derniersJours");
 
         if (joursStr == null || joursStr.isBlank()) {
@@ -247,7 +261,7 @@ public class PlanificationController {
             model.addAttribute("soutenances", new ArrayList<>());
         }
 
-        //  Même logique que afficherPlanning()
+        // ✅ Même logique que afficherPlanning()
         String derniersJours = (String) session.getAttribute("derniersJours");
         model.addAttribute("derniersJours", derniersJours);
         if (derniersJours != null && !derniersJours.isBlank()) {
