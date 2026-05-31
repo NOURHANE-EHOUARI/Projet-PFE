@@ -1,4 +1,6 @@
 # PFE Planning — Application Web Spring MVC
+## Stack Technologique
+lien du Video Demo :    https://drive.google.com/file/d/1SVkMcKrq56maW7mjbHqubfOnMzdLLpcH/view?usp=sharing
 
 Application web de planification automatique des soutenances de Projets de Fin d'Études (PFE) — ENSA Al Hoceima 2024/2025.
 
